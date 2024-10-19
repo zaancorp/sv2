@@ -108,10 +108,10 @@ class estado(pantalla.Pantalla):
         """
         Verifica si se realizaron cambios en la configuración. Carga los valores iniciales de esta pantalla.
         """
-        if self.parent.config.texto_cambio == True:
+        if self.parent.config.is_text_change_enabled():
             self.load_buttons(buttons)
             self.cargar_textos()
-            self.parent.config.texto_cambio = False
+            self.parent.config.set_text_change_enabled(False)
         self.grupo_banner.add(self.banner_partes, self.banner_inf)
         self.grupo_anim.add(self.animation_4)
         self.grupo_botones.add(self.config, self.volver, self.sig, self.home)
@@ -122,7 +122,7 @@ class estado(pantalla.Pantalla):
         if self.anim_actual == 0:
             self.anim_actual = 1
         self.spserver.processtext(
-            "Pantalla: Partes de una planta", self.parent.config.activar_lector
+            "Pantalla: Partes de una planta", self.parent.config.is_screen_reader_enabled()
         )
         self.reproducir_animacion(self.anim_actual)
 
@@ -181,7 +181,7 @@ class estado(pantalla.Pantalla):
                             self.deteccion_movimiento = False
                             self.spserver.processtext(
                                 self.parent.text_content["concepts"][self.x.codigo],
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
 
             if pygame.sprite.spritecollideany(self.raton, self.grupo_palabras):
@@ -232,7 +232,7 @@ class estado(pantalla.Pantalla):
         self.raton.update()
         self.obj_magno.magnificar(self.parent.screen)
         self.grupo_botones.update(self.grupo_tooltip)
-        if self.anim_actual == 1 and not self.parent.config.activar_lector:
+        if self.anim_actual == 1 and not self.parent.config.is_screen_reader_enabled():
             if not self.tiempo < 1000:
                 self.grupo_fondotexto.add(self.caja_texto)
                 self.grupo_palabras.add(self.texto4_2.img_palabras)
@@ -257,17 +257,17 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.remove(self.animation_4_1)
             self.grupo_palabras.empty()
 
-            if self.parent.config.activar_lector:
+            if self.parent.config.is_screen_reader_enabled():
                 if self.entrada_primera_vez:
                     self.spserver.processtext2(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
                 else:
                     self.spserver.processtext(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                 self.grupo_fondotexto.add(self.caja_texto)
                 self.grupo_palabras.add(self.texto4_2.img_palabras)
@@ -288,7 +288,7 @@ class estado(pantalla.Pantalla):
             self.animation_4_1.continuar()
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_1"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         # Explicacion
@@ -304,7 +304,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_3"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         # Anim
@@ -320,7 +320,7 @@ class estado(pantalla.Pantalla):
             self.animation_4_2.continuar()
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_2"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         # Explicacion
@@ -336,7 +336,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_4"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         # Anim
@@ -352,7 +352,7 @@ class estado(pantalla.Pantalla):
             self.animation_4_3.continuar()
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_3"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         # Explicacion
@@ -369,7 +369,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_5"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         if animacion == 8:
@@ -386,7 +386,7 @@ class estado(pantalla.Pantalla):
             self.grupo_botones.remove(self.sig)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_4"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
     def ir_glosario(self):

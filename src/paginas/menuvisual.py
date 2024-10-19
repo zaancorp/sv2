@@ -166,7 +166,7 @@ class estado(pantalla.Pantalla):
             elif self.parent.config.get_font_size() == 22:
                 self.grupo_botones.add(self.tam18, self.tam20, self.tam22_sel)
 
-            if self.parent.config.activar_lector == True:
+            if self.parent.config.set_screen_reader_enabled(True):
                 self.grupo_botones.add(self.lector_si, self.oflector)
                 self.grupo_palabras.add(
                     self.acc3_5.img_palabras, self.acc3_6.img_palabras
@@ -213,7 +213,7 @@ class estado(pantalla.Pantalla):
                 self.grupo_palabras.add(
                     self.acc3_5.img_palabras, self.acc3_6.img_palabras
                 )
-                self.parent.config.activar_lector = True
+                self.parent.config.set_screen_reader_enabled(True)
                 self.spserver.processtext(self.pregunta2, True)
                 self.opcion += 1
 
@@ -234,7 +234,7 @@ class estado(pantalla.Pantalla):
                     self.acc3_5.img_palabras, self.acc3_6.img_palabras
                 )
                 self.grupo_botones.add(self.lector, self.oflector_si, self.guardar)
-                self.parent.config.activar_lector = False
+                self.parent.config.set_screen_reader_enabled(False)
                 self.spserver.processtext(
                     "Has configurado el lector de pantalla exitosamente, presiona enter para continuar. ",
                     True,
@@ -294,7 +294,7 @@ class estado(pantalla.Pantalla):
                     self.parent.config.get_font_size()
                     != self.parent.config.preferencias["t_fuente"]
                 ):
-                    self.parent.config.texto_cambio = True
+                    self.parent.set_text_change_enabled(True)
                 self.parent.config.guardar_preferencias()
                 self.spserver.actualizar_servidor()
                 self.limpiar_grupos()
@@ -407,7 +407,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.add(
                             self.lector, self.oflector_si, self.guardar
                         )
-                        self.parent.config.activar_lector = False
+                        self.parent.config.set_screen_reader_enabled(False)
 
                     elif sprite[0].id == "lector":
                         self.grupo_botones.remove(
@@ -443,7 +443,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.add(
                             self.acc3_5.img_palabras, self.acc3_6.img_palabras
                         )
-                        self.parent.config.activar_lector = True
+                        self.parent.config.set_screen_reader_enabled(True)
 
                     elif sprite[0].id == "vbaja":
                         self.grupo_botones.remove(
@@ -493,7 +493,7 @@ class estado(pantalla.Pantalla):
                             self.parent.config.get_font_size()
                             != self.parent.config.preferencias["t_fuente"]
                         ):
-                            self.parent.config.texto_cambio = True
+                            self.parent.set_text_change_enabled(True)
                         self.parent.config.guardar_preferencias()
                         self.spserver.actualizar_servidor()
                         self.limpiar_grupos()

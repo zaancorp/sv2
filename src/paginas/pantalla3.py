@@ -68,10 +68,10 @@ class estado(pantalla.Pantalla):
         """
         Verifica si se realizaron cambios en la configuración. Carga los valores iniciales de esta pantalla.
         """
-        if self.parent.config.texto_cambio == True:
+        if self.parent.config.is_text_change_enabled():
             self.cargar_textos()
             self.load_buttons(buttons)
-            self.parent.config.texto_cambio = False
+            self.parent.config.set_text_change_enabled(False)
         self.grupo_anim.add(self.animation_3)
         self.grupo_banner.add(self.banner_plantas, self.banner_inf)
         self.grupo_botones.add(self.config, self.sig, self.home)
@@ -82,9 +82,9 @@ class estado(pantalla.Pantalla):
         self.spserver.stopserver()
         self.entrada_primera_vez = True
         self.spserver.processtext(
-            "Pantalla: Las Plantas", self.parent.config.activar_lector
+            "Pantalla: Las Plantas", self.parent.config.is_screen_reader_enabled()
         )
-        if self.parent.config.activar_lector:
+        if self.parent.config.is_screen_reader_enabled():
             self.reproducir_animacion(self.anim_actual)
 
     def handleEvents(self, events):
@@ -131,14 +131,14 @@ class estado(pantalla.Pantalla):
                         elif self.x.tipo_objeto == "palabra":
                             self.spserver.processtext(
                                 self.parent.text_content["concepts"][self.x.codigo],
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
                         self.deteccion_movimiento = False
 
                 elif event.key == pygame.K_SPACE:
                     self.spserver.processtext(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
 
             if pygame.sprite.spritecollideany(self.raton, self.grupo_palabras):
@@ -187,17 +187,17 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto3_2.img_palabras
             self.chequeo_palabra(self.txt_actual)
 
-            if self.parent.config.activar_lector:
+            if self.parent.config.is_screen_reader_enabled():
                 if self.entrada_primera_vez:
                     self.spserver.processtext2(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
                 else:
                     self.spserver.processtext(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                 self.animation_3.continuar()
                 self.grupo_fondotexto.add(self.caja_texto)
@@ -225,7 +225,7 @@ class estado(pantalla.Pantalla):
         self.raton.update()
         self.obj_magno.magnificar(self.parent.screen)
         self.grupo_botones.update(self.grupo_tooltip)
-        if not self.parent.config.activar_lector:
+        if not self.parent.config.is_screen_reader_enabled():
             if not self.tiempo < 1000:
                 self.animation_3.continuar()
                 self.grupo_fondotexto.add(self.caja_texto)

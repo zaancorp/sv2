@@ -59,7 +59,7 @@ class estado(pantalla.Pantalla):
             self.popup_ins.agregar_grupo()
             self.spserver.processtext(
                 self.parent.text_content["popups"][self.name]["reader_1"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         else:
@@ -93,12 +93,12 @@ class estado(pantalla.Pantalla):
             self.cargar_textos()
             self.parent.config.set_preference("texto_cambio", False)
 
-        if self.parent.config.visit["p2"] == False:
-            self.parent.config.visit["p2"] = True
+        if self.parent.config.has_visited_screen("p2"):
+            self.parent.config.mark_screen_visited("p2")
             self.show_instructions()
         else:
             self.spserver.processtext(
-                "Menú del Recurso", self.parent.config.activar_lector
+                "Menú del Recurso", self.parent.config.is_screen_reader_enabled()
             )
 
         self.grupo_banner.add(self.banner_inf)

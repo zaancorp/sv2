@@ -17,5 +17,7 @@
     "visit": {
         "p0": false,
         "p2": false
-    }
+    },
+    "visited_screens": {},
+    "texto_cambio": false
 }

@@ -238,7 +238,7 @@ class estado(pantalla.Pantalla):
         self.popup_instruc.agregar_grupo()
         self.flores.detener()
         self.mostrar_ayuda()
-        if self.parent.config.activar_lector:
+        if self.parent.config.is_screen_reader_enabled():
             self.limites.add(limite((477, 365, 73, 20), 15))
 
     def nivel2(self):
@@ -306,7 +306,7 @@ class estado(pantalla.Pantalla):
         self.popup_instruc.agregar_grupo()
         self.grupo_botones.add(self.salir)
         self.flores.detener()
-        if self.parent.config.activar_lector:
+        if self.parent.config.is_screen_reader_enabled():
             self.limites.add(limite((483, 294, 72, 20), 24))  # Ladrillo invisible
             self.pista_sonidos()
 
@@ -317,7 +317,7 @@ class estado(pantalla.Pantalla):
         if self.ayuda == False:
             self.popup_ayuda.agregar_grupo()
             self.spserver.processtext(
-                self.preguntas.instruc[1], self.parent.config.activar_lector
+                self.preguntas.instruc[1], self.parent.config.is_screen_reader_enabled()
             )
             self.ayuda = True
         else:
@@ -334,7 +334,7 @@ class estado(pantalla.Pantalla):
                 self.spserver.processtext(
                     self.preguntas.dic_pistas[self.preguntas.valor][self.cache_click]
                     + "Pulsa Enter para continuar. ",
-                    self.parent.config.activar_lector,
+                    self.parent.config.is_screen_reader_enabled(),
                 )
 
     def pista_sonidos(self):
@@ -366,7 +366,7 @@ class estado(pantalla.Pantalla):
                 if not self.completado:
                     self.mostrar_ayuda()
 
-                if not self.explicar_sonidos and self.parent.config.activar_lector:
+                if not self.explicar_sonidos and self.parent.config.is_screen_reader_enabled():
                     self.popup_ayuda.eliminar_grupo()
                     self.draw()
                     self.pista_sonidos()
@@ -437,7 +437,7 @@ class estado(pantalla.Pantalla):
             self.granjero.update()
         self.detectar_colision()
         self.colision_marcador()
-        if self.parent.config.activar_lector:
+        if self.parent.config.is_screen_reader_enabled():
             self.actualizar_marcadores()
         self.contar()
         self.logica()
@@ -474,7 +474,7 @@ class estado(pantalla.Pantalla):
                     self.ayuda = True
                     self.spserver.processtext(
                         "Este sonido te indica que vas por el camino correcto. ",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
 
                 elif self.tiempo in range(6000, 6033):
@@ -483,7 +483,7 @@ class estado(pantalla.Pantalla):
                 elif self.tiempo in range(8000, 8033):
                     self.spserver.processtext(
                         "Este sonido te indica que has encontrado un obstáculo. ",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
 
                 elif self.tiempo in range(13000, 13033):
@@ -492,7 +492,7 @@ class estado(pantalla.Pantalla):
                 elif self.tiempo in range(14000, 14033):
                     self.spserver.processtext(
                         "Te encuentras en el primer nivel, muévete hacia la derecha para comenzar. ",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
 
             elif self.nivel_actual == 2:
@@ -513,7 +513,7 @@ class estado(pantalla.Pantalla):
                     self.spserver.processtext(
                         "Te encuentras en el nivel 2. Busca la carretilla "
                         "y luego recolecta los elementos necesarios para la siembra. ",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
 
     def logica(self):
@@ -525,11 +525,11 @@ class estado(pantalla.Pantalla):
         ):
             if not self.completado:
                 self.anim_fondo.add(self.flecha)
-                if self.parent.config.activar_lector and self.foobar:
+                if self.parent.config.is_screen_reader_enabled() and self.foobar:
                     self.ayuda = True
                     self.spserver.processtext(
                         "Has recolectado todos los elementos de este nivel, avanza hasta el sembradío para completar la siembra. ",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     if self.nivel_actual == 1:
                         self.granjero.relocate(460, 300)
@@ -537,7 +537,7 @@ class estado(pantalla.Pantalla):
                         self.granjero.relocate(460, 260)
                     self.foobar = False
 
-        if self.marker and self.parent.config.activar_lector:
+        if self.marker and self.parent.config.is_screen_reader_enabled():
             self.leer_marcador()
         else:
             self.leer_ubicacion = False
@@ -566,7 +566,7 @@ class estado(pantalla.Pantalla):
             self.popup_final1.agregar_grupo()
             self.spserver.processtext(
                 "¡Muy bien! Has finalizado el primer nivel. Pulsa Enter para continuar. ",
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         if (
@@ -597,7 +597,7 @@ class estado(pantalla.Pantalla):
             self.spserver.processtext(
                 "¡Excelente! Pulsa la tecla escape "
                 "o sobre el botón salir para ir al menú principal. ",
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
     def evaluar_respuesta(self, valor):
@@ -639,7 +639,7 @@ class estado(pantalla.Pantalla):
             self.spserver.processtext(
                 self.preguntas.dic_pistas[self.preguntas.valor][valor]
                 + "Pulsa Enter para continuar. ",
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.popup_respuesta.agregar_grupo()
         except:
@@ -767,12 +767,12 @@ class estado(pantalla.Pantalla):
             if self.nivel_actual == 1:
                 self.spserver.processtext(
                     self.preguntas.marcas_n1[self.marcador.id][self.det_msj_n1()],
-                    self.parent.config.activar_lector,
+                    self.parent.config.is_screen_reader_enabled(),
                 )
             elif self.nivel_actual == 2:
                 self.spserver.processtext(
                     self.preguntas.marcas_n2[self.marcador.id][self.det_msj_n2()],
-                    self.parent.config.activar_lector,
+                    self.parent.config.is_screen_reader_enabled(),
                 )
             self.leer_ubicacion = True
 
@@ -806,7 +806,7 @@ class estado(pantalla.Pantalla):
                 + ":"
                 + texto
             )
-        self.spserver.processtext(final, self.parent.config.activar_lector)
+        self.spserver.processtext(final, self.parent.config.is_screen_reader_enabled())
 
     def actualizar_pj(self):
         """

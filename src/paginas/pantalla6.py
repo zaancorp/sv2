@@ -55,90 +55,45 @@ class estado(pantalla.Pantalla):
         self.resume()
 
     def cargar_textos(self):
-        """
-        Carga los textos utilizados en esta pantalla.
-        """
-        self.texto6_2 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_2"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
-        self.texto6_3 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_3"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
-        self.texto6_4 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_4"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
-        self.texto7_2 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_5"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
-        self.texto7_3 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_6"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
-        self.texto7_4 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_7"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
-        self.texto7_5 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_8"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
-        self.texto7_6 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_9"],
-            self.parent.config.get_font_size(),
-            "normal",
-            992,
-            False,
-        )
+        content = self.parent.text_content["content"][self.name]
+        font_size = self.parent.config.get_font_size()
+        
+        text_config = {
+            "text_2": (32, 340),
+            "text_3": (32, 340),
+            "text_4": (32, 340),
+            "text_5": (32, 340),
+            "text_6": (32, 340),
+            "text_7": (32, 340),
+            "text_8": (32, 340),
+            "text_9": (32, 340),
+        }
+        
+        self.text_objects = {}
+        for key, (x, y) in text_config.items():
+            self.text_objects[key] = Text(
+                x, y, content[key],
+                font_size, "normal", 992, False
+            )
+
+        self.texto6_2, self.texto6_3, self.texto6_4 = [
+            self.text_objects[f"text_{i}"] for i in range(2, 5)
+        ]
+
+        self.texto7_2, self.texto7_3, self.texto7_4, self.texto7_5, self.texto7_6 = [
+            self.text_objects[f"text_{i}"] for i in range(5, 10)
+        ]
+        
+        self.img_palabras = [text.img_palabras for text in self.text_objects.values()]
 
     def resume(self):
         """
         Verifica si se realizaron cambios en la configuración. Carga los valores iniciales de esta pantalla.
         """
-        if self.parent.config.texto_cambio == True:
+        if self.parent.config.is_text_change_enabled():
             self.load_buttons(buttons)
             self.cargar_textos()
-            self.parent.config.texto_cambio = False
+            self.parent.config.set_text_change_enabled(False)
         self.grupo_anim.add(self.animation_6, self.animation_6_2)
         self.grupo_imagen.add(self.animation_6_2)
         self.grupo_banner.add(self.banner_repro, self.banner_inf)
@@ -206,7 +161,7 @@ class estado(pantalla.Pantalla):
                         elif self.x.tipo_objeto == "palabra":
                             self.spserver.processtext(
                                 self.parent.text_content["concepts"][self.x.codigo],
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
 
             if pygame.sprite.spritecollideany(self.raton, self.grupo_palabras):
@@ -256,17 +211,17 @@ class estado(pantalla.Pantalla):
             self.elemento_actual = -1
             self.grupo_anim.remove(self.animation_6_3)
 
-            if self.parent.config.activar_lector:
+            if self.parent.config.is_screen_reader_enabled():
                 if self.entrada_primera_vez:
                     self.spserver.processtext2(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
                 else:
                     self.spserver.processtext(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
 
                 self.grupo_anim.add(self.animation_6_2)
@@ -287,7 +242,7 @@ class estado(pantalla.Pantalla):
             self.animation_6.detener()
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_1"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         elif animacion == 3:
@@ -300,7 +255,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_3"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
 
@@ -315,7 +270,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_4"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
 
@@ -330,7 +285,7 @@ class estado(pantalla.Pantalla):
             self.animation_6.detener()
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_2"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         elif animacion == 6:
@@ -343,7 +298,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_5"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
 
@@ -356,7 +311,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_6"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
 
@@ -369,7 +324,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_7"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
 
@@ -383,7 +338,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_8"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
 
@@ -398,7 +353,7 @@ class estado(pantalla.Pantalla):
             self.animation_6.detener()
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_3"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         elif animacion == 11:
@@ -412,7 +367,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_9"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
 
@@ -428,7 +383,7 @@ class estado(pantalla.Pantalla):
             self.animation_6.detener()
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["anim_4"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
     def update(self):
@@ -440,7 +395,7 @@ class estado(pantalla.Pantalla):
         self.obj_magno.magnificar(self.parent.screen)
         self.grupo_botones.update(self.grupo_tooltip)
 
-        if self.anim_actual == 1 and not self.parent.config.activar_lector:
+        if self.anim_actual == 1 and not self.parent.config.is_screen_reader_enabled():
             if not self.tiempo < 1000:
                 self.grupo_anim.add(self.animation_6_2)
                 self.grupo_fondotexto.add(self.caja_texto)

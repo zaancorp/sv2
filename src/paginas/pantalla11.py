@@ -60,7 +60,7 @@ class estado(pantalla.Pantalla):
         self.spserver.processtext(
             "Pantalla: Orientaciones y Sugerencias: "
             "Pulsa sobre cada botón para que puedas explorar las orientaciones y sugerencias. ",
-            self.parent.config.activar_lector,
+            self.parent.config.is_screen_reader_enabled(),
         )
         self.texto11 = Text(
             400,
@@ -200,7 +200,7 @@ class estado(pantalla.Pantalla):
                                     "text_5_3l"
                                 ]
                                 + "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
 
                         elif self.x.id == "or-docentes":
@@ -232,7 +232,7 @@ class estado(pantalla.Pantalla):
                                     "text_6_3l"
                                 ]
                                 + "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
 
                         elif self.x.id == "or-padres":
@@ -264,7 +264,7 @@ class estado(pantalla.Pantalla):
                                     "text_7_3l"
                                 ]
                                 + "Fin de contenido, regresa al menú. ",
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
 
                         elif self.x.id == "puerta":

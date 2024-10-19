@@ -395,7 +395,7 @@ class estado(pantalla.Pantalla):
                             self.parent.config.get_font_size()
                             != self.parent.config.preferencias["t_fuente"]
                         ):
-                            self.parent.config.texto_cambio = True
+                            self.parent.set_text_change_enabled(True)
                         self.parent.config.guardar_preferencias()
                         self.limpiar_grupos()
                         if self.parent.primera_vez:

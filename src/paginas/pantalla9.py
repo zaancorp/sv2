@@ -375,10 +375,10 @@ class estado(pantalla.Pantalla):
         """
         Verifica si se realizaron cambios en la configuración. Carga los valores iniciales de esta pantalla.
         """
-        if self.parent.config.texto_cambio == True:
+        if self.parent.config.is_text_change_enabled():
             self.load_buttons(buttons)
             self.cargar_textos()
-            self.parent.config.texto_cambio = False
+            self.parent.config.set_text_change_enabled(False)
         self.popup_ins1.agregar_grupo()
         self.capital.apagar()
         self.ori.apagar()
@@ -402,9 +402,9 @@ class estado(pantalla.Pantalla):
             self.guayana,
         )
         self.spserver.processtext(
-            "Pantalla: La Agricultura en Venezuela: ", self.parent.config.activar_lector
+            "Pantalla: La Agricultura en Venezuela: ", self.parent.config.is_screen_reader_enabled()
         )
-        self.spserver.processtext(p9["lector1"], self.parent.config.activar_lector)
+        self.spserver.processtext(p9["lector1"], self.parent.config.is_screen_reader_enabled())
 
     def handleEvents(self, events):
         """
@@ -465,7 +465,7 @@ class estado(pantalla.Pantalla):
                                     + self.texto9_2_2.texto
                                     + self.texto9_2_3.texto
                                     + self.texto9_2_4.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             elif self.x.id == "región central":
@@ -490,7 +490,7 @@ class estado(pantalla.Pantalla):
                                     ]
                                     + self.texto9_3_2.texto
                                     + self.texto9_3_3.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             if self.x.id == "región los llanos":
@@ -514,7 +514,7 @@ class estado(pantalla.Pantalla):
                                     ]
                                     + self.texto9_4_2.texto
                                     + self.texto9_4_3.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             if self.x.id == "región occidental":
@@ -540,7 +540,7 @@ class estado(pantalla.Pantalla):
                                     ]
                                     + self.texto9_5_2.texto
                                     + self.texto9_5_3.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             if self.x.id == "región zuliana":
@@ -566,7 +566,7 @@ class estado(pantalla.Pantalla):
                                     ]
                                     + self.texto9_6_2.texto
                                     + self.texto9_6_3.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             if self.x.id == "región los andes":
@@ -592,7 +592,7 @@ class estado(pantalla.Pantalla):
                                     ]
                                     + self.texto9_7_2.texto
                                     + self.texto9_7_3.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             if self.x.id == "región nor oriental":
@@ -617,7 +617,7 @@ class estado(pantalla.Pantalla):
                                     ]
                                     + self.texto9_8_2.texto
                                     + self.texto9_8_3.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             if self.x.id == "región guayana":
@@ -643,7 +643,7 @@ class estado(pantalla.Pantalla):
                                     ]
                                     + self.texto9_9_2.texto
                                     + self.texto9_9_3.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                             if self.x.id == "región insular":
@@ -671,7 +671,7 @@ class estado(pantalla.Pantalla):
                                     + self.texto9_10_2.texto
                                     + self.texto9_10_3.texto
                                     + self.texto9_10_4.texto,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                         elif self.x.tipo_objeto == "boton":

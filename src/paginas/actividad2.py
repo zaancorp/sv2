@@ -188,7 +188,7 @@ class actividad(pantalla.Pantalla):
         self.texto_mal = "    Recuerda: si se reparte de forma equitativa las flores, podrás saber cuantas cajas lograrás armar. "
         self.texto_vacio = "    Para continuar deberás contestar correctamente la pregunta. Si la casilla queda vacía no podrás avanzar al siguiente problema. "
         self.texto_ayuda = "    Calcula el número total de flores que puedes armar en paquetes de 25 flores. "
-        self.spserver.processtext(self.texto, self.parent.config.activar_lector)
+        self.spserver.processtext(self.texto, self.parent.config.is_screen_reader_enabled())
         if self.teclado == 0:
             self.teclado = True
 
@@ -250,7 +250,7 @@ class actividad(pantalla.Pantalla):
             "problema número 2:"
             + self.pregunta_lector
             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-            self.parent.config.activar_lector,
+            self.parent.config.is_screen_reader_enabled(),
         )
         if self.teclado == 0:
             self.teclado = True
@@ -307,7 +307,7 @@ class actividad(pantalla.Pantalla):
             "problema número 3:"
             + self.pregunta
             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-            self.parent.config.activar_lector,
+            self.parent.config.is_screen_reader_enabled(),
         )
         if self.teclado == 0:
             self.teclado = True
@@ -342,7 +342,7 @@ class actividad(pantalla.Pantalla):
                     self.spserver.processtext(
                         self.texto_bien
                         + "Terminaste todos los problemas! Pulsa enter para volver al menú del recurso.",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.popupbien = PopUp(
                         self.parent,
@@ -356,7 +356,7 @@ class actividad(pantalla.Pantalla):
                     self.spserver.processtext(
                         self.texto_bien
                         + "Pulsa enter para pasar al siguiente problema. ",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.popupbien = PopUp(
                         self.parent,
@@ -384,7 +384,7 @@ class actividad(pantalla.Pantalla):
                         + self.intr_texto.palabra_f
                         + self.texto_mal_lector
                         + "Pulsa enter para continuar",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.intr_texto.reiniciar()
                 else:
@@ -393,7 +393,7 @@ class actividad(pantalla.Pantalla):
                         + self.intr_texto.palabra_f
                         + self.texto_mal
                         + " Pulsa enter para continuar",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.intr_texto.reiniciar()
 
@@ -409,7 +409,7 @@ class actividad(pantalla.Pantalla):
                 self.spserver.stopserver()
                 self.spserver.processtext(
                     self.texto_vacio + "Pulsa enter para continuar",
-                    self.parent.config.activar_lector,
+                    self.parent.config.is_screen_reader_enabled(),
                 )
 
             elif tipo_mensaje == "instruccion":
@@ -421,13 +421,13 @@ class actividad(pantalla.Pantalla):
                         self.spserver.processtext(
                             self.pregunta_lector
                             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-                            self.parent.config.activar_lector,
+                            self.parent.config.is_screen_reader_enabled(),
                         )
                     else:
                         self.spserver.processtext(
                             self.pregunta_l
                             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-                            self.parent.config.activar_lector,
+                            self.parent.config.is_screen_reader_enabled(),
                         )
 
                 else:
@@ -445,7 +445,7 @@ class actividad(pantalla.Pantalla):
                     self.spserver.stopserver()
                     self.spserver.processtext(
                         self.texto_ayuda + "Pulsa F2 para continuar.",
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
 
     def evaluador(self):
@@ -517,13 +517,13 @@ class actividad(pantalla.Pantalla):
                         self.spserver.processtext(
                             self.pregunta_lector
                             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-                            self.parent.config.activar_lector,
+                            self.parent.config.is_screen_reader_enabled(),
                         )
                     else:
                         self.spserver.processtext(
                             self.pregunta_l
                             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-                            self.parent.config.activar_lector,
+                            self.parent.config.is_screen_reader_enabled(),
                         )
 
             if self.popupvacio.activo:
@@ -535,13 +535,13 @@ class actividad(pantalla.Pantalla):
                         self.spserver.processtext(
                             self.pregunta_lector
                             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-                            self.parent.config.activar_lector,
+                            self.parent.config.is_screen_reader_enabled(),
                         )
                     else:
                         self.spserver.processtext(
                             self.pregunta_l
                             + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-                            self.parent.config.activar_lector,
+                            self.parent.config.is_screen_reader_enabled(),
                         )
 
             if teclasPulsadas[pygame.K_ESCAPE]:
@@ -589,14 +589,14 @@ class actividad(pantalla.Pantalla):
                                 self.spserver.stopserver()
                                 self.spserver.processtext(
                                     "escribe los números que corresponden a la respuesta correcta.",
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
                             else:
                                 self.spserver.stopserver()
                                 self.spserver.processtext(
                                     "has escrito el número: "
                                     + self.intr_texto.palabra_f,
-                                    self.parent.config.activar_lector,
+                                    self.parent.config.is_screen_reader_enabled(),
                                 )
 
                 if teclasPulsadas[pygame.K_F2]:
@@ -619,14 +619,14 @@ class actividad(pantalla.Pantalla):
                             self.spserver.processtext(
                                 self.pregunta_l
                                 + "escribe tu respuesta y utiliza la tecla ENTER para confirmar",
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
                             self.marcador_instruccion = 1
                         if self.popupayuda.activo:
                             self.popupayuda.eliminar_grupo()
                     else:
                         self.spserver.processtext(
-                            self.texto, self.parent.config.activar_lector
+                            self.texto, self.parent.config.is_screen_reader_enabled()
                         )
                         self.popupayuda.agregar_grupo()
 

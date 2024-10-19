@@ -11,6 +11,8 @@ class Configuration:
     def __init__(self):
         self.config_file = "user_config.json"
         self.preferences = self.load_config()
+        self.changed = False
+        self.preferences['visited_screens'] = self.preferences.get('visited_screens', {})
 
     def load_config(self):
         """
@@ -43,7 +45,7 @@ class Configuration:
             "cache": False,
             "disc_audi": False,
             "disc_vis": False,
-            "texto_cambio": False,
+            "text_change": False,
             "magnificador": False,
             "activar_lector": False,
             "genero": "",
@@ -96,13 +98,19 @@ class Configuration:
 
     def get_screen_reader_speed(self):
         return self.get_preference("synvel", "baja")
+    
+    def set_screen_reader_enabled(self, value):
+        self.set_preference("activar_lector", bool(value))
 
-    # Method to check if a screen has been visited
     def has_visited_screen(self, screen_id):
-        return self.get_preference("visit", {}).get(screen_id, False)
+        return self.preferences['visited_screens'].get(str(screen_id), False)
 
-    # Method to mark a screen as visited
     def mark_screen_visited(self, screen_id):
-        visit = self.get_preference("visit", {})
-        visit[screen_id] = True
-        self.set_preference("visit", visit)
+        self.preferences['visited_screens'][str(screen_id)] = True
+        self.save_config()
+
+    def is_text_change_enabled(self):
+        return self.get_preference("text_change", False)
+
+    def set_text_change_enabled(self, value):
+        self.set_preference("text_change", bool(value))

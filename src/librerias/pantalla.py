@@ -335,16 +335,16 @@ class Pantalla(object):
                 self.definir_rect(self.x.rect)
                 self.spserver.processtext(
                     "explicar la palabra:" + self.x.palabra,
-                    self.parent.config.activar_lector,
+                    self.parent.config.is_screen_reader_enabled(),
                 )
 
             elif self.x.tipo_objeto == "mapa":
                 self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.id, self.parent.config.activar_lector)
+                self.spserver.processtext(self.x.id, self.parent.config.is_screen_reader_enabled())
 
             elif self.x.tipo_objeto == "boton":
                 self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.tt, self.parent.config.activar_lector)
+                self.spserver.processtext(self.x.tt, self.parent.config.is_screen_reader_enabled())
 
     def controlador_lector_evento_K_LEFT(self):
         """
@@ -359,16 +359,16 @@ class Pantalla(object):
                 self.definir_rect(self.x.rect)
                 self.spserver.processtext(
                     "explicar la palabra:" + self.x.palabra,
-                    self.parent.config.activar_lector,
+                    self.parent.config.is_screen_reader_enabled(),
                 )
 
             elif self.x.tipo_objeto == "mapa":
                 self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.id, self.parent.config.activar_lector)
+                self.spserver.processtext(self.x.id, self.parent.config.is_screen_reader_enabled())
 
             elif self.x.tipo_objeto == "boton":
                 self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.tt, self.parent.config.activar_lector)
+                self.spserver.processtext(self.x.tt, self.parent.config.is_screen_reader_enabled())
 
     def start(self):
         pass

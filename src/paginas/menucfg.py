@@ -110,9 +110,9 @@ class estado(pantalla.Pantalla):
                 )
             else:
                 self.background = self.fondo_simple
-                if self.parent.config.texto_cambio == True:
+                if self.parent.config.is_text_change_enabled():
                     self.load_buttons(buttons)
-                    self.parent.config.texto_cambio = False
+                    self.parent.config.set_text_change_enabled(False)
                 self.popup_ins = PopUp(
                     self.parent,
                     self.parent.text_content["popups"][self.name]["text_2"],

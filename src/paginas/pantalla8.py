@@ -98,10 +98,10 @@ class estado(pantalla.Pantalla):
         """
         Verifica si se realizaron cambios en la configuración. Carga los valores iniciales de esta pantalla.
         """
-        if self.parent.config.texto_cambio == True:
+        if self.parent.config.is_text_change_enabled():
             self.load_buttons(buttons)
             self.cargar_textos()
-            self.parent.config.texto_cambio = False
+            self.parent.config.set_text_change_enabled(False)
         self.grupo_anim.add(self.animation_8)
         self.grupo_imagen.add(self.animation_8_0)
         self.grupo_banner.add(self.banner_agri, self.banner_inf)
@@ -112,7 +112,7 @@ class estado(pantalla.Pantalla):
             self.anim_actual = 1
         self.entrada_primera_vez = True
         self.spserver.processtext(
-            "Pantalla: La Agricultura en Venezuela: ", self.parent.config.activar_lector
+            "Pantalla: La Agricultura en Venezuela: ", self.parent.config.is_screen_reader_enabled()
         )
         self.reproducir_animacion(self.anim_actual)
 
@@ -167,7 +167,7 @@ class estado(pantalla.Pantalla):
                         elif self.x.tipo_objeto == "palabra":
                             self.spserver.processtext(
                                 self.parent.text_content["concepts"][self.x.codigo],
-                                self.parent.config.activar_lector,
+                                self.parent.config.is_screen_reader_enabled(),
                             )
 
             if pygame.sprite.spritecollideany(self.raton, self.grupo_botones):
@@ -225,7 +225,7 @@ class estado(pantalla.Pantalla):
             )
             self.animation_8_0.image = self.animation_8_0.img
         # Automatizado del inicio de pantalla
-        if self.anim_actual == 1 and not self.parent.config.activar_lector:
+        if self.anim_actual == 1 and not self.parent.config.is_screen_reader_enabled():
             if not self.tiempo < 1000:
                 self.grupo_fondotexto.add(self.caja_texto)
                 self.grupo_palabras.add(self.texto8_2.img_palabras)
@@ -244,17 +244,17 @@ class estado(pantalla.Pantalla):
             self.grupo_tooltip.empty()
             self.grupo_botones.remove(self.volver)
             self.grupo_palabras.empty()
-            if self.parent.config.activar_lector:
+            if self.parent.config.is_screen_reader_enabled():
                 if self.entrada_primera_vez:
                     self.spserver.processtext2(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
                 else:
                     self.spserver.processtext(
                         self.parent.text_content["content"][self.name]["text_2"],
-                        self.parent.config.activar_lector,
+                        self.parent.config.is_screen_reader_enabled(),
                     )
                 self.grupo_fondotexto.add(self.caja_texto)
                 self.grupo_palabras.add(self.texto8_2.img_palabras)
@@ -273,7 +273,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_3"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         elif animacion == 3:
@@ -287,7 +287,7 @@ class estado(pantalla.Pantalla):
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_4"],
-                self.parent.config.activar_lector,
+                self.parent.config.is_screen_reader_enabled(),
             )
 
         elif animacion == 4:
