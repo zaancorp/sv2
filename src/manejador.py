@@ -52,7 +52,7 @@ class Manejador(object):
         self.load_text_content()
         pygame.display.set_caption(titulo)
 
-    icon = pygame.image.load("../iconos/sembrando96x96.png")
+    icon = pygame.image.load("./iconos/sembrando96x96.png")
     pygame.display.set_icon(icon)
 
     def cleanUp(self):
@@ -147,15 +147,15 @@ class Manejador(object):
             if running == 1:
                 self.config.consultar()
 
-                if os.path.isdir("../interprete/__pycache__"):
+                if os.path.isdir("./interprete/__pycache__"):
                     print("Borrando cache del interprete")
                     if os.path.isfile(
-                        "../interprete/__pycache__/interprete.cpython-32.pyc"
+                        "./interprete/__pycache__/interprete.cpython-32.pyc"
                     ):
-                        os.remove("../interprete/__pycache__/interprete.cpython-32.pyc")
-                    os.removedirs("../interprete/__pycache__")
+                        os.remove("./interprete/__pycache__/interprete.cpython-32.pyc")
+                    os.removedirs("./interprete/__pycache__")
 
-                # subprocess.call(["rm", "-r", "../interprete/__pycache__"])
+                # subprocess.call(["rm", "-r", "./interprete/__pycache__"])
                 for ruta in self.rutas_int:
                     try:
                         subprocess.Popen(
@@ -166,7 +166,7 @@ class Manejador(object):
                                 "372",
                                 "512",
                                 "0",
-                                "../interprete/interprete.blend",
+                                "./interprete/interprete.blend",
                                 "-",
                                 str(self.config.color),
                                 str(self.config.genero),

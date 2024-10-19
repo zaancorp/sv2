@@ -57,7 +57,7 @@ class PopUp(Sprite):
         Sprite.__init__(self)
         self.parent = parent
         self.sprite = Sprite()
-        varios = "../imagenes/png/varios/"
+        varios = "./imagenes/png/varios/"
         self.texto = Surface
         self.tipo = tipo
         self.arreglo_botones = []

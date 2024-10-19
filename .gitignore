@@ -4,6 +4,10 @@
 .settings
 
 paquetes/
+src/audio/
+src/iconos/
+src/imagenes/
+src/interprete/
 
 #*
 *$

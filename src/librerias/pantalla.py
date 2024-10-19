@@ -19,15 +19,15 @@ class Pantalla(object):
 
     x = ""
     """Indica el objeto actual cuando se utiliza la navegación por teclado. """
-    pops = "../imagenes/png/popups/"
+    pops = "./imagenes/png/popups/"
     """Ruta de las imágenes de los pop-ups. """
 
-    animations_path = "../imagenes/png/animations/"
-    backgrounds_path = "../imagenes/png/backgrounds/"
-    banners_path = "../imagenes/png/banners/"
-    buttons_path = "../imagenes/png/buttons/"
+    animations_path = "./imagenes/png/animations/"
+    backgrounds_path = "./imagenes/png/backgrounds/"
+    banners_path = "./imagenes/png/banners/"
+    buttons_path = "./imagenes/png/buttons/"
 
-    varios = "../imagenes/png/varios/"
+    varios = "./imagenes/png/varios/"
     """Ruta de imágenes variadas. """
 
     anim_actual = 0
