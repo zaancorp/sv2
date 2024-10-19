@@ -51,36 +51,37 @@ class estado(pantalla.Pantalla):
         # Initialize scene
         self.resume()
 
-    def show_instructions(self):
-        """
-        Muestra las instrucciones de uso de la pantalla actual.
-        """
-        if not self.popup_ins.activo:
-            self.popup_ins.agregar_grupo()
-            self.spserver.processtext(
-                self.parent.text_content["popups"][self.name]["reader_1"],
-                self.parent.config.is_screen_reader_enabled(),
-            )
+    # def show_instructions(self):
+    #     """
+    #     Muestra las instrucciones de uso de la pantalla actual.
+    #     """
+    #     if not self.popup_ins.activo:
+    #         self.popup_ins.agregar_grupo()
+    #         self.spserver.processtext(
+    #             self.parent.text_content["popups"][self.name]["reader_1"],
+    #             self.parent.config.is_screen_reader_enabled(),
+    #         )
 
-        else:
-            self.popup_ins.eliminar_grupo()
-            self.spserver.stopserver()
+    #     else:
+    #         self.popup_ins.eliminar_grupo()
+    #         self.spserver.stopserver()
 
     def cargar_textos(self):
         """
         Carga los textos utilizados en esta pantalla.
         """
-        self.popup_ins = PopUp(
-            self.parent,
-            self.parent.text_content["popups"][self.name]["text_1"],
-            "",
-            self.dic_img,
-            self.grupo_popup,
-            2,
-            512,
-            265,
-            100,
-        )
+        pass
+        # self.popup_ins = PopUp(
+        #     self.parent,
+        #     self.parent.text_content["popups"][self.name]["text_1"],
+        #     "",
+        #     self.dic_img,
+        #     self.grupo_popup,
+        #     2,
+        #     512,
+        #     265,
+        #     100,
+        # )
 
     def resume(self):
         """
@@ -95,7 +96,7 @@ class estado(pantalla.Pantalla):
 
         if self.parent.config.has_visited_screen("p2"):
             self.parent.config.mark_screen_visited("p2")
-            self.show_instructions()
+            # self.show_instructions()
         else:
             self.spserver.processtext(
                 "Menú del Recurso", self.parent.config.is_screen_reader_enabled()
@@ -126,9 +127,11 @@ class estado(pantalla.Pantalla):
                 self.parent.quit()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_F1:
-                self.show_instructions()
+                pass
+                # self.show_instructions()
 
-            if event.type == pygame.KEYDOWN and not self.popup_ins.activo:
+            # if event.type == pygame.KEYDOWN and not self.popup_ins.activo:
+            if event.type == pygame.KEYDOWN:
                 self.chequeo_botones(self.grupo_botones)
                 self.numero_elementos = len(self.lista_botones)
                 self.lista_final = self.lista_botones
@@ -174,9 +177,12 @@ class estado(pantalla.Pantalla):
                                 self.limpiar_grupos()
                                 self.parent.pushState(pantalla11.estado(self.parent))
 
+            # if (
+            #     pygame.sprite.spritecollideany(self.raton, self.grupo_botones)
+            #     and not self.popup_ins.activo
+            # ):
             if (
                 pygame.sprite.spritecollideany(self.raton, self.grupo_botones)
-                and not self.popup_ins.activo
             ):
                 sprite = pygame.sprite.spritecollide(
                     self.raton, self.grupo_botones, False

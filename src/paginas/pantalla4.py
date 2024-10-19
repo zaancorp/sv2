@@ -72,7 +72,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             960,
             False,
         )
@@ -81,7 +81,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             960,
             False,
         )
@@ -90,7 +90,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_4"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             960,
             False,
         )
@@ -99,7 +99,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_5"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             960,
             False,
         )

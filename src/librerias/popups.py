@@ -202,7 +202,7 @@ class PopUp(Sprite):
                 15,
                 texto1,
                 parent.config.get_font_size(),
-                "intercalado",
+                3,
                 self.sprite.rect.w - 15,
                 imagenes,
             )

@@ -89,45 +89,45 @@ class estado(pantalla.Pantalla):
                 self.load_buttons(buttons)
                 self.grupo_banner.add(self.banner_inf)
                 self.grupo_botones.add(self.boton_sordo, self.boton_visual, self.inicio)
-                self.popup_ins = PopUp(
-                    self.parent,
-                    # TODO: If the parent is already being passed we can grab the
-                    # text from the parent's dict, we would only need to pass the
-                    # screen name and maybe the "popups" key
-                    self.parent.text_content["popups"][self.name]["text_1"],
-                    "",
-                    self.dic_img,
-                    self.grupo_popup,
-                    2,
-                    512,
-                    290,
-                    100,
-                )
+                # self.popup_ins = PopUp(
+                #     self.parent,
+                #     # TODO: If the parent is already being passed we can grab the
+                #     # text from the parent's dict, we would only need to pass the
+                #     # screen name and maybe the "popups" key
+                #     self.parent.text_content["popups"][self.name]["text_1"],
+                #     "",
+                #     self.dic_img,
+                #     self.grupo_popup,
+                #     2,
+                #     512,
+                #     290,
+                #     100,
+                # )
 
-                self.popup_ins.agregar_grupo()
-                self.spserver.processtext(
-                    self.parent.text_content["popups"][self.name]["reader_1"], True
-                )
+                # self.popup_ins.agregar_grupo()
+                # self.spserver.processtext(
+                #     self.parent.text_content["popups"][self.name]["reader_1"], True
+                # )
             else:
                 self.background = self.fondo_simple
                 if self.parent.config.is_text_change_enabled():
                     self.load_buttons(buttons)
                     self.parent.config.set_text_change_enabled(False)
-                self.popup_ins = PopUp(
-                    self.parent,
-                    self.parent.text_content["popups"][self.name]["text_2"],
-                    "",
-                    self.dic_img,
-                    self.grupo_popup,
-                    2,
-                    512,
-                    270,
-                    100,
-                )
-                self.popup_ins.agregar_grupo()
-                self.spserver.processtext(
-                    self.parent.text_content["popups"][self.name]["reader_2"], True
-                )
+                # self.popup_ins = PopUp(
+                #     self.parent,
+                #     self.parent.text_content["popups"][self.name]["text_2"],
+                #     "",
+                #     self.dic_img,
+                #     self.grupo_popup,
+                #     2,
+                #     512,
+                #     270,
+                #     100,
+                # )
+                # self.popup_ins.agregar_grupo()
+                # self.spserver.processtext(
+                #     self.parent.text_content["popups"][self.name]["reader_2"], True
+                # )
                 self.grupo_banner.add(self.banner_config, self.banner_inf)
                 self.grupo_botones.add(self.boton_sordo, self.boton_visual, self.puerta)
 

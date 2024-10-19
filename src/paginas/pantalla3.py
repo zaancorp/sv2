@@ -59,7 +59,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             992,
             False,
         )

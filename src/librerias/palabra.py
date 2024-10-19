@@ -1,34 +1,36 @@
 #!/usr/bin/env python
 
 import pygame
+from enum import Enum
 
+class TextType(Enum):
+    NORMAL = 1
+    ACTIVE = 2
+    INTERCALATED = 3
+    INSTRUCTION = 4
+    INDEX = 5
+    DEFINITION = 6
+    CONCEPT = 7
+    TEXT_BOX = 8
+
+class FontManager:
+    def __init__(self):
+        self.fonts = {}
+        self.default_font = pygame.font.match_font("FreeSans", False, False)
+
+    def get_font(self, size, bold=False, underline=False):
+        key = (size, bold, underline)
+        if key not in self.fonts:
+            font = pygame.font.Font(self.default_font, size)
+            font.set_bold(bold)
+            font.set_underline(underline)
+            self.fonts[key] = font
+        return self.fonts[key]
+    
+font_manager = FontManager()
 
 class palabra(pygame.sprite.Sprite):
-    """
-    Esta clase implementa palabras, que pueden ser utilizadas para construir textos u otras estructuras
-    con las que se desee mostrar información escrita.
-    """
-
-    codigo = ""
-    """Identificador único de una palabra. """
-    palabra = ""
-    """Texto que se muestra en pantalla. """
-    comparador = ""
-    """Variable usada para determinar el tipo de texto que se debe dibujar en pantalla. """
-    tipo_objeto = "palabra"
-    """Identificador general de esta clase. """
-    selec = False
-    """Indica que la palabra ha sido seleccionada. """
-    definible = False
-    """Indica que al hacer click en un 'indice' se mostraran palabras definibles. """
-    definicion = False
-    """Indica que al hacer click en una 'definición' se mostrara su concepto. """
-    interpretable = False
-    """Indica que al hacer click sobre una palabra subrayada en los contenidos, se mostrara 
-    el interprete virtual o el glosario de terminos. """
-    instrucciones = ["Instrucciones:", "Por acodo:", "Por injerto:"]
-
-    entradas = {
+    ENTRIES = {
         "absorbe": "absorber",
         "absorber": "absorber",
         "célula": "celula",
@@ -44,9 +46,8 @@ class palabra(pygame.sprite.Sprite):
         "transformación": "transformacion",
         "transporta": "transportar",
     }
-    """Diccionario que contiene las posibles entradas del glosario de términos, presentes en el contenido 
-    del recurso. """
-    definiciones = {
+
+    DEFINITIONS = {
         "Absorber": "absorber",
         "Célula": "celula",
         "Componentes": "componentes",
@@ -61,211 +62,70 @@ class palabra(pygame.sprite.Sprite):
         "Transformación": "transformacion",
         "Transportar": "transportar",
     }
-    """Diccionario que contiene los textos de las definiciones como se deben mostrar en el glosario de términos. """
-    indices = ["A", "C", "F", "G", "M", "N", "O", "R", "T"]
-    """Lista que contiene los indices del glosario de términos. """
-    intercalado = ["RATON", "DIR", "ENTER"]
-    """Lista que palabras clave que se sustituirán por imágenes. """
-    tipografia = pygame.font.match_font("FreeSans", False, False)
-    """Tipografía seleccionada para renderizar el texto. """
 
-    def __init__(self, palabra, size, tipo_texto):
-        """
-        Método inicializador de la clase.
+    INDICES = ["A", "C", "F", "G", "M", "N", "O", "R", "T"]
+    INTERCALATED = ["RATON", "DIR", "ENTER"]
 
-        @param palabra: Texto que se dibujara en la pantalla.
-        @type palabra: str
-        @param size: Tamaño de la fuente. Su valor debe estar entre 18 y 22.
-        @type size: int
-        @param tipo_texto: Tipo de texto que se muestra en pantalla. Puede ser: 'definicion', 'normal',
-        'texto_act', 'intercalado', 'instrucción', 'indice', 'definición', 'concepto', 'caja_texto'.
-        @type tipo_texto: str
-        """
-        pygame.sprite.Sprite.__init__(self)
-        pygame.font.init()
+    def __init__(self, text, size, text_type, font_manager=font_manager):
+        super().__init__()
+        self.text = text
         self.size = size
-        self.tipo_palabra = tipo_texto
-        try:
-            self.letras = pygame.font.Font(self.tipografia, size)
-        except IOError:
-            print("Error al cargar la fuente!")
-        self.palabra = palabra
-        self.limpiar_comparador(palabra)
+        self.text_type = TextType(text_type)
+        self.font_manager = font_manager
+        self.selected = False
+        self.definable = False
+        self.definition = False
+        self.interpretable = False
 
-        if self.comparador in self.instrucciones:
-            self.letras.set_bold(True)
+        self.clean_text = self.clean_word(text)
+        self.code = self.get_code()
+        self.render()
 
-        if self.comparador in self.entradas.keys():
-            self.codigo = self.entradas[self.limpiar_palabra(self.palabra)]
+    def get_code(self):
+        if self.clean_text in self.ENTRIES:
+            return self.ENTRIES[self.clean_text]
+        elif self.text_type == TextType.DEFINITION:
+            return self.DEFINITIONS.get(self.text, "")
+        return ""
 
-        elif self.tipo_palabra == "definicion":
-            self.codigo = self.definiciones[self.palabra]
+    def render(self):
+        bold = self.text_type in [TextType.INDEX, TextType.INSTRUCTION] or (self.text_type == TextType.DEFINITION and self.selected)
+        underline = self.text_type == TextType.NORMAL and self.clean_text in self.ENTRIES
 
-        if self.tipo_palabra == "texto_act":
-            self.letras.set_underline(False)
-            self.interpretable = False
-            self.image = self.letras.render(self.palabra, True, (0, 0, 0))
+        font = self.font_manager.get_font(self.size, bold, underline)
 
-        elif self.tipo_palabra == "normal":
-            if self.comparador in self.entradas.keys():
-                self.letras.set_underline(True)
-                self.interpretable = True
-            else:
-                self.letras.set_underline(False)
-                self.interpretable = False
-            self.image = self.letras.render(self.palabra, True, (0, 0, 0))
+        if self.text_type == TextType.INDEX:
+            color = (122, 140, 31) if self.clean_text in self.INDICES else (60, 36, 21)
+        else:
+            color = (0, 0, 0) if self.text_type in [TextType.NORMAL, TextType.ACTIVE, TextType.INTERCALATED, TextType.INSTRUCTION] else (60, 36, 21)
 
-        elif self.tipo_palabra == "intercalado":
-            if self.comparador in self.intercalado:
-                self.letras = pygame.font.Font(self.tipografia, 36)
-            self.image = self.letras.render(self.palabra, True, (0, 0, 0))
-
-        elif self.tipo_palabra == "instruccion":
-            self.letras.set_underline(False)
-            self.interpretable = False
-            self.image = self.letras.render(self.palabra, True, (0, 0, 0))
-
-        elif self.tipo_palabra == "indice":
-            self.selec = False
-            self.letras.set_bold(True)
-            if self.comparador in self.indices:
-                self.definible = True
-                self.image = self.letras.render(self.palabra, True, (122, 140, 31))
-            else:
-                self.definible = False
-                self.image = self.letras.render(self.palabra, True, (60, 36, 21))
-
-        elif self.tipo_palabra == "definicion":
-            if self.comparador in self.definiciones.keys():
-                if self.selec:
-                    self.letras.set_bold(True)
-                self.definicion = True
-            else:
-                self.definicion = False
-            self.image = self.letras.render(self.palabra, True, (60, 36, 21))
-
-        elif self.tipo_palabra == "concepto":
-            self.image = self.letras.render(self.palabra, True, (60, 36, 21))
-
-        elif self.tipo_palabra == "caja_texto":
-            self.image = self.letras.render(self.palabra, True, (60, 36, 21))
-
-        self.image.convert()
+        self.image = font.render(self.text, True, color)
         self.rect = self.image.get_rect()
 
-    def get_palabra(self):
-        """
-        @return: Superficie de la palabra.
-        @rtype: pygame.Surface
-        """
-        return self.image
+        self.update_flags()
 
-    def get_rect(self):
-        """
-        @return: Rectángulo de la superficie.
-        @rtype: pygame.Rect
-        """
-        return self.image.get_rect()
+    def update_flags(self):
+        self.interpretable = self.text_type == TextType.NORMAL and self.clean_text in self.ENTRIES
+        self.definable = self.text_type == TextType.INDEX and self.clean_text in self.INDICES
+        self.definition = self.text_type == TextType.DEFINITION and self.clean_text in self.DEFINITIONS
 
-    def negrita(self):
-        """
-        Redibuja la palabra en negrita.
-        """
-        if self.selec:
-            self.letras.set_bold(True)
-            self.image = self.letras.render(self.palabra, True, (60, 36, 21))
+    def highlight(self):
+        if self.text_type == TextType.INDEX and not self.selected:
+            self.selected = True
+            self.size += 6
+            self.render()
 
-    def destacar(self):
-        """
-        Al hacer click sobre un indice en el glosario de términos redibuja el indice correspondiente,
-        destacándolo con otro color y en negrita.
-        """
-        palabra_limpia = self.palabra.strip(".")
-        palabra_limpia = palabra_limpia.strip(",")
-        palabra_limpia = palabra_limpia.strip("?")
-        if self.tipo_palabra == "indice" and self.selec:
-            self.letras = pygame.font.Font(self.tipografia, self.size + 6)
-            self.letras.set_bold(True)
-            if palabra_limpia in self.indices:
-                self.definible = True
-                self.image = self.letras.render(self.palabra, True, (122, 140, 31))
-            else:
-                self.definible = False
-                self.image = self.letras.render(self.palabra, True, (60, 36, 21))
+    def restore(self):
+        if self.text_type == TextType.INDEX and self.selected:
+            self.selected = False
+            self.size -= 6
+            self.render()
 
-    def restaurar(self):
-        """
-        Redibuja los indices del glosario de términos.
-        """
-        palabra_limpia = self.palabra.strip(".")
-        palabra_limpia = palabra_limpia.strip(",")
-        palabra_limpia = palabra_limpia.strip("?")
-        if self.tipo_palabra == "indice":
-            self.letras = pygame.font.Font(self.tipografia, self.size)
-            self.letras.set_bold(True)
-            if palabra_limpia in self.indices:
-                self.definible = True
-                self.image = self.letras.render(self.palabra, True, (122, 140, 31))
-            else:
-                self.definible = False
-                self.image = self.letras.render(self.palabra, True, (60, 36, 21))
+    def update(self, update_type):
+        if update_type in [1, 2] and self.text_type in [TextType.DEFINITION, TextType.INDEX]:
+            self.selected = False
+            self.render()
 
-    def update(self, tipo_update):
-        """
-        Restaura los textos de las definiciones a su estado original.
-        @param tipo_update: Determina las palabras que serán restauradas. Si su valor es 1 se restauran
-        definiciones e indices, si su valor es 2 se restauran solo las definiciones.
-        @type tipo_update: int
-        """
-        palabra_limpia = self.palabra.strip(".")
-        palabra_limpia = palabra_limpia.strip(",")
-        palabra_limpia = palabra_limpia.strip("?")
-        if tipo_update == 1:
-            if self.tipo_palabra == "definicion":
-                self.selec = False
-                self.letras.set_bold(False)
-                self.image = self.letras.render(self.palabra, True, (60, 36, 21))
-            if self.tipo_palabra == "indice":
-                self.letras = pygame.font.Font(self.tipografia, self.size)
-                self.letras.set_bold(True)
-                if palabra_limpia in self.indices:
-                    self.selec = False
-                    self.definible = True
-                    self.image = self.letras.render(self.palabra, True, (122, 140, 31))
-                else:
-                    self.definible = False
-                    self.image = self.letras.render(self.palabra, True, (60, 36, 21))
-        elif tipo_update == 2:
-            if self.tipo_palabra == "definicion":
-                self.selec = False
-                self.letras.set_bold(False)
-                self.image = self.letras.render(self.palabra, True, (60, 36, 21))
-
-    def limpiar_comparador(self, comparador):
-        """
-        Se utiliza para eliminar caracteres no permitidos del comparador.
-        """
-        self.comparador = comparador.strip(",")
-        self.comparador = self.comparador.strip("(")
-        self.comparador = self.comparador.strip(")")
-        self.comparador = self.comparador.strip("?")
-        self.comparador = self.comparador.strip("¿")
-        self.comparador = self.comparador.strip("!")
-        self.comparador = self.comparador.strip("¡")
-        self.comparador = self.comparador.strip(".")
-
-    def limpiar_palabra(self, palabra):
-        """
-        Se utiliza para eliminar caracteres que no forman parte de la palabra.
-        @return: La palabra original sin signos de puntuación adyacentes.
-        @rtype: str
-        """
-        palabra_limpia = palabra.strip(",")
-        palabra_limpia = palabra_limpia.strip(")")
-        palabra_limpia = palabra_limpia.strip("(")
-        palabra_limpia = palabra_limpia.strip("?")
-        palabra_limpia = palabra_limpia.strip("¿")
-        palabra_limpia = palabra_limpia.strip("!")
-        palabra_limpia = palabra_limpia.strip("¡")
-        palabra_limpia = palabra_limpia.strip(".")
-        return palabra_limpia
+    @staticmethod
+    def clean_word(word):
+        return word.strip(".,()¿?¡!")
