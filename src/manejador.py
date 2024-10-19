@@ -9,7 +9,7 @@ import subprocess
 
 from librerias.singleton import Singleton
 from librerias.magnificador import Rendermag
-from librerias.configuracion import configuracion
+from librerias.configuration import Configuration
 
 
 class Manejador(object):
@@ -23,7 +23,7 @@ class Manejador(object):
     habilitar = False
     DRAW_DEBUG_RECTANGLES = False
     VOLVER_PANTALLA_PREVIA = False
-    config = configuracion()
+    config = Configuration()
     grupo_magnificador = Rendermag()
     rutas_int = [
         "/opt/blender/blenderplayer",

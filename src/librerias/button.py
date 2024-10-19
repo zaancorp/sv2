@@ -125,7 +125,7 @@ class Button(GameObject):
         self.sonar = True
 
         # Tooltip attributes
-        my_font = SysFont("arial", self.parent.config.t_fuente)
+        my_font = SysFont("arial", self.parent.config.get_font_size())
         self.tooltip = tooltip
         self.texto = Sprite()
         self.texto.image = my_font.render(
@@ -266,7 +266,7 @@ class TextButton(GameObject):
         self.ancho = ancho
         self.parent = parent
         tipografia = match_font("FreeSans", False, False)
-        font = Font(tipografia, parent.config.t_fuente)
+        font = Font(tipografia, parent.config.get_font_size())
         self.identificador = identificador
         varios = "../imagenes/png/varios/"
 
@@ -287,7 +287,7 @@ class TextButton(GameObject):
             self.image = self.img_fondo
 
         if fondo == 1:
-            txt = Text(0, 0, text, parent.config.t_fuente, "texto_act", self.ancho)
+            txt = Text(0, 0, text, parent.config.get_font_size(), "texto_act", self.ancho)
             self.rect = Rect(0, 0, self.ancho, txt.ancho_final)
             image_texto = Surface((self.ancho, txt.ancho_final))
             image_texto.fill((255, 255, 255))

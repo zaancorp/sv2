@@ -212,7 +212,7 @@ class Pantalla(object):
         @type evento: pygame.event.Event
         """
         for event in evento:
-            if self.parent.config.magnificador:
+            if self.parent.config.is_magnifier_enabled():
                 (a, b) = pygame.mouse.get_pos()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_F5:

@@ -1,0 +1,21 @@
+{
+    "color": 0,
+    "ubx": 499,
+    "vel_anim": 4,
+    "t_fuente": 18,
+    "velocidad": 0.5,
+    "audio": false,
+    "cache": false,
+    "disc_audi": false,
+    "disc_vis": false,
+    "texto_cambio": false,
+    "magnificador": false,
+    "activar_lector": false,
+    "genero": "",
+    "synvel": "baja",
+    "definicion": "",
+    "visit": {
+        "p0": false,
+        "p2": false
+    }
+}

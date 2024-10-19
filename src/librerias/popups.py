@@ -76,7 +76,7 @@ class PopUp(Sprite):
                 x,
                 y,
                 texto1[0],
-                parent.config.t_fuente,
+                parent.config.get_font_size(),
                 "texto_act",
                 (self.sprite.rect.width * 2 / 3),
             )
@@ -155,7 +155,7 @@ class PopUp(Sprite):
                         x,
                         y,
                         i,
-                        parent.config.t_fuente,
+                        parent.config.get_font_size(),
                         "texto_act",
                         (self.sprite.rect.width) - x,
                     )
@@ -201,7 +201,7 @@ class PopUp(Sprite):
                 15,
                 15,
                 texto1,
-                parent.config.t_fuente,
+                parent.config.get_font_size(),
                 "intercalado",
                 self.sprite.rect.w - 15,
                 imagenes,

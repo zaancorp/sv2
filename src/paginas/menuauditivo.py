@@ -173,8 +173,8 @@ class estado(pantalla.Pantalla):
                         self.acc2_6m.img_palabras,
                         self.acc2_7.img_palabras,
                     )
-                self.colors_man.cambiar_vel(self.parent.config.vel_anim)
-                self.colors_woman.cambiar_vel(self.parent.config.vel_anim)
+                self.colors_man.cambiar_vel(self.parent.config.get_animation_speed())
+                self.colors_woman.cambiar_vel(self.parent.config.get_animation_speed())
                 self.hoja.relocate(x=self.parent.config.ubx)
             elif self.parent.config.disc_audi == False:
                 self.grupo_palabras.add(self.acc2_7.img_palabras)
@@ -185,8 +185,8 @@ class estado(pantalla.Pantalla):
             self.parent.config.cargar_default()
             self.grupo_botones.add(self.si, self.check_no, self.puerta)
             self.hoja.relocate(x=499)
-            self.colors_man.cambiar_vel(self.parent.config.vel_anim)
-            self.colors_woman.cambiar_vel(self.parent.config.vel_anim)
+            self.colors_man.cambiar_vel(self.parent.config.get_animation_speed())
+            self.colors_woman.cambiar_vel(self.parent.config.get_animation_speed())
             self.colors_man.cambiar_rect(self.parent.config.color)
             self.colors_woman.cambiar_rect(self.parent.config.color)
 
@@ -221,7 +221,7 @@ class estado(pantalla.Pantalla):
                                 factor = 1
                             self.colors_woman.cambiar_vel(int(factor_anim))
                             self.colors_man.cambiar_vel(int(factor_anim))
-                            self.parent.config.vel_anim = factor_anim
+                            self.parent.config.set_preference("vel_anim", factor_anim)
                             self.parent.config.velocidad = factor
                             self.parent.config.ubx = ux
 
@@ -387,12 +387,12 @@ class estado(pantalla.Pantalla):
                     elif sprite[0].id == "guardar":
                         if (
                             self.parent.config.velocidad == 0.5
-                            and self.parent.config.vel_anim == 4
+                            and self.parent.config.get_animation_speed() == 4
                         ):
                             self.parent.config.ubx = self.hoja.x
                         self.parent.config.cache = True
                         if (
-                            self.parent.config.t_fuente
+                            self.parent.config.get_font_size()
                             != self.parent.config.preferencias["t_fuente"]
                         ):
                             self.parent.config.texto_cambio = True

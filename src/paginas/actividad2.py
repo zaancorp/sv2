@@ -72,7 +72,7 @@ class actividad(pantalla.Pantalla):
             self.grupo_popup,
             2,
             845,
-            90 + self.parent.config.t_fuente,
+            90 + self.parent.config.get_font_size(),
             -280,
         )
         self.popupayuda = PopUp(
@@ -158,7 +158,7 @@ class actividad(pantalla.Pantalla):
             700,
             self.popup_instruccion_fija.tam,
             self.pregunta,
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             985,
             0,
@@ -168,14 +168,14 @@ class actividad(pantalla.Pantalla):
             725,
             self.popup_instruccion_fija.tam
             + texto.ancho_final
-            + self.parent.config.t_fuente
+            + self.parent.config.get_font_size()
             - 5,
         )
         self.intr_texto = cajatexto(
             730,
             self.popup_instruccion_fija.tam
             + texto.ancho_final
-            + self.parent.config.t_fuente,
+            + self.parent.config.get_font_size(),
             "15",
             self.screen,
             "medium",
@@ -211,7 +211,7 @@ class actividad(pantalla.Pantalla):
             700,
             self.popup_instruccion_fija.tam,
             self.pregunta,
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             985,
         )
@@ -220,14 +220,14 @@ class actividad(pantalla.Pantalla):
         self.rectangulo_texto.rect.y = (
             self.popup_instruccion_fija.tam
             + texto.ancho_final
-            + self.parent.config.t_fuente
+            + self.parent.config.get_font_size()
             - 5
         )
         self.intr_texto = cajatexto(
             730,
             self.popup_instruccion_fija.tam
             + texto.ancho_final
-            + self.parent.config.t_fuente,
+            + self.parent.config.get_font_size(),
             "18",
             self.screen,
             "medium",
@@ -275,7 +275,7 @@ class actividad(pantalla.Pantalla):
             700,
             self.popup_instruccion_fija.tam,
             self.pregunta,
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             985,
         )
@@ -283,14 +283,14 @@ class actividad(pantalla.Pantalla):
         self.rectangulo_texto.rect.y = (
             self.popup_instruccion_fija.tam
             + texto.ancho_final
-            + self.parent.config.t_fuente
+            + self.parent.config.get_font_size()
             - 5
         )
         self.intr_texto = cajatexto(
             730,
             self.popup_instruccion_fija.tam
             + texto.ancho_final
-            + self.parent.config.t_fuente,
+            + self.parent.config.get_font_size(),
             "13",
             self.screen,
             "medium",

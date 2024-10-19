@@ -66,7 +66,7 @@ class estado(pantalla.Pantalla):
             400,
             200,
             self.parent.text_content["content"][self.name]["text_1"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "instruccion",
             800,
         )
@@ -74,7 +74,7 @@ class estado(pantalla.Pantalla):
             300,
             130,
             self.parent.text_content["content"][self.name]["text_5_1"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -82,7 +82,7 @@ class estado(pantalla.Pantalla):
             300,
             self.texto11_5_1.y + self.texto11_5_1.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_5_2"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -90,7 +90,7 @@ class estado(pantalla.Pantalla):
             300,
             self.texto11_5_2.y + self.texto11_5_2.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_5_3"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -98,7 +98,7 @@ class estado(pantalla.Pantalla):
             300,
             130,
             self.parent.text_content["content"][self.name]["text_6_1"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -106,7 +106,7 @@ class estado(pantalla.Pantalla):
             300,
             self.texto11_6_1.y + self.texto11_6_1.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_6_2"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -114,7 +114,7 @@ class estado(pantalla.Pantalla):
             300,
             self.texto11_6_2.y + self.texto11_6_2.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_6_3"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -122,7 +122,7 @@ class estado(pantalla.Pantalla):
             300,
             130,
             self.parent.text_content["content"][self.name]["text_7_1"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -130,7 +130,7 @@ class estado(pantalla.Pantalla):
             300,
             self.texto11_7_1.y + self.texto11_7_1.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_7_2"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )
@@ -138,7 +138,7 @@ class estado(pantalla.Pantalla):
             300,
             self.texto11_7_2.y + self.texto11_7_2.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_7_3"],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "normal",
             900,
         )

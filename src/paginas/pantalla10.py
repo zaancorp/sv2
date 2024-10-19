@@ -62,7 +62,7 @@ class estado(pantalla.Pantalla):
             1010,
         )
         self.concepto = Text(
-            600, 200, "", self.parent.config.t_fuente, "concepto", 1000
+            600, 200, "", self.parent.config.get_font_size(), "concepto", 1000
         )
         self.a_absorber = Text(330, 200, "Absorber ", 22, "definicion", 900)
         self.c_celula = Text(330, 200, "Célula ", 22, "definicion", 900)
@@ -151,7 +151,7 @@ class estado(pantalla.Pantalla):
             600,
             200,
             self.parent.text_content["concepts"][palabra],
-            self.parent.config.t_fuente,
+            self.parent.config.get_font_size(),
             "concepto",
             1000,
         )

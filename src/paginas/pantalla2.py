@@ -88,10 +88,10 @@ class estado(pantalla.Pantalla):
         según el caso.
         """
         self.parent.primera_vez = False
-        if self.parent.config.texto_cambio == True:
+        if self.parent.config.get_preference("texto_cambio", True):
             self.load_buttons(buttons)
             self.cargar_textos()
-            self.parent.config.texto_cambio = False
+            self.parent.config.set_preference("texto_cambio", False)
 
         if self.parent.config.visit["p2"] == False:
             self.parent.config.visit["p2"] = True

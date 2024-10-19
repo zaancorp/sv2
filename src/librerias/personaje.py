@@ -208,25 +208,25 @@ class personaje(pygame.sprite.Sprite):
         """
         if not self.ocupado:
             if direction == "arriba":
-                self.posy -= self.vel_anim
+                self.posy -= self.get_animation_speed()
                 # self.sonido_caminar.play()
                 self.actualizar_rects()
                 self.actualizar()
 
             if direction == "abajo":
-                self.posy += self.vel_anim
+                self.posy += self.get_animation_speed()
                 # self.sonido_caminar.play()
                 self.actualizar_rects()
                 self.actualizar()
 
             if direction == "izq":
-                self.posx -= self.vel_anim
+                self.posx -= self.get_animation_speed()
                 # self.sonido_caminar.play()
                 self.actualizar_rects()
                 self.actualizar()
 
             if direction == "der":
-                self.posx += self.vel_anim
+                self.posx += self.get_animation_speed()
                 # self.sonido_caminar.play()
                 self.actualizar_rects()
                 self.actualizar()

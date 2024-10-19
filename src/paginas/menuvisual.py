@@ -152,18 +152,18 @@ class estado(pantalla.Pantalla):
         self.parent.config.consultar()
         if self.parent.config.cache == True:
             self.grupo_botones.add(self.puerta)
-            if self.parent.config.magnificador:
+            if self.parent.config.is_magnifier_enabled():
                 self.grupo_botones.add(self.onmag_si, self.offmag)
                 self.popup_mag.agregar_grupo()
             else:
                 self.grupo_botones.add(self.onmag, self.offmag_si)
                 self.popup_mag.eliminar_grupo()
 
-            if self.parent.config.t_fuente == 18:
+            if self.parent.config.get_font_size() == 18:
                 self.grupo_botones.add(self.tam18_sel, self.tam20, self.tam22)
-            elif self.parent.config.t_fuente == 20:
+            elif self.parent.config.get_font_size() == 20:
                 self.grupo_botones.add(self.tam18, self.tam20_sel, self.tam22)
-            elif self.parent.config.t_fuente == 22:
+            elif self.parent.config.get_font_size() == 22:
                 self.grupo_botones.add(self.tam18, self.tam20, self.tam22_sel)
 
             if self.parent.config.activar_lector == True:
@@ -291,7 +291,7 @@ class estado(pantalla.Pantalla):
             if tecla == 4:
                 self.parent.config.cache = True
                 if (
-                    self.parent.config.t_fuente
+                    self.parent.config.get_font_size()
                     != self.parent.config.preferencias["t_fuente"]
                 ):
                     self.parent.config.texto_cambio = True
@@ -350,7 +350,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.add(
                             self.tam18_sel, self.tam20, self.tam22, self.guardar
                         )
-                        self.parent.config.t_fuente = 18
+                        self.parent.config.set_preference("t_fuente", 18)
 
                     elif sprite[0].id == "tam20":
                         self.grupo_botones.remove(
@@ -359,7 +359,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.add(
                             self.tam18, self.tam20_sel, self.tam22, self.guardar
                         )
-                        self.parent.config.t_fuente = 20
+                        self.parent.config.set_preference("t_fuente", 20)
 
                     elif sprite[0].id == "tam22":
                         self.grupo_botones.remove(
@@ -368,19 +368,19 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.add(
                             self.tam18, self.tam20, self.tam22_sel, self.guardar
                         )
-                        self.parent.config.t_fuente = 22
+                        self.parent.config.set_preference("t_fuente", 22)
 
                     elif sprite[0].id == "onmag":
                         self.grupo_botones.remove(self.onmag, self.offmag_si)
                         self.grupo_botones.add(self.onmag_si, self.offmag, self.guardar)
                         self.popup_mag.agregar_grupo()
-                        self.parent.config.magnificador = True
+                        self.parent.config.enable_magnifier
 
                     elif sprite[0].id == "offmag":
                         self.grupo_botones.remove(self.onmag_si, self.offmag)
                         self.grupo_botones.add(self.onmag, self.offmag_si, self.guardar)
                         self.popup_mag.eliminar_grupo()
-                        self.parent.config.magnificador = False
+                        self.parent.config.disable_magnifier
 
                     elif sprite[0].id == "oflector":
                         self.grupo_botones.remove(
@@ -490,7 +490,7 @@ class estado(pantalla.Pantalla):
                         self.spserver.stopserver()
                         self.parent.config.cache = True
                         if (
-                            self.parent.config.t_fuente
+                            self.parent.config.get_font_size()
                             != self.parent.config.preferencias["t_fuente"]
                         ):
                             self.parent.config.texto_cambio = True
