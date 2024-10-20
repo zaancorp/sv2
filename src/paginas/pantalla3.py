@@ -183,8 +183,8 @@ class estado(pantalla.Pantalla):
             self.elemento_actual = -1
             self.animation_3.continuar()
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto3_2.img_palabras)
-            self.txt_actual = self.texto3_2.img_palabras
+            self.grupo_palabras.add(self.texto3_2.words)
+            self.txt_actual = self.texto3_2.words
             self.chequeo_palabra(self.txt_actual)
 
             if self.parent.config.is_screen_reader_enabled():
@@ -201,8 +201,8 @@ class estado(pantalla.Pantalla):
                     )
                 self.animation_3.continuar()
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto3_2.img_palabras)
-                self.txt_actual = self.texto3_2.img_palabras
+                self.grupo_palabras.add(self.texto3_2.words)
+                self.txt_actual = self.texto3_2.words
                 self.chequeo_palabra(self.txt_actual)
 
         if animacion == 1:
@@ -229,8 +229,8 @@ class estado(pantalla.Pantalla):
             if not self.tiempo < 1000:
                 self.animation_3.continuar()
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto3_2.img_palabras)
-                self.txt_actual = self.texto3_2.img_palabras
+                self.grupo_palabras.add(self.texto3_2.words)
+                self.txt_actual = self.texto3_2.words
                 self.chequeo_palabra(self.txt_actual)
         self.tiempo += self.reloj_anim.get_time()
 

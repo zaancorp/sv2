@@ -40,12 +40,12 @@ class estado(pantalla.Pantalla):
         inicial = self.parent.config.definicion[0].upper()
         self.abc.indexar(inicial)
         self.grupo_palabras.add(
-            self.abc.img_palabras,
+            self.abc.words,
             self.indices(inicial, self.parent.config.definicion),
             self.mostrar_concepto(self.parent.config.definicion),
         )
         self.caja_concepto.resize(height=self.concepto.ancho_final)
-        self.grupo_palabras.add(self.abc.img_palabras)
+        self.grupo_palabras.add(self.abc.words)
         self.grupo_banner.add(self.banner_glo, self.caja_concepto, self.banner_inf)
         self.grupo_botones.add(self.volver, self.home)
 
@@ -107,14 +107,14 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.empty()
                         self.grupo_banner.remove(self.caja_concepto)
                         self.grupo_palabras.add(
-                            self.abc.img_palabras, self.indices(sprite[0].palabra)
+                            self.abc.words, self.indices(sprite[0].palabra)
                         )
                     if sprite[0].definicion == True:
                         self.grupo_palabras.update(2)
                         sprite[0].selec = True
                         sprite[0].negrita()
                         self.grupo_banner.add(self.caja_concepto)
-                        self.grupo_palabras.remove(self.concepto.img_palabras)
+                        self.grupo_palabras.remove(self.concepto.words)
                         self.grupo_palabras.add(self.mostrar_concepto(sprite[0].codigo))
                         self.caja_concepto.resize(height=self.concepto.ancho_final)
 
@@ -155,7 +155,7 @@ class estado(pantalla.Pantalla):
             "concepto",
             1000,
         )
-        return self.concepto.img_palabras
+        return self.concepto.words
 
     def indices(self, valor, palabra_negrita=""):
         """
@@ -178,11 +178,11 @@ class estado(pantalla.Pantalla):
         if valor in indices:
             tupla = indices[valor]
             for i in tupla:
-                if i.img_palabras[0].codigo == palabra_negrita:
-                    i.img_palabras[0].selec = True
-                    i.img_palabras[0].negrita()
+                if i.words[0].codigo == palabra_negrita:
+                    i.words[0].selec = True
+                    i.words[0].negrita()
                 else:
-                    i.img_palabras[0].selec = False
-                    i.img_palabras[0].update(2)
-                palabras.append(i.img_palabras)
+                    i.words[0].selec = False
+                    i.words[0].update(2)
+                palabras.append(i.words)
             return palabras

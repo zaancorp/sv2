@@ -292,7 +292,7 @@ class TextButton(GameObject):
             image_texto = Surface((self.ancho, txt.ancho_final))
             image_texto.fill((255, 255, 255))
             image_texto.set_colorkey((255, 255, 255))
-            for i in txt.img_palabras:
+            for i in txt.words:
                 image_texto.blit(i.image, i.rect)
             self.image = image_texto
             self.img_fondo = image_texto

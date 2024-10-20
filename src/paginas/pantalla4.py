@@ -235,8 +235,8 @@ class estado(pantalla.Pantalla):
         if self.anim_actual == 1 and not self.parent.config.is_screen_reader_enabled():
             if not self.tiempo < 1000:
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto4_2.img_palabras)
-                self.txt_actual = self.texto4_2.img_palabras
+                self.grupo_palabras.add(self.texto4_2.words)
+                self.txt_actual = self.texto4_2.words
                 self.chequeo_palabra(self.txt_actual)
                 self.animation_4.continuar()
 
@@ -270,8 +270,8 @@ class estado(pantalla.Pantalla):
                         self.parent.config.is_screen_reader_enabled(),
                     )
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto4_2.img_palabras)
-                self.txt_actual = self.texto4_2.img_palabras
+                self.grupo_palabras.add(self.texto4_2.words)
+                self.txt_actual = self.texto4_2.words
                 self.chequeo_palabra(self.txt_actual)
                 self.animation_4.continuar()
 
@@ -299,8 +299,8 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.add(self.animation_4)
             self.animation_4.continuar()
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto4_3.img_palabras)
-            self.txt_actual = self.texto4_3.img_palabras
+            self.grupo_palabras.add(self.texto4_3.words)
+            self.txt_actual = self.texto4_3.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_3"],
@@ -331,8 +331,8 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.add(self.animation_4)
             self.animation_4.continuar()
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto4_4.img_palabras)
-            self.txt_actual = self.texto4_4.img_palabras
+            self.grupo_palabras.add(self.texto4_4.words)
+            self.txt_actual = self.texto4_4.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_4"],
@@ -364,8 +364,8 @@ class estado(pantalla.Pantalla):
             self.animation_4.continuar()
             self.grupo_fondotexto.add(self.caja_texto)
             self.grupo_botones.add(self.sig)
-            self.grupo_palabras.add(self.texto4_5.img_palabras)
-            self.txt_actual = self.texto4_5.img_palabras
+            self.grupo_palabras.add(self.texto4_5.words)
+            self.txt_actual = self.texto4_5.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_5"],

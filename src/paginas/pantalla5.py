@@ -99,14 +99,14 @@ class estado(pantalla.Pantalla):
         for key, (x, y) in text_config.items():
             self.text_objects[key] = Text(
                 x, y, content[key],
-                font_size, "normal", 960, False
+                font_size, 1, 960, False
             )
         
         self.texto5_2, self.texto5_3, self.texto5_4, self.texto5_5, self.texto5_6 = [
             self.text_objects[f"text_{i}"] for i in range(2, 7)
         ]
         
-        self.img_palabras = [text.img_palabras for text in self.text_objects.values()]
+        self.words = [text.words for text in self.text_objects.values()]
 
     def resume(self):
         """
@@ -204,8 +204,8 @@ class estado(pantalla.Pantalla):
         if self.anim_actual == 1 and not self.parent.config.is_screen_reader_enabled():
             if not self.tiempo < 1000:
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto5_2.img_palabras)
-                self.txt_actual = self.texto5_2.img_palabras
+                self.grupo_palabras.add(self.texto5_2.words)
+                self.txt_actual = self.texto5_2.words
                 self.chequeo_palabra(self.txt_actual)
                 self.animation_5.continuar()
         self.tiempo += self.reloj_anim.get_time()
@@ -220,8 +220,8 @@ class estado(pantalla.Pantalla):
         
         if text_obj:
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(text_obj.img_palabras)
-            self.txt_actual = text_obj.img_palabras
+            self.grupo_palabras.add(text_obj.words)
+            self.txt_actual = text_obj.words
             self.chequeo_palabra(self.txt_actual)
         
         animation_obj.continuar()

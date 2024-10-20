@@ -73,7 +73,7 @@ class estado(pantalla.Pantalla):
         for key, (x, y) in text_config.items():
             self.text_objects[key] = Text(
                 x, y, content[key],
-                font_size, "normal", 992, False
+                font_size, 1, 992, False
             )
 
         self.texto6_2, self.texto6_3, self.texto6_4 = [
@@ -84,7 +84,7 @@ class estado(pantalla.Pantalla):
             self.text_objects[f"text_{i}"] for i in range(5, 10)
         ]
         
-        self.img_palabras = [text.img_palabras for text in self.text_objects.values()]
+        self.words = [text.words for text in self.text_objects.values()]
 
     def resume(self):
         """
@@ -226,8 +226,8 @@ class estado(pantalla.Pantalla):
 
                 self.grupo_anim.add(self.animation_6_2)
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto6_2.img_palabras)
-                self.txt_actual = self.texto6_2.img_palabras
+                self.grupo_palabras.add(self.texto6_2.words)
+                self.txt_actual = self.texto6_2.words
                 self.chequeo_palabra(self.txt_actual)
                 self.animation_6.continuar()
 
@@ -250,8 +250,8 @@ class estado(pantalla.Pantalla):
             self.grupo_palabras.empty()
             self.grupo_anim.remove(self.animation_6_3)
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto6_3.img_palabras)
-            self.txt_actual = self.texto6_3.img_palabras
+            self.grupo_palabras.add(self.texto6_3.words)
+            self.txt_actual = self.texto6_3.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_3"],
@@ -265,8 +265,8 @@ class estado(pantalla.Pantalla):
             self.grupo_palabras.empty()
             self.grupo_anim.remove(self.animation_6_3)
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto6_4.img_palabras)
-            self.txt_actual = self.texto6_4.img_palabras
+            self.grupo_palabras.add(self.texto6_4.words)
+            self.txt_actual = self.texto6_4.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_4"],
@@ -291,10 +291,10 @@ class estado(pantalla.Pantalla):
         elif animacion == 6:
             self.elemento_actual = -1
             self.grupo_anim.remove(self.animation_6_4)
-            self.grupo_palabras.remove(self.texto7_3.img_palabras)
+            self.grupo_palabras.remove(self.texto7_3.words)
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto7_2.img_palabras)
-            self.txt_actual = self.texto7_2.img_palabras
+            self.grupo_palabras.add(self.texto7_2.words)
+            self.txt_actual = self.texto7_2.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_5"],
@@ -306,8 +306,8 @@ class estado(pantalla.Pantalla):
             self.elemento_actual = -1
             self.grupo_palabras.empty()
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto7_3.img_palabras)
-            self.txt_actual = self.texto7_3.img_palabras
+            self.grupo_palabras.add(self.texto7_3.words)
+            self.txt_actual = self.texto7_3.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_6"],
@@ -319,8 +319,8 @@ class estado(pantalla.Pantalla):
             self.elemento_actual = -1
             self.grupo_palabras.empty()
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto7_4.img_palabras)
-            self.txt_actual = self.texto7_4.img_palabras
+            self.grupo_palabras.add(self.texto7_4.words)
+            self.txt_actual = self.texto7_4.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_7"],
@@ -333,8 +333,8 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.remove(self.animation_6_5)
             self.grupo_palabras.empty()
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto7_5.img_palabras)
-            self.txt_actual = self.texto7_5.img_palabras
+            self.grupo_palabras.add(self.texto7_5.words)
+            self.txt_actual = self.texto7_5.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_8"],
@@ -361,9 +361,9 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.remove(self.animation_6_6)
             self.grupo_anim.remove(self.animation_6_5)
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto7_6.img_palabras)
+            self.grupo_palabras.add(self.texto7_6.words)
             self.grupo_botones.add(self.sig)
-            self.txt_actual = self.texto7_6.img_palabras
+            self.txt_actual = self.texto7_6.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_9"],
@@ -399,8 +399,8 @@ class estado(pantalla.Pantalla):
             if not self.tiempo < 1000:
                 self.grupo_anim.add(self.animation_6_2)
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto6_2.img_palabras)
-                self.txt_actual = self.texto6_2.img_palabras
+                self.grupo_palabras.add(self.texto6_2.words)
+                self.txt_actual = self.texto6_2.words
                 self.chequeo_palabra(self.txt_actual)
                 self.animation_6.continuar()
         self.tiempo += self.reloj_anim.get_time()

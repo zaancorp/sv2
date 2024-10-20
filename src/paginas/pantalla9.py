@@ -131,31 +131,31 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_2_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_2_2 = Text(
             490,
-            self.texto9_2_1.y + self.texto9_2_1.ancho_final + 10,
+            self.texto9_2_1.y + self.texto9_2_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_2_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_2_3 = Text(
             490,
-            self.texto9_2_2.y + self.texto9_2_2.ancho_final + 10,
+            self.texto9_2_2.y + self.texto9_2_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_2_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_2_4 = Text(
             490,
-            self.texto9_2_3.y + self.texto9_2_3.ancho_final + 10,
+            self.texto9_2_3.y + self.texto9_2_3.total_width + 10,
             self.parent.text_content["content"][self.name]["text_2_4"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -164,23 +164,23 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_3_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_3_2 = Text(
             490,
-            self.texto9_3_1.y + self.texto9_3_1.ancho_final + 10,
+            self.texto9_3_1.y + self.texto9_3_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_3_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_3_3 = Text(
             490,
-            self.texto9_3_2.y + self.texto9_3_2.ancho_final + 10,
+            self.texto9_3_2.y + self.texto9_3_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_3_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -189,23 +189,23 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_4_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_4_2 = Text(
             490,
-            self.texto9_4_1.y + self.texto9_4_1.ancho_final + 10,
+            self.texto9_4_1.y + self.texto9_4_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_4_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_4_3 = Text(
             490,
-            self.texto9_4_2.y + self.texto9_4_2.ancho_final + 10,
+            self.texto9_4_2.y + self.texto9_4_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_4_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -214,23 +214,23 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_5_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_5_2 = Text(
             490,
-            self.texto9_5_1.y + self.texto9_5_1.ancho_final + 10,
+            self.texto9_5_1.y + self.texto9_5_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_5_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_5_3 = Text(
             490,
-            self.texto9_5_2.y + self.texto9_5_2.ancho_final + 10,
+            self.texto9_5_2.y + self.texto9_5_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_5_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_6_1 = Text(
@@ -238,23 +238,23 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_6_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_6_2 = Text(
             490,
-            self.texto9_6_1.y + self.texto9_6_1.ancho_final + 10,
+            self.texto9_6_1.y + self.texto9_6_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_6_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_6_3 = Text(
             490,
-            self.texto9_6_2.y + self.texto9_6_2.ancho_final + 10,
+            self.texto9_6_2.y + self.texto9_6_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_6_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -263,23 +263,23 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_7_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_7_2 = Text(
             490,
-            self.texto9_7_1.y + self.texto9_7_1.ancho_final + 10,
+            self.texto9_7_1.y + self.texto9_7_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_7_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_7_3 = Text(
             490,
-            self.texto9_7_2.y + self.texto9_7_2.ancho_final + 10,
+            self.texto9_7_2.y + self.texto9_7_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_7_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -288,23 +288,23 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_8_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_8_2 = Text(
             490,
-            self.texto9_8_1.y + self.texto9_8_1.ancho_final + 10,
+            self.texto9_8_1.y + self.texto9_8_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_8_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_8_3 = Text(
             490,
-            self.texto9_8_2.y + self.texto9_8_2.ancho_final + 10,
+            self.texto9_8_2.y + self.texto9_8_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_8_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -313,23 +313,23 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_9_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_9_2 = Text(
             490,
-            self.texto9_9_1.y + self.texto9_9_1.ancho_final + 10,
+            self.texto9_9_1.y + self.texto9_9_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_9_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_9_3 = Text(
             490,
-            self.texto9_9_2.y + self.texto9_9_2.ancho_final + 10,
+            self.texto9_9_2.y + self.texto9_9_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_9_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -338,31 +338,31 @@ class estado(pantalla.Pantalla):
             60,
             self.parent.text_content["content"][self.name]["text_10_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_10_2 = Text(
             490,
-            self.texto9_10_1.y + self.texto9_10_1.ancho_final + 10,
+            self.texto9_10_1.y + self.texto9_10_1.total_width + 10,
             self.parent.text_content["content"][self.name]["text_10_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_10_3 = Text(
             490,
-            self.texto9_10_2.y + self.texto9_10_2.ancho_final + 10,
+            self.texto9_10_2.y + self.texto9_10_2.total_width + 10,
             self.parent.text_content["content"][self.name]["text_10_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
         self.texto9_10_4 = Text(
             490,
-            self.texto9_10_3.y + self.texto9_10_3.ancho_final + 10,
+            self.texto9_10_3.y + self.texto9_10_3.total_width + 10,
             self.parent.text_content["content"][self.name]["text_10_4"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             1000,
         )
 
@@ -453,10 +453,10 @@ class estado(pantalla.Pantalla):
                                 self.capital.iluminar()
                                 self.insu.apagar()
                                 self.grupo_palabras.add(
-                                    self.texto9_2_1.img_palabras,
-                                    self.texto9_2_2.img_palabras,
-                                    self.texto9_2_3.img_palabras,
-                                    self.texto9_2_4.img_palabras,
+                                    self.texto9_2_1.words,
+                                    self.texto9_2_2.words,
+                                    self.texto9_2_3.words,
+                                    self.texto9_2_4.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -480,9 +480,9 @@ class estado(pantalla.Pantalla):
                                 self.central.iluminar()
                                 self.insu.apagar()
                                 self.grupo_palabras.add(
-                                    self.texto9_3_1.img_palabras,
-                                    self.texto9_3_2.img_palabras,
-                                    self.texto9_3_3.img_palabras,
+                                    self.texto9_3_1.words,
+                                    self.texto9_3_2.words,
+                                    self.texto9_3_3.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -504,9 +504,9 @@ class estado(pantalla.Pantalla):
                                 self.llanos.iluminar()
                                 self.insu.apagar()
                                 self.grupo_palabras.add(
-                                    self.texto9_4_1.img_palabras,
-                                    self.texto9_4_2.img_palabras,
-                                    self.texto9_4_3.img_palabras,
+                                    self.texto9_4_1.words,
+                                    self.texto9_4_2.words,
+                                    self.texto9_4_3.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -530,9 +530,9 @@ class estado(pantalla.Pantalla):
                                 self.guayana.apagar()
                                 self.insu.apagar()
                                 self.grupo_palabras.add(
-                                    self.texto9_5_1.img_palabras,
-                                    self.texto9_5_2.img_palabras,
-                                    self.texto9_5_3.img_palabras,
+                                    self.texto9_5_1.words,
+                                    self.texto9_5_2.words,
+                                    self.texto9_5_3.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -556,9 +556,9 @@ class estado(pantalla.Pantalla):
                                 self.guayana.apagar()
                                 self.insu.apagar()
                                 self.grupo_palabras.add(
-                                    self.texto9_6_1.img_palabras,
-                                    self.texto9_6_2.img_palabras,
-                                    self.texto9_6_3.img_palabras,
+                                    self.texto9_6_1.words,
+                                    self.texto9_6_2.words,
+                                    self.texto9_6_3.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -582,9 +582,9 @@ class estado(pantalla.Pantalla):
                                 self.guayana.apagar()
                                 self.insu.apagar()
                                 self.grupo_palabras.add(
-                                    self.texto9_7_1.img_palabras,
-                                    self.texto9_7_2.img_palabras,
-                                    self.texto9_7_3.img_palabras,
+                                    self.texto9_7_1.words,
+                                    self.texto9_7_2.words,
+                                    self.texto9_7_3.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -607,9 +607,9 @@ class estado(pantalla.Pantalla):
                                 self.guayana.apagar()
                                 self.insu.apagar()
                                 self.grupo_palabras.add(
-                                    self.texto9_8_1.img_palabras,
-                                    self.texto9_8_2.img_palabras,
-                                    self.texto9_8_3.img_palabras,
+                                    self.texto9_8_1.words,
+                                    self.texto9_8_2.words,
+                                    self.texto9_8_3.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -633,9 +633,9 @@ class estado(pantalla.Pantalla):
                                 self.insu.apagar()
                                 self.guayana.iluminar()
                                 self.grupo_palabras.add(
-                                    self.texto9_9_1.img_palabras,
-                                    self.texto9_9_2.img_palabras,
-                                    self.texto9_9_3.img_palabras,
+                                    self.texto9_9_1.words,
+                                    self.texto9_9_2.words,
+                                    self.texto9_9_3.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -659,10 +659,10 @@ class estado(pantalla.Pantalla):
                                 self.guayana.apagar()
                                 self.insu.iluminar()
                                 self.grupo_palabras.add(
-                                    self.texto9_10_1.img_palabras,
-                                    self.texto9_10_2.img_palabras,
-                                    self.texto9_10_3.img_palabras,
-                                    self.texto9_10_4.img_palabras,
+                                    self.texto9_10_1.words,
+                                    self.texto9_10_2.words,
+                                    self.texto9_10_3.words,
+                                    self.texto9_10_4.words,
                                 )
                                 self.spserver.processtext(
                                     self.parent.text_content["content"][self.name][
@@ -709,10 +709,10 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_2_1.img_palabras,
-                            self.texto9_2_2.img_palabras,
-                            self.texto9_2_3.img_palabras,
-                            self.texto9_2_4.img_palabras,
+                            self.texto9_2_1.words,
+                            self.texto9_2_2.words,
+                            self.texto9_2_3.words,
+                            self.texto9_2_4.words,
                         )
 
                     if lista[0].id == "región central":
@@ -727,9 +727,9 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_3_1.img_palabras,
-                            self.texto9_3_2.img_palabras,
-                            self.texto9_3_3.img_palabras,
+                            self.texto9_3_1.words,
+                            self.texto9_3_2.words,
+                            self.texto9_3_3.words,
                         )
 
                     if lista[0].id == "región los llanos":
@@ -743,9 +743,9 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_4_1.img_palabras,
-                            self.texto9_4_2.img_palabras,
-                            self.texto9_4_3.img_palabras,
+                            self.texto9_4_1.words,
+                            self.texto9_4_2.words,
+                            self.texto9_4_3.words,
                         )
 
                     if lista[0].id == "región occidental":
@@ -761,9 +761,9 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_5_1.img_palabras,
-                            self.texto9_5_2.img_palabras,
-                            self.texto9_5_3.img_palabras,
+                            self.texto9_5_1.words,
+                            self.texto9_5_2.words,
+                            self.texto9_5_3.words,
                         )
 
                     if lista[0].id == "región zuliana":
@@ -779,9 +779,9 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_6_1.img_palabras,
-                            self.texto9_6_2.img_palabras,
-                            self.texto9_6_3.img_palabras,
+                            self.texto9_6_1.words,
+                            self.texto9_6_2.words,
+                            self.texto9_6_3.words,
                         )
 
                     if lista[0].id == "región los andes":
@@ -797,9 +797,9 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_7_1.img_palabras,
-                            self.texto9_7_2.img_palabras,
-                            self.texto9_7_3.img_palabras,
+                            self.texto9_7_1.words,
+                            self.texto9_7_2.words,
+                            self.texto9_7_3.words,
                         )
 
                     if lista[0].id == "región nor oriental":
@@ -814,9 +814,9 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_8_1.img_palabras,
-                            self.texto9_8_2.img_palabras,
-                            self.texto9_8_3.img_palabras,
+                            self.texto9_8_1.words,
+                            self.texto9_8_2.words,
+                            self.texto9_8_3.words,
                         )
 
                     if lista[0].id == "región guayana":
@@ -831,9 +831,9 @@ class estado(pantalla.Pantalla):
                         self.insu.apagar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_9_1.img_palabras,
-                            self.texto9_9_2.img_palabras,
-                            self.texto9_9_3.img_palabras,
+                            self.texto9_9_1.words,
+                            self.texto9_9_2.words,
+                            self.texto9_9_3.words,
                         )
 
                     if lista[0].id == "región insular":
@@ -848,10 +848,10 @@ class estado(pantalla.Pantalla):
                         self.insu.iluminar()
                         self.grupo_palabras.empty()
                         self.grupo_palabras.add(
-                            self.texto9_10_1.img_palabras,
-                            self.texto9_10_2.img_palabras,
-                            self.texto9_10_3.img_palabras,
-                            self.texto9_10_4.img_palabras,
+                            self.texto9_10_1.words,
+                            self.texto9_10_2.words,
+                            self.texto9_10_3.words,
+                            self.texto9_10_4.words,
                         )
 
             elif not self.deteccion_movimiento:

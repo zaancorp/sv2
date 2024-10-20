@@ -129,7 +129,7 @@ class PopUp(Sprite):
                 )
             if self.imagen.rect.y < 5:
                 self.imagen.rect.y = 6
-            for i in self.texto.img_palabras:
+            for i in self.texto.words:
                 self.sprite.image.blit(i.image, i.rect)
             self.sprite.image.blit(self.boton.image, self.boton.rect)
             self.sprite.image.blit(self.imagen.image, self.imagen.rect)
@@ -181,7 +181,7 @@ class PopUp(Sprite):
             self.img_fondo = fondo(self.sprite.rect.w, y).return_imagen()
             self.sprite.image = fondo(self.sprite.rect.w, y).return_imagen()
 
-            for i in self.texto.img_palabras:
+            for i in self.texto.words:
                 self.sprite.image.blit(i.image, i.rect)
                 self.img_fondo.blit(i.image, i.rect)
             self.sprite.rect.center = (px, py)
@@ -211,7 +211,7 @@ class PopUp(Sprite):
             ).return_imagen()
             self.sprite.rect.h = self.texto.ancho_final + 30
             self.tam = self.texto.ancho_final + 60
-            for i in self.texto.img_palabras:
+            for i in self.texto.words:
                 self.sprite.image.blit(i.image, i.rect)
             self.sprite.rect.center = (px, py)
 

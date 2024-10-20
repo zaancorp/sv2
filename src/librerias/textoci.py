@@ -19,7 +19,7 @@ class texto2:
         self.x = posx
         self.y = posy
         self.tipo_texto = tipo_texto
-        self.img_palabras = []
+        self.words = []
         self.texto = texto
         self.buffer = ""
         self.espacio = 6
@@ -37,7 +37,7 @@ class texto2:
                 ):
                     pass
                 else:
-                    self.img_palabras.append(
+                    self.words.append(
                         palabra(self.buffer.strip(" "), size, self.tipo_texto)
                     )
                     self.buffer = ""
@@ -49,7 +49,7 @@ class texto2:
         self.ancho_final = ancho
         self.espacio = 6 + medidas[self.nro_linea]
 
-        for i in self.img_palabras:
+        for i in self.words:
             if (self.posx + i.rect.width > self.limite_der) or (i.palabra == "|"):
                 self.nro_linea += 1
                 self.espacio = 6 + medidas[self.nro_linea]
@@ -84,7 +84,7 @@ class texto2:
         ancho = 0
         ancho_total = 0
         altos_lineas = []
-        for i in self.img_palabras:
+        for i in self.words:
             if (px + i.rect.width > self.limite_der) or (i.palabra == "|"):
                 if ppl == 1:
                     medida_lineas.append((self.limite_der - px) / ppl)
@@ -127,7 +127,7 @@ class texto2:
         ancho = 0
         ancho_total = 0
         altos_lineas = []
-        for i in self.img_palabras:
+        for i in self.words:
             if not self.dic == 0:
                 for n in self.dic.keys():
                     if n == i.palabra:

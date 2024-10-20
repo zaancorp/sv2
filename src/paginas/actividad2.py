@@ -159,11 +159,11 @@ class actividad(pantalla.Pantalla):
             self.popup_instruccion_fija.tam,
             self.pregunta,
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             985,
             0,
         )
-        self.grupo_texto.add(texto.img_palabras)
+        self.grupo_texto.add(texto.words)
         self.rectangulo_texto.rect.move_ip(
             725,
             self.popup_instruccion_fija.tam
@@ -212,10 +212,10 @@ class actividad(pantalla.Pantalla):
             self.popup_instruccion_fija.tam,
             self.pregunta,
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             985,
         )
-        self.grupo_texto.add(texto.img_palabras)
+        self.grupo_texto.add(texto.words)
         self.pregunta_lector = "    En una cesta hay 60 sobres de semillas, de ellos un quinto son de pimentón, un medio son de girasol y el resto de perejil. ¿Cuántos sobres son de semilla de perejil? "
         self.rectangulo_texto.rect.y = (
             self.popup_instruccion_fija.tam
@@ -276,10 +276,10 @@ class actividad(pantalla.Pantalla):
             self.popup_instruccion_fija.tam,
             self.pregunta,
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             985,
         )
-        self.grupo_texto.add(texto.img_palabras)
+        self.grupo_texto.add(texto.words)
         self.rectangulo_texto.rect.y = (
             self.popup_instruccion_fija.tam
             + texto.ancho_final

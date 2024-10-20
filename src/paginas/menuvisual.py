@@ -81,37 +81,37 @@ class estado(pantalla.Pantalla):
             70,
             "1.- ¿Te gustaría hacer el recorrido con un Magnificador de Pantalla? ",
             20,
-            "normal",
+            1,
             400,
         )
-        self.acc3_2 = Text(100, 120, "Sí             No ", 20, "normal", 500)
+        self.acc3_2 = Text(100, 120, "Sí             No ", 20, 1, 500)
         self.acc3_3 = Text(
-            10, 250, "3.- ¿Deseas activar el lector de pantalla? ", 20, "normal", 400
+            10, 250, "3.- ¿Deseas activar el lector de pantalla? ", 20, 1, 400
         )
-        self.acc3_4 = Text(100, 300, "Sí             No ", 20, "normal", 500)
+        self.acc3_4 = Text(100, 300, "Sí             No ", 20, 1, 500)
         self.acc3_5 = Text(
             10,
             340,
             "4.- Elije la velocidad del lector de pantalla. ",
             20,
-            "normal",
+            1,
             400,
         )
         self.acc3_6 = Text(
-            40, 390, "Lenta         Media         Rápida ", 20, "normal", 500
+            40, 390, "Lenta         Media         Rápida ", 20, 1, 500
         )
         self.acc3_7 = Text(
             200,
             400,
             "Pulsa sobre el botón guardar para salvar tu configuración. ",
             20,
-            "normal",
+            1,
             500,
         )
         self.acc3_8 = Text(
-            10, 160, "2.- Elige el tamaño de la letra. ", 20, "normal", 400
+            10, 160, "2.- Elige el tamaño de la letra. ", 20, 1, 400
         )
-        self.acc3_9 = Text(100, 200, "18         20        22 ", 20, "normal", 400)
+        self.acc3_9 = Text(100, 200, "18         20        22 ", 20, 1, 400)
         instrucciones = "Pantalla: Discapacidad visual: Instrucciones: pulsa las teclas uno, 2, o 3, para seleccionar la opcion de tu preferencia, en cada una de las siguientes preguntas, o pulsa la tecla escape para volver al menú: "
         self.pregunta1 = "¿Deseas activar el lector de pantalla? Si deseas activarlo presiona uno. Si no deseas activarlo pulsa 2. "
         self.pregunta2 = "Elige la velocidad del lector de pantalla: Si deseas velocidad lenta, pulsa uno. Velocidad media, pulsa 2. Velocidad rápida, pulsa 3."
@@ -141,12 +141,12 @@ class estado(pantalla.Pantalla):
         de lo contrario cargara la posición y valor por defecto de los elementos de la pantalla.
         """
         self.grupo_palabras.add(
-            self.acc3_1.img_palabras,
-            self.acc3_2.img_palabras,
-            self.acc3_3.img_palabras,
-            self.acc3_4.img_palabras,
-            self.acc3_8.img_palabras,
-            self.acc3_9.img_palabras,
+            self.acc3_1.words,
+            self.acc3_2.words,
+            self.acc3_3.words,
+            self.acc3_4.words,
+            self.acc3_8.words,
+            self.acc3_9.words,
         )
         self.grupo_banner.add(self.banner_acc_visual, self.banner_inf)
         self.parent.config.consultar()
@@ -169,7 +169,7 @@ class estado(pantalla.Pantalla):
             if self.parent.config.set_screen_reader_enabled(True):
                 self.grupo_botones.add(self.lector_si, self.oflector)
                 self.grupo_palabras.add(
-                    self.acc3_5.img_palabras, self.acc3_6.img_palabras
+                    self.acc3_5.words, self.acc3_6.words
                 )
                 if self.parent.config.synvel == "baja":
                     self.grupo_botones.add(self.vbaja_sel, self.vmedia, self.vrapida)
@@ -180,7 +180,7 @@ class estado(pantalla.Pantalla):
             else:
                 self.grupo_botones.add(self.lector, self.oflector_si)
                 self.grupo_palabras.remove(
-                    self.acc3_5.img_palabras, self.acc3_6.img_palabras
+                    self.acc3_5.words, self.acc3_6.words
                 )
         else:
             self.grupo_botones.add(
@@ -211,7 +211,7 @@ class estado(pantalla.Pantalla):
                     self.guardar,
                 )
                 self.grupo_palabras.add(
-                    self.acc3_5.img_palabras, self.acc3_6.img_palabras
+                    self.acc3_5.words, self.acc3_6.words
                 )
                 self.parent.config.set_screen_reader_enabled(True)
                 self.spserver.processtext(self.pregunta2, True)
@@ -231,7 +231,7 @@ class estado(pantalla.Pantalla):
                     self.guardar,
                 )
                 self.grupo_palabras.remove(
-                    self.acc3_5.img_palabras, self.acc3_6.img_palabras
+                    self.acc3_5.words, self.acc3_6.words
                 )
                 self.grupo_botones.add(self.lector, self.oflector_si, self.guardar)
                 self.parent.config.set_screen_reader_enabled(False)
@@ -395,7 +395,7 @@ class estado(pantalla.Pantalla):
                             self.guardar,
                         )
                         self.grupo_palabras.remove(
-                            self.acc3_5.img_palabras, self.acc3_6.img_palabras
+                            self.acc3_5.words, self.acc3_6.words
                         )
                         if (
                             self.parent.config.synvel
@@ -441,7 +441,7 @@ class estado(pantalla.Pantalla):
                                 self.guardar,
                             )
                         self.grupo_palabras.add(
-                            self.acc3_5.img_palabras, self.acc3_6.img_palabras
+                            self.acc3_5.words, self.acc3_6.words
                         )
                         self.parent.config.set_screen_reader_enabled(True)
 

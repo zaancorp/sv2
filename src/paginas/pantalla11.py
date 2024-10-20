@@ -44,7 +44,7 @@ class estado(pantalla.Pantalla):
         self.load_buttons(buttons)
         self.cargar_textos()
 
-        self.grupo_palabras.add(self.texto11.img_palabras)
+        self.grupo_palabras.add(self.texto11.words)
         self.grupo_banner.add(self.banner_or, self.banner_inf)
         self.grupo_botones.add(
             self.boton_or_ninos,
@@ -75,7 +75,7 @@ class estado(pantalla.Pantalla):
             130,
             self.parent.text_content["content"][self.name]["text_5_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_5_2 = Text(
@@ -83,7 +83,7 @@ class estado(pantalla.Pantalla):
             self.texto11_5_1.y + self.texto11_5_1.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_5_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_5_3 = Text(
@@ -91,7 +91,7 @@ class estado(pantalla.Pantalla):
             self.texto11_5_2.y + self.texto11_5_2.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_5_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_6_1 = Text(
@@ -99,7 +99,7 @@ class estado(pantalla.Pantalla):
             130,
             self.parent.text_content["content"][self.name]["text_6_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_6_2 = Text(
@@ -107,7 +107,7 @@ class estado(pantalla.Pantalla):
             self.texto11_6_1.y + self.texto11_6_1.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_6_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_6_3 = Text(
@@ -115,7 +115,7 @@ class estado(pantalla.Pantalla):
             self.texto11_6_2.y + self.texto11_6_2.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_6_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_7_1 = Text(
@@ -123,7 +123,7 @@ class estado(pantalla.Pantalla):
             130,
             self.parent.text_content["content"][self.name]["text_7_1"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_7_2 = Text(
@@ -131,7 +131,7 @@ class estado(pantalla.Pantalla):
             self.texto11_7_1.y + self.texto11_7_1.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_7_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
         self.texto11_7_3 = Text(
@@ -139,7 +139,7 @@ class estado(pantalla.Pantalla):
             self.texto11_7_2.y + self.texto11_7_2.ancho_final + 10,
             self.parent.text_content["content"][self.name]["text_7_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             900,
         )
 
@@ -176,9 +176,9 @@ class estado(pantalla.Pantalla):
                             self.grupo_palabras.empty()
                             self.grupo_banner.empty()
                             self.grupo_palabras.add(
-                                self.texto11_5_1.img_palabras,
-                                self.texto11_5_2.img_palabras,
-                                self.texto11_5_3.img_palabras,
+                                self.texto11_5_1.words,
+                                self.texto11_5_2.words,
+                                self.texto11_5_3.words,
                             )
                             self.caja_or.resize(
                                 height=self.texto11_5_1.ancho_final
@@ -207,9 +207,9 @@ class estado(pantalla.Pantalla):
                             self.grupo_palabras.empty()
                             self.grupo_banner.empty()
                             self.grupo_palabras.add(
-                                self.texto11_6_1.img_palabras,
-                                self.texto11_6_2.img_palabras,
-                                self.texto11_6_3.img_palabras,
+                                self.texto11_6_1.words,
+                                self.texto11_6_2.words,
+                                self.texto11_6_3.words,
                             )
                             self.caja_or.resize(
                                 height=self.texto11_6_1.ancho_final
@@ -239,9 +239,9 @@ class estado(pantalla.Pantalla):
                             self.grupo_palabras.empty()
                             self.grupo_banner.empty()
                             self.grupo_palabras.add(
-                                self.texto11_7_1.img_palabras,
-                                self.texto11_7_2.img_palabras,
-                                self.texto11_7_3.img_palabras,
+                                self.texto11_7_1.words,
+                                self.texto11_7_2.words,
+                                self.texto11_7_3.words,
                             )
                             self.caja_or.resize(
                                 height=self.texto11_7_1.ancho_final
@@ -284,9 +284,9 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.empty()
                         self.grupo_banner.empty()
                         self.grupo_palabras.add(
-                            self.texto11_5_1.img_palabras,
-                            self.texto11_5_2.img_palabras,
-                            self.texto11_5_3.img_palabras,
+                            self.texto11_5_1.words,
+                            self.texto11_5_2.words,
+                            self.texto11_5_3.words,
                         )
                         self.caja_or.resize(
                             height=self.texto11_5_1.ancho_final
@@ -302,9 +302,9 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.empty()
                         self.grupo_banner.empty()
                         self.grupo_palabras.add(
-                            self.texto11_6_1.img_palabras,
-                            self.texto11_6_2.img_palabras,
-                            self.texto11_6_3.img_palabras,
+                            self.texto11_6_1.words,
+                            self.texto11_6_2.words,
+                            self.texto11_6_3.words,
                         )
                         self.caja_or.resize(
                             height=self.texto11_6_1.ancho_final
@@ -320,9 +320,9 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.empty()
                         self.grupo_banner.empty()
                         self.grupo_palabras.add(
-                            self.texto11_7_1.img_palabras,
-                            self.texto11_7_2.img_palabras,
-                            self.texto11_7_3.img_palabras,
+                            self.texto11_7_1.words,
+                            self.texto11_7_2.words,
+                            self.texto11_7_3.words,
                         )
                         self.caja_or.resize(
                             height=self.texto11_7_1.ancho_final

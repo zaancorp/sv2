@@ -71,7 +71,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_2"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             992,
             False,
         )
@@ -80,7 +80,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_3"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             992,
             False,
         )
@@ -89,7 +89,7 @@ class estado(pantalla.Pantalla):
             340,
             self.parent.text_content["content"][self.name]["text_4"],
             self.parent.config.get_font_size(),
-            "normal",
+            1,
             992,
             False,
         )
@@ -228,8 +228,8 @@ class estado(pantalla.Pantalla):
         if self.anim_actual == 1 and not self.parent.config.is_screen_reader_enabled():
             if not self.tiempo < 1000:
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto8_2.img_palabras)
-                self.txt_actual = self.texto8_2.img_palabras
+                self.grupo_palabras.add(self.texto8_2.words)
+                self.txt_actual = self.texto8_2.words
         self.tiempo += self.reloj_anim.get_time()
 
     def reproducir_animacion(self, animacion):
@@ -257,8 +257,8 @@ class estado(pantalla.Pantalla):
                         self.parent.config.is_screen_reader_enabled(),
                     )
                 self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto8_2.img_palabras)
-                self.txt_actual = self.texto8_2.img_palabras
+                self.grupo_palabras.add(self.texto8_2.words)
+                self.txt_actual = self.texto8_2.words
                 self.chequeo_palabra(self.txt_actual)
 
         elif animacion == 2:
@@ -268,8 +268,8 @@ class estado(pantalla.Pantalla):
             self.grupo_botones.empty()
             self.grupo_botones.add(self.config, self.volver, self.sig, self.home)
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto8_3.img_palabras)
-            self.txt_actual = self.texto8_3.img_palabras
+            self.grupo_palabras.add(self.texto8_3.words)
+            self.txt_actual = self.texto8_3.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_3"],
@@ -282,8 +282,8 @@ class estado(pantalla.Pantalla):
             self.grupo_botones.empty()
             self.grupo_botones.add(self.config, self.volver, self.sig, self.home)
             self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto8_4.img_palabras)
-            self.txt_actual = self.texto8_4.img_palabras
+            self.grupo_palabras.add(self.texto8_4.words)
+            self.txt_actual = self.texto8_4.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
                 self.parent.text_content["content"][self.name]["text_4"],

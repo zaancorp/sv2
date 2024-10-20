@@ -63,25 +63,25 @@ class estado(pantalla.Pantalla):
             70,
             "1.- ¿Te gustaría hacer el recorrido con un intérprete virtual? ",
             20,
-            "normal",
+            1,
             700,
         )
-        self.acc2_2 = Text(400, 120, "Sí            No ", 20, "normal", 800)
+        self.acc2_2 = Text(400, 120, "Sí            No ", 20, 1, 800)
         self.acc2_3 = Text(
             310,
             150,
             "2.- Selecciona el género del intérprete con el que desees hacer el recorrido. ",
             20,
-            "normal",
+            1,
             700,
         )
-        self.acc2_4 = Text(400, 200, "F             M ", 20, "normal", 800)
+        self.acc2_4 = Text(400, 200, "F             M ", 20, 1, 800)
         self.acc2_5m = Text(
             310,
             240,
             "3.- Elige el color de la camisa del intérprete virtual.  ",
             20,
-            "normal",
+            1,
             700,
         )
         self.acc2_5f = Text(
@@ -89,7 +89,7 @@ class estado(pantalla.Pantalla):
             240,
             "3.- Elige el color de la camisa de la intérprete virtual.  ",
             20,
-            "normal",
+            1,
             700,
         )
         self.acc2_6m = Text(
@@ -97,7 +97,7 @@ class estado(pantalla.Pantalla):
             330,
             "4.- Elige la velocidad del intérprete virtual. ",
             20,
-            "normal",
+            1,
             800,
         )
         self.acc2_6f = Text(
@@ -105,7 +105,7 @@ class estado(pantalla.Pantalla):
             330,
             "4.- Elige la velocidad de la intérprete virtual. ",
             20,
-            "normal",
+            1,
             800,
         )
         self.acc2_7 = Text(
@@ -113,7 +113,7 @@ class estado(pantalla.Pantalla):
             400,
             "Pulsa sobre el botón guardar para salvar tu configuración. ",
             20,
-            "normal",
+            1,
             800,
         )
 
@@ -126,7 +126,7 @@ class estado(pantalla.Pantalla):
         Si existe una configuración anterior, cargara los elementos en el mismo orden y posición,
         de lo contrario cargara la posición y valor por defecto de los elementos de la pantalla.
         """
-        self.grupo_palabras.add(self.acc2_1.img_palabras, self.acc2_2.img_palabras)
+        self.grupo_palabras.add(self.acc2_1.words, self.acc2_2.words)
         self.grupo_banner.add(self.banner_acc_sordo, self.banner_inf)
         self.parent.config.consultar()
         if self.parent.config.cache == True:
@@ -150,11 +150,11 @@ class estado(pantalla.Pantalla):
                         self.v_mujer,
                     )
                     self.grupo_palabras.add(
-                        self.acc2_3.img_palabras,
-                        self.acc2_4.img_palabras,
-                        self.acc2_5f.img_palabras,
-                        self.acc2_6f.img_palabras,
-                        self.acc2_7.img_palabras,
+                        self.acc2_3.words,
+                        self.acc2_4.words,
+                        self.acc2_5f.words,
+                        self.acc2_6f.words,
+                        self.acc2_7.words,
                     )
                 elif self.parent.config.genero == "Hombre":
                     self.grupo_anim.add(self.colors_man)
@@ -167,17 +167,17 @@ class estado(pantalla.Pantalla):
                         self.v_hombre,
                     )
                     self.grupo_palabras.add(
-                        self.acc2_3.img_palabras,
-                        self.acc2_4.img_palabras,
-                        self.acc2_5m.img_palabras,
-                        self.acc2_6m.img_palabras,
-                        self.acc2_7.img_palabras,
+                        self.acc2_3.words,
+                        self.acc2_4.words,
+                        self.acc2_5m.words,
+                        self.acc2_6m.words,
+                        self.acc2_7.words,
                     )
                 self.colors_man.cambiar_vel(self.parent.config.get_animation_speed())
                 self.colors_woman.cambiar_vel(self.parent.config.get_animation_speed())
                 self.hoja.relocate(x=self.parent.config.ubx)
             elif self.parent.config.disc_audi == False:
-                self.grupo_palabras.add(self.acc2_7.img_palabras)
+                self.grupo_palabras.add(self.acc2_7.words)
                 self.grupo_botones.add(
                     self.si, self.check_no, self.puerta, self.guardar
                 )
@@ -232,12 +232,12 @@ class estado(pantalla.Pantalla):
 
                     elif sprite[0].id == "si":
                         self.grupo_botones.remove(self.check_no, self.si, self.guardar)
-                        self.grupo_palabras.remove(self.acc2_7.img_palabras)
+                        self.grupo_palabras.remove(self.acc2_7.words)
                         self.grupo_botones.add(
                             self.boton_nino, self.boton_nina, self.check_si, self.no
                         )
                         self.grupo_palabras.add(
-                            self.acc2_3.img_palabras, self.acc2_4.img_palabras
+                            self.acc2_3.words, self.acc2_4.words
                         )
                         self.parent.config.disc_audi = True
 
@@ -256,31 +256,31 @@ class estado(pantalla.Pantalla):
                             self.camisas_mujer,
                         )
                         self.grupo_botones.add(self.check_no, self.si, self.guardar)
-                        self.grupo_palabras.add(self.acc2_7.img_palabras)
+                        self.grupo_palabras.add(self.acc2_7.words)
                         self.grupo_palabras.remove(
-                            self.acc2_3.img_palabras,
-                            self.acc2_4.img_palabras,
-                            self.acc2_5f.img_palabras,
-                            self.acc2_6f.img_palabras,
-                            self.acc2_5m.img_palabras,
-                            self.acc2_6m.img_palabras,
+                            self.acc2_3.words,
+                            self.acc2_4.words,
+                            self.acc2_5f.words,
+                            self.acc2_6f.words,
+                            self.acc2_5m.words,
+                            self.acc2_6m.words,
                         )
                         self.parent.config.disc_audi = False
 
                     elif sprite[0].id == "boton_nino":
                         self.grupo_anim.empty()
                         self.grupo_palabras.remove(
-                            self.acc2_5f.img_palabras,
-                            self.acc2_5f.img_palabras,
-                            self.acc2_6f.img_palabras,
-                            self.acc2_5f.img_palabras,
+                            self.acc2_5f.words,
+                            self.acc2_5f.words,
+                            self.acc2_6f.words,
+                            self.acc2_5f.words,
                         )
                         self.grupo_anim.add(self.colors_man)
                         self.colors_man.detener()
                         self.grupo_palabras.add(
-                            self.acc2_5m.img_palabras, self.acc2_7.img_palabras
+                            self.acc2_5m.words, self.acc2_7.words
                         )
-                        self.grupo_palabras.remove(self.acc2_6m.img_palabras)
+                        self.grupo_palabras.remove(self.acc2_6m.words)
                         self.grupo_botones.remove(
                             self.velocidad,
                             self.hoja,
@@ -299,17 +299,17 @@ class estado(pantalla.Pantalla):
                     elif sprite[0].id == "boton_nina":
                         self.grupo_anim.empty()
                         self.grupo_palabras.remove(
-                            self.acc2_5m.img_palabras,
-                            self.acc2_5m.img_palabras,
-                            self.acc2_6m.img_palabras,
-                            self.acc2_5m.img_palabras,
+                            self.acc2_5m.words,
+                            self.acc2_5m.words,
+                            self.acc2_6m.words,
+                            self.acc2_5m.words,
                         )
                         self.grupo_anim.add(self.colors_woman)
                         self.colors_woman.detener()
                         self.grupo_palabras.add(
-                            self.acc2_5f.img_palabras, self.acc2_7.img_palabras
+                            self.acc2_5f.words, self.acc2_7.words
                         )
-                        self.grupo_palabras.remove(self.acc2_6m.img_palabras)
+                        self.grupo_palabras.remove(self.acc2_6m.words)
                         self.grupo_botones.remove(
                             self.velocidad,
                             self.hoja,
@@ -329,16 +329,16 @@ class estado(pantalla.Pantalla):
                         self.grupo_anim.empty()
                         self.grupo_botones.add(self.velocidad, self.hoja)
                         self.grupo_palabras.remove(
-                            self.acc2_6f.img_palabras, self.acc2_6m.img_palabras
+                            self.acc2_6f.words, self.acc2_6m.words
                         )
                         if self.parent.config.genero == "Mujer":
-                            self.grupo_palabras.add(self.acc2_6f.img_palabras)
+                            self.grupo_palabras.add(self.acc2_6f.words)
                             self.grupo_anim.add(self.colors_woman)
                             self.colors_woman.cambiar_rect(0)
                             self.parent.config.color = self.colors_woman.fila_pos
                             self.colors_woman.continuar()
                         else:
-                            self.grupo_palabras.add(self.acc2_6m.img_palabras)
+                            self.grupo_palabras.add(self.acc2_6m.words)
                             self.grupo_anim.add(self.colors_man)
                             self.colors_man.cambiar_rect(0)
                             self.parent.config.color = self.colors_man.fila_pos
@@ -346,40 +346,40 @@ class estado(pantalla.Pantalla):
 
                     elif sprite[0].id == "rojo":
                         self.grupo_anim.empty()
-                        self.grupo_palabras.remove(self.acc2_6f.img_palabras)
+                        self.grupo_palabras.remove(self.acc2_6f.words)
                         self.grupo_botones.add(self.velocidad, self.hoja)
                         self.grupo_anim.add(self.colors_man)
-                        self.grupo_palabras.add(self.acc2_6m.img_palabras)
+                        self.grupo_palabras.add(self.acc2_6m.words)
                         self.colors_man.cambiar_rect(1)
                         self.parent.config.color = self.colors_man.fila_pos
                         self.colors_man.continuar()
 
                     elif sprite[0].id == "rosado":
                         self.grupo_anim.empty()
-                        self.grupo_palabras.remove(self.acc2_6m.img_palabras)
+                        self.grupo_palabras.remove(self.acc2_6m.words)
                         self.grupo_botones.add(self.velocidad, self.hoja)
                         self.grupo_anim.add(self.colors_woman)
-                        self.grupo_palabras.add(self.acc2_6f.img_palabras)
+                        self.grupo_palabras.add(self.acc2_6f.words)
                         self.colors_woman.cambiar_rect(1)
                         self.parent.config.color = self.colors_woman.fila_pos
                         self.colors_woman.continuar()
 
                     elif sprite[0].id == "v_hombre":
                         self.grupo_anim.empty()
-                        self.grupo_palabras.remove(self.acc2_6f.img_palabras)
+                        self.grupo_palabras.remove(self.acc2_6f.words)
                         self.grupo_botones.add(self.velocidad, self.hoja)
                         self.grupo_anim.add(self.colors_man)
-                        self.grupo_palabras.add(self.acc2_6m.img_palabras)
+                        self.grupo_palabras.add(self.acc2_6m.words)
                         self.colors_man.cambiar_rect(2)
                         self.parent.config.color = self.colors_man.fila_pos
                         self.colors_man.continuar()
 
                     elif sprite[0].id == "v_mujer":
                         self.grupo_anim.empty()
-                        self.grupo_palabras.remove(self.acc2_6f.img_palabras)
+                        self.grupo_palabras.remove(self.acc2_6f.words)
                         self.grupo_botones.add(self.velocidad, self.hoja)
                         self.grupo_anim.add(self.colors_woman)
-                        self.grupo_palabras.add(self.acc2_6f.img_palabras)
+                        self.grupo_palabras.add(self.acc2_6f.words)
                         self.colors_woman.cambiar_rect(2)
                         self.parent.config.color = self.colors_woman.fila_pos
                         self.colors_woman.continuar()
