@@ -49,7 +49,10 @@ class estado(pantalla.Pantalla):
         @type previa: bool
         """
         self.parent = parent
-        self.spserver.processtext("Configuración de discapacidad auditiva.", False)
+        self.spserver.processtext(
+            self.parent.text_loader.ui("config_screens", "auditory", "title_reader"),
+            False,
+        )
         self.previa = previa
         self.fondo_acc = pygame.image.load(
             self.backgrounds_path + "fondo-acc.png"
@@ -61,25 +64,39 @@ class estado(pantalla.Pantalla):
         self.acc2_1 = Text(
             310,
             70,
-            "1.- ¿Te gustaría hacer el recorrido con un intérprete virtual? ",
+            self.parent.text_loader.ui("config_screens", "auditory", "q1_interpreter"),
             20,
             1,
             700,
         )
-        self.acc2_2 = Text(400, 120, "Sí            No ", 20, 1, 800)
+        self.acc2_2 = Text(
+            400,
+            120,
+            self.parent.text_loader.ui("config_screens", "auditory", "opt_yes_no"),
+            20,
+            1,
+            800,
+        )
         self.acc2_3 = Text(
             310,
             150,
-            "2.- Selecciona el género del intérprete con el que desees hacer el recorrido. ",
+            self.parent.text_loader.ui("config_screens", "auditory", "q2_gender"),
             20,
             1,
             700,
         )
-        self.acc2_4 = Text(400, 200, "F             M ", 20, 1, 800)
+        self.acc2_4 = Text(
+            400,
+            200,
+            self.parent.text_loader.ui("config_screens", "auditory", "opt_f_m"),
+            20,
+            1,
+            800,
+        )
         self.acc2_5m = Text(
             310,
             240,
-            "3.- Elige el color de la camisa del intérprete virtual.  ",
+            self.parent.text_loader.ui("config_screens", "auditory", "q3_color_m"),
             20,
             1,
             700,
@@ -87,7 +104,7 @@ class estado(pantalla.Pantalla):
         self.acc2_5f = Text(
             310,
             240,
-            "3.- Elige el color de la camisa de la intérprete virtual.  ",
+            self.parent.text_loader.ui("config_screens", "auditory", "q3_color_f"),
             20,
             1,
             700,
@@ -95,7 +112,7 @@ class estado(pantalla.Pantalla):
         self.acc2_6m = Text(
             310,
             330,
-            "4.- Elige la velocidad del intérprete virtual. ",
+            self.parent.text_loader.ui("config_screens", "auditory", "q4_speed_m"),
             20,
             1,
             800,
@@ -103,7 +120,7 @@ class estado(pantalla.Pantalla):
         self.acc2_6f = Text(
             310,
             330,
-            "4.- Elige la velocidad de la intérprete virtual. ",
+            self.parent.text_loader.ui("config_screens", "auditory", "q4_speed_f"),
             20,
             1,
             800,
@@ -111,7 +128,7 @@ class estado(pantalla.Pantalla):
         self.acc2_7 = Text(
             200,
             400,
-            "Pulsa sobre el botón guardar para salvar tu configuración. ",
+            self.parent.text_loader.ui("config_screens", "auditory", "save_hint"),
             20,
             1,
             800,

@@ -3,13 +3,14 @@
 import os
 import gc
 import sys
-import json
 import pygame
 import subprocess
 
 from librerias.singleton import Singleton
 from librerias.magnificador import Rendermag
 from librerias.configuration import Configuration
+from librerias.text_repository import load_text_content
+from librerias.text_loader import TextLoader
 
 
 class Manejador(object):
@@ -190,5 +191,6 @@ class Manejador(object):
             self.states[-1].ir_glosario()
 
     def load_text_content(self):
-        with open("paginas/text/content.json") as f:
-            self.text_content = json.load(f)
+        # Load all user-facing text content from JSON.
+        self.text_content = load_text_content()
+        self.text_loader = TextLoader(self.text_content)

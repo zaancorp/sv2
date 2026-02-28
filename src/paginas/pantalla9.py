@@ -7,7 +7,6 @@ from librerias.texto import Text
 from librerias.popups import PopUp
 from librerias.imgfondo import fondo
 from librerias.pixelperfect import *
-from librerias.textopopups import p9
 from librerias.objmask import object_mask
 
 from paginas import menucfg
@@ -367,7 +366,15 @@ class estado(pantalla.Pantalla):
         )
 
         self.popup_ins1 = PopUp(
-            self.parent, (p9["texto1"],), "", None, self.grupo_popup, 1, 750, 400, -100
+            self.parent,
+            (self.parent.text_loader.popup("screen_9", "text_1"),),
+            "",
+            None,
+            self.grupo_popup,
+            1,
+            750,
+            400,
+            -100,
         )
         self.popup_ins1.agregar_grupo()
 
@@ -404,7 +411,10 @@ class estado(pantalla.Pantalla):
         self.spserver.processtext(
             "Pantalla: La Agricultura en Venezuela: ", self.parent.config.is_screen_reader_enabled()
         )
-        self.spserver.processtext(p9["lector1"], self.parent.config.is_screen_reader_enabled())
+        self.spserver.processtext(
+            self.parent.text_loader.popup("screen_9", "reader_1"),
+            self.parent.config.is_screen_reader_enabled(),
+        )
 
     def handleEvents(self, events):
         """

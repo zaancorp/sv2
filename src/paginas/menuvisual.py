@@ -3,7 +3,6 @@
 import pygame
 
 from librerias import pantalla
-from librerias.textopopups import p1_vis
 from librerias.texto import Text
 from librerias.popups import PopUp
 from paginas import pantalla2
@@ -65,7 +64,7 @@ class estado(pantalla.Pantalla):
 
         self.popup_mag = PopUp(
             parent,
-            p1_vis["texto_mag"],
+            self.parent.text_loader.popup("screen_1_reader", "text_magnifier"),
             "",
             cont_img,
             self.grupo_popup,
@@ -79,42 +78,80 @@ class estado(pantalla.Pantalla):
         self.acc3_1 = Text(
             10,
             70,
-            "1.- ¿Te gustaría hacer el recorrido con un Magnificador de Pantalla? ",
+            self.parent.text_loader.ui("config_screens", "visual", "q1_magnifier"),
             20,
             1,
             400,
         )
-        self.acc3_2 = Text(100, 120, "Sí             No ", 20, 1, 500)
-        self.acc3_3 = Text(
-            10, 250, "3.- ¿Deseas activar el lector de pantalla? ", 20, 1, 400
+        self.acc3_2 = Text(
+            100,
+            120,
+            self.parent.text_loader.ui("config_screens", "visual", "opt_yes_no"),
+            20,
+            1,
+            500,
         )
-        self.acc3_4 = Text(100, 300, "Sí             No ", 20, 1, 500)
+        self.acc3_3 = Text(
+            10,
+            250,
+            self.parent.text_loader.ui("config_screens", "visual", "q3_screen_reader"),
+            20,
+            1,
+            400,
+        )
+        self.acc3_4 = Text(
+            100,
+            300,
+            self.parent.text_loader.ui("config_screens", "visual", "opt_yes_no"),
+            20,
+            1,
+            500,
+        )
         self.acc3_5 = Text(
             10,
             340,
-            "4.- Elije la velocidad del lector de pantalla. ",
+            self.parent.text_loader.ui("config_screens", "visual", "q4_reader_speed"),
             20,
             1,
             400,
         )
         self.acc3_6 = Text(
-            40, 390, "Lenta         Media         Rápida ", 20, 1, 500
+            40,
+            390,
+            self.parent.text_loader.ui("config_screens", "visual", "opt_reader_speeds"),
+            20,
+            1,
+            500,
         )
         self.acc3_7 = Text(
             200,
             400,
-            "Pulsa sobre el botón guardar para salvar tu configuración. ",
+            self.parent.text_loader.ui("config_screens", "visual", "save_hint"),
             20,
             1,
             500,
         )
         self.acc3_8 = Text(
-            10, 160, "2.- Elige el tamaño de la letra. ", 20, 1, 400
+            10,
+            160,
+            self.parent.text_loader.ui("config_screens", "visual", "q2_font_size"),
+            20,
+            1,
+            400,
         )
-        self.acc3_9 = Text(100, 200, "18         20        22 ", 20, 1, 400)
-        instrucciones = "Pantalla: Discapacidad visual: Instrucciones: pulsa las teclas uno, 2, o 3, para seleccionar la opcion de tu preferencia, en cada una de las siguientes preguntas, o pulsa la tecla escape para volver al menú: "
-        self.pregunta1 = "¿Deseas activar el lector de pantalla? Si deseas activarlo presiona uno. Si no deseas activarlo pulsa 2. "
-        self.pregunta2 = "Elige la velocidad del lector de pantalla: Si deseas velocidad lenta, pulsa uno. Velocidad media, pulsa 2. Velocidad rápida, pulsa 3."
+        self.acc3_9 = Text(
+            100,
+            200,
+            self.parent.text_loader.ui("config_screens", "visual", "opt_font_sizes"),
+            20,
+            1,
+            400,
+        )
+        instrucciones = self.parent.text_loader.ui(
+            "config_screens", "visual", "reader_instructions"
+        )
+        self.pregunta1 = self.parent.text_loader.ui("config_screens", "visual", "reader_q1")
+        self.pregunta2 = self.parent.text_loader.ui("config_screens", "visual", "reader_q2")
 
         self.load_banners(banners)
         self.load_buttons(buttons)
@@ -236,7 +273,9 @@ class estado(pantalla.Pantalla):
                 self.grupo_botones.add(self.lector, self.oflector_si, self.guardar)
                 self.parent.config.set_screen_reader_enabled(False)
                 self.spserver.processtext(
-                    "Has configurado el lector de pantalla exitosamente, presiona enter para continuar. ",
+                    self.parent.text_loader.ui(
+                        "config_screens", "visual", "reader_success"
+                    ),
                     True,
                 )
 
@@ -283,7 +322,7 @@ class estado(pantalla.Pantalla):
                 self.parent.config.synvel = "rapida"
             self.opcion += 1
             self.spserver.processtext(
-                "Has configurado el lector de pantalla exitosamente, presiona enter para continuar.",
+                self.parent.text_loader.ui("config_screens", "visual", "reader_success"),
                 True,
             )
 
