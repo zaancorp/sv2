@@ -4,7 +4,6 @@ import random
 import pygame
 
 from librerias import pantalla
-from librerias.prp import prp
 from librerias.popups import PopUp
 from librerias.cursor import cursor
 from librerias.image import Image
@@ -100,10 +99,13 @@ class estado(pantalla.Pantalla):
         self.parent = parent
         self.visor = self.parent.screen
         pygame.display.set_caption("Siembra la semilla")
+        # Text content for actividad 1 is loaded from JSON via TextLoader.
+        self.activity1_data = self.parent.text_loader.require("activity1")
+        self.activity1_questions = self.activity1_data["questions"]
+        self.reset_questions()
         self.flecha_verde = pygame.image.load(
             self.varios + "flecha-verde.png"
         ).convert_alpha()
-        self.preguntas = prp()
         self.casa = Image(0, 70, self.varios + "casa.png")
         self.poste = Image(880, 0, self.varios + "poste.png")
         self.tractor = Image(840, 80, self.varios + "tractor.png")
@@ -148,7 +150,7 @@ class estado(pantalla.Pantalla):
         )
         self.popup_ayuda = PopUp(
             parent,
-            self.preguntas.instruc[0],
+            self.activity1_data["instructions"]["popup"],
             "",
             self.img_textos,
             self.grupo_popup,
@@ -177,6 +179,13 @@ class estado(pantalla.Pantalla):
         )
         self.update()
 
+    def reset_questions(self):
+        """
+        Restablece el conjunto de preguntas disponibles para la actividad 1.
+        """
+        self.remaining_question_ids = list(self.activity1_questions.keys())
+        self.current_question_id = None
+
     def limpiar_grupos(self):
         """Limpia los elementos de una pantalla."""
         self.grupo_personaje.empty()
@@ -191,7 +200,7 @@ class estado(pantalla.Pantalla):
         """
         Carga las imágenes e inicializa los objetos del nivel 1 de la actividad número 1.
         """
-        self.preguntas.__init__()
+        self.reset_questions()
         self.nivel_actual = 1
         self.completado = False
         self.foobar = True
@@ -317,7 +326,8 @@ class estado(pantalla.Pantalla):
         if self.ayuda == False:
             self.popup_ayuda.agregar_grupo()
             self.spserver.processtext(
-                self.preguntas.instruc[1], self.parent.config.is_screen_reader_enabled()
+                self.activity1_data["instructions"]["reader"],
+                self.parent.config.is_screen_reader_enabled(),
             )
             self.ayuda = True
         else:
@@ -326,13 +336,15 @@ class estado(pantalla.Pantalla):
             self.ayuda = False
             if self.popup_pregunta.activo:
                 self.leer_respuestas(
-                    self.preguntas.dic_pre[self.preguntas.valor],
-                    self.preguntas.dic_res[self.preguntas.valor],
+                    self.activity1_questions[self.current_question_id]["prompt"],
+                    self.activity1_questions[self.current_question_id]["options"],
                     True,
                 )
             elif self.popup_respuesta.activo:
                 self.spserver.processtext(
-                    self.preguntas.dic_pistas[self.preguntas.valor][self.cache_click]
+                    self.activity1_questions[self.current_question_id]["hints"][
+                        self.cache_click
+                    ]
                     + "Pulsa Enter para continuar. ",
                     self.parent.config.is_screen_reader_enabled(),
                 )
@@ -611,14 +623,15 @@ class estado(pantalla.Pantalla):
         """
         self.cache_click = valor
         try:
-            respuesta = self.preguntas.dic_res[self.preguntas.valor][valor]
-            if respuesta == self.preguntas.r_correcta[self.preguntas.valor]:
+            pregunta = self.activity1_questions[self.current_question_id]
+            respuesta = pregunta["options"][valor]
+            if respuesta == pregunta["correct"]:
                 self.respuesta = 1
                 self.popup_respuesta = PopUp(
                     self.parent,
-                    (self.preguntas.dic_pistas[self.preguntas.valor][valor],),
+                    (pregunta["hints"][valor],),
                     "Aceptar",
-                    (self.img_pistas[self.preguntas.valor], self.apla),
+                    (self.img_pistas[int(self.current_question_id)], self.apla),
                     self.grupo_popup,
                     0,
                     512,
@@ -628,7 +641,7 @@ class estado(pantalla.Pantalla):
                 self.respuesta = 0
                 self.popup_respuesta = PopUp(
                     self.parent,
-                    (self.preguntas.dic_pistas[self.preguntas.valor][valor],),
+                    (pregunta["hints"][valor],),
                     "Aceptar",
                     self.pensa,
                     self.grupo_popup,
@@ -637,8 +650,7 @@ class estado(pantalla.Pantalla):
                     400,
                 )
             self.spserver.processtext(
-                self.preguntas.dic_pistas[self.preguntas.valor][valor]
-                + "Pulsa Enter para continuar. ",
+                pregunta["hints"][valor] + "Pulsa Enter para continuar. ",
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.popup_respuesta.agregar_grupo()
@@ -766,12 +778,16 @@ class estado(pantalla.Pantalla):
         if not self.leer_ubicacion:
             if self.nivel_actual == 1:
                 self.spserver.processtext(
-                    self.preguntas.marcas_n1[self.marcador.id][self.det_msj_n1()],
+                    self.activity1_data["markers"]["nivel1"][self.marcador.id][
+                        self.det_msj_n1()
+                    ],
                     self.parent.config.is_screen_reader_enabled(),
                 )
             elif self.nivel_actual == 2:
                 self.spserver.processtext(
-                    self.preguntas.marcas_n2[self.marcador.id][self.det_msj_n2()],
+                    self.activity1_data["markers"]["nivel2"][self.marcador.id][
+                        self.det_msj_n2()
+                    ],
                     self.parent.config.is_screen_reader_enabled(),
                 )
             self.leer_ubicacion = True
@@ -813,7 +829,8 @@ class estado(pantalla.Pantalla):
         Actualiza la imagen y código del personaje. Elimina el objeto encontrado del grupo de sprites.
         """
         self.granjero.codigo += self.sprite.aumento
-        self.preguntas.quitar_pregunta(self.preguntas.valor)
+        if self.current_question_id in self.remaining_question_ids:
+            self.remaining_question_ids.remove(self.current_question_id)
         self.granjero.cambiar_imagen(self.granjero.dic_imagenes[self.granjero.codigo])
         self.grupo_objetos.remove(self.sprite)
         if self.nivel_actual == 1:
@@ -879,16 +896,19 @@ class estado(pantalla.Pantalla):
         """
         if not self.texto_visible:
             if self.granjero.codigo >= 0 or self.sprite.nombre == "la carretilla. ":
-                r1 = random.randint(0, len(self.preguntas.nros) - 1)
-                aleatorio = self.preguntas.nros[r1]
+                if not self.remaining_question_ids:
+                    return
+                r1 = random.randint(0, len(self.remaining_question_ids) - 1)
+                qid = self.remaining_question_ids[r1]
+                pregunta = self.activity1_questions[qid]
                 self.leer_respuestas(
-                    self.preguntas.dic_pre[aleatorio],
-                    self.preguntas.dic_res_lector[aleatorio],
+                    pregunta["prompt"],
+                    pregunta["options_reader"],
                 )
-                self.preguntas.valor = aleatorio
+                self.current_question_id = qid
                 self.popup_pregunta = PopUp(
                     self.parent,
-                    (self.preguntas.dic_pr[aleatorio]),
+                    tuple(pregunta["popup"]),
                     "Aceptar",
                     0,
                     self.grupo_popup,
