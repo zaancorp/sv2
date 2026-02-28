@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "sv2"
+version = "0.1.0"
+description = "Sembrando para el futuro — educational accessibility app built with Python and Pygame."
+authors = ["sv2 maintainers <dev@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.13.7,<4.0"
+pygame = "^2.6.1"
+numpy = "^2.4.2"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
