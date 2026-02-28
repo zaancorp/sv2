@@ -8,6 +8,7 @@ from librerias.cursor import cursor
 from librerias.button import Button, RenderButton
 from librerias.speechserver import Speechserver
 from librerias.magnificador import magnificador, Rendermag
+from librerias.texto import Text
 from librerias.assets_data import *
 
 
@@ -183,6 +184,42 @@ class Pantalla(object):
                 attribute_name,
                 pygame.image.load(self.pops + filename).convert_alpha(),
             )
+
+    def screen_text(self, key):
+        """
+        Returns the raw string for the given key from this screen's section
+        in content.json (i.e. content → self.name → key).
+
+        Use this for TTS / processtext calls instead of the verbose raw dict:
+            # before:
+            self.parent.text_content["content"][self.name]["text_2"]
+            # after:
+            self.screen_text("text_2")
+        """
+        return self.parent.text_loader.get("content", self.name, key)
+
+    def load_screen_texts(self, keys, x=64, y=340, text_type=1, right_limit=960, custom=False):
+        """
+        Creates Text objects for a list of content.json keys belonging to this
+        screen's section, all sharing the same layout parameters.
+
+        Returns a dict mapping each key to its Text object.
+
+        Usage in cargar_textos:
+            texts = self.load_screen_texts(["text_2", "text_3", "text_4"])
+            self.texto4_2 = texts["text_2"]
+            self.texto4_3 = texts["text_3"]
+            ...
+
+        Override the defaults for screens that use different coordinates:
+            texts = self.load_screen_texts(["text_2"], x=32, right_limit=992)
+        """
+        content = self.parent.text_loader.screen_content(self.name)
+        font_size = self.parent.config.get_font_size()
+        return {
+            key: Text(x, y, content[key], font_size, text_type, right_limit, custom)
+            for key in keys
+        }
 
     def limpiar_grupos(self):
         """Limpia los elementos de una pantalla."""

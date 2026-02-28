@@ -128,7 +128,7 @@ class estado(pantalla.Pantalla):
         self.texto9_2_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_2_1"],
+            self.screen_text("text_2_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -136,7 +136,7 @@ class estado(pantalla.Pantalla):
         self.texto9_2_2 = Text(
             490,
             self.texto9_2_1.y + self.texto9_2_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_2_2"],
+            self.screen_text("text_2_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -144,7 +144,7 @@ class estado(pantalla.Pantalla):
         self.texto9_2_3 = Text(
             490,
             self.texto9_2_2.y + self.texto9_2_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_2_3"],
+            self.screen_text("text_2_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -152,7 +152,7 @@ class estado(pantalla.Pantalla):
         self.texto9_2_4 = Text(
             490,
             self.texto9_2_3.y + self.texto9_2_3.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_2_4"],
+            self.screen_text("text_2_4"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -161,7 +161,7 @@ class estado(pantalla.Pantalla):
         self.texto9_3_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_3_1"],
+            self.screen_text("text_3_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -169,7 +169,7 @@ class estado(pantalla.Pantalla):
         self.texto9_3_2 = Text(
             490,
             self.texto9_3_1.y + self.texto9_3_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_3_2"],
+            self.screen_text("text_3_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -177,7 +177,7 @@ class estado(pantalla.Pantalla):
         self.texto9_3_3 = Text(
             490,
             self.texto9_3_2.y + self.texto9_3_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_3_3"],
+            self.screen_text("text_3_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -186,7 +186,7 @@ class estado(pantalla.Pantalla):
         self.texto9_4_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_4_1"],
+            self.screen_text("text_4_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -194,7 +194,7 @@ class estado(pantalla.Pantalla):
         self.texto9_4_2 = Text(
             490,
             self.texto9_4_1.y + self.texto9_4_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_4_2"],
+            self.screen_text("text_4_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -202,7 +202,7 @@ class estado(pantalla.Pantalla):
         self.texto9_4_3 = Text(
             490,
             self.texto9_4_2.y + self.texto9_4_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_4_3"],
+            self.screen_text("text_4_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -211,7 +211,7 @@ class estado(pantalla.Pantalla):
         self.texto9_5_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_5_1"],
+            self.screen_text("text_5_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -219,7 +219,7 @@ class estado(pantalla.Pantalla):
         self.texto9_5_2 = Text(
             490,
             self.texto9_5_1.y + self.texto9_5_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_5_2"],
+            self.screen_text("text_5_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -227,7 +227,7 @@ class estado(pantalla.Pantalla):
         self.texto9_5_3 = Text(
             490,
             self.texto9_5_2.y + self.texto9_5_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_5_3"],
+            self.screen_text("text_5_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -235,7 +235,7 @@ class estado(pantalla.Pantalla):
         self.texto9_6_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_6_1"],
+            self.screen_text("text_6_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -243,7 +243,7 @@ class estado(pantalla.Pantalla):
         self.texto9_6_2 = Text(
             490,
             self.texto9_6_1.y + self.texto9_6_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_6_2"],
+            self.screen_text("text_6_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -251,7 +251,7 @@ class estado(pantalla.Pantalla):
         self.texto9_6_3 = Text(
             490,
             self.texto9_6_2.y + self.texto9_6_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_6_3"],
+            self.screen_text("text_6_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -260,7 +260,7 @@ class estado(pantalla.Pantalla):
         self.texto9_7_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_7_1"],
+            self.screen_text("text_7_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -268,7 +268,7 @@ class estado(pantalla.Pantalla):
         self.texto9_7_2 = Text(
             490,
             self.texto9_7_1.y + self.texto9_7_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_7_2"],
+            self.screen_text("text_7_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -276,7 +276,7 @@ class estado(pantalla.Pantalla):
         self.texto9_7_3 = Text(
             490,
             self.texto9_7_2.y + self.texto9_7_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_7_3"],
+            self.screen_text("text_7_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -285,7 +285,7 @@ class estado(pantalla.Pantalla):
         self.texto9_8_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_8_1"],
+            self.screen_text("text_8_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -293,7 +293,7 @@ class estado(pantalla.Pantalla):
         self.texto9_8_2 = Text(
             490,
             self.texto9_8_1.y + self.texto9_8_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_8_2"],
+            self.screen_text("text_8_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -301,7 +301,7 @@ class estado(pantalla.Pantalla):
         self.texto9_8_3 = Text(
             490,
             self.texto9_8_2.y + self.texto9_8_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_8_3"],
+            self.screen_text("text_8_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -310,7 +310,7 @@ class estado(pantalla.Pantalla):
         self.texto9_9_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_9_1"],
+            self.screen_text("text_9_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -318,7 +318,7 @@ class estado(pantalla.Pantalla):
         self.texto9_9_2 = Text(
             490,
             self.texto9_9_1.y + self.texto9_9_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_9_2"],
+            self.screen_text("text_9_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -326,7 +326,7 @@ class estado(pantalla.Pantalla):
         self.texto9_9_3 = Text(
             490,
             self.texto9_9_2.y + self.texto9_9_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_9_3"],
+            self.screen_text("text_9_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -335,7 +335,7 @@ class estado(pantalla.Pantalla):
         self.texto9_10_1 = Text(
             490,
             60,
-            self.parent.text_content["content"][self.name]["text_10_1"],
+            self.screen_text("text_10_1"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -343,7 +343,7 @@ class estado(pantalla.Pantalla):
         self.texto9_10_2 = Text(
             490,
             self.texto9_10_1.y + self.texto9_10_1.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_10_2"],
+            self.screen_text("text_10_2"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -351,7 +351,7 @@ class estado(pantalla.Pantalla):
         self.texto9_10_3 = Text(
             490,
             self.texto9_10_2.y + self.texto9_10_2.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_10_3"],
+            self.screen_text("text_10_3"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -359,7 +359,7 @@ class estado(pantalla.Pantalla):
         self.texto9_10_4 = Text(
             490,
             self.texto9_10_3.y + self.texto9_10_3.total_width + 10,
-            self.parent.text_content["content"][self.name]["text_10_4"],
+            self.screen_text("text_10_4"),
             self.parent.config.get_font_size(),
             1,
             1000,
@@ -469,9 +469,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_2_4.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_2_1l"
-                                    ]
+                                    self.screen_text("text_2_1l")
                                     + self.texto9_2_2.texto
                                     + self.texto9_2_3.texto
                                     + self.texto9_2_4.texto,
@@ -495,9 +493,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_3_3.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_3_1l"
-                                    ]
+                                    self.screen_text("text_3_1l")
                                     + self.texto9_3_2.texto
                                     + self.texto9_3_3.texto,
                                     self.parent.config.is_screen_reader_enabled(),
@@ -519,9 +515,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_4_3.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_4_1l"
-                                    ]
+                                    self.screen_text("text_4_1l")
                                     + self.texto9_4_2.texto
                                     + self.texto9_4_3.texto,
                                     self.parent.config.is_screen_reader_enabled(),
@@ -545,9 +539,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_5_3.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_5_1l"
-                                    ]
+                                    self.screen_text("text_5_1l")
                                     + self.texto9_5_2.texto
                                     + self.texto9_5_3.texto,
                                     self.parent.config.is_screen_reader_enabled(),
@@ -571,9 +563,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_6_3.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_6_1l"
-                                    ]
+                                    self.screen_text("text_6_1l")
                                     + self.texto9_6_2.texto
                                     + self.texto9_6_3.texto,
                                     self.parent.config.is_screen_reader_enabled(),
@@ -597,9 +587,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_7_3.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_7_1l"
-                                    ]
+                                    self.screen_text("text_7_1l")
                                     + self.texto9_7_2.texto
                                     + self.texto9_7_3.texto,
                                     self.parent.config.is_screen_reader_enabled(),
@@ -622,9 +610,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_8_3.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_8_1l"
-                                    ]
+                                    self.screen_text("text_8_1l")
                                     + self.texto9_8_2.texto
                                     + self.texto9_8_3.texto,
                                     self.parent.config.is_screen_reader_enabled(),
@@ -648,9 +634,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_9_3.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_9_1l"
-                                    ]
+                                    self.screen_text("text_9_1l")
                                     + self.texto9_9_2.texto
                                     + self.texto9_9_3.texto,
                                     self.parent.config.is_screen_reader_enabled(),
@@ -675,9 +659,7 @@ class estado(pantalla.Pantalla):
                                     self.texto9_10_4.words,
                                 )
                                 self.spserver.processtext(
-                                    self.parent.text_content["content"][self.name][
-                                        "text_10_1l"
-                                    ]
+                                    self.screen_text("text_10_1l")
                                     + self.texto9_10_2.texto
                                     + self.texto9_10_3.texto
                                     + self.texto9_10_4.texto,

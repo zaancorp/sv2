@@ -13,6 +13,7 @@ class Configuration:
         self.preferences = self.load_config()
         self.changed = False
         self.preferences['visited_screens'] = self.preferences.get('visited_screens', {})
+        self._migrate()
 
     def load_config(self):
         """
@@ -51,8 +52,22 @@ class Configuration:
             "genero": "",
             "synvel": "baja",
             "definicion": "",
-            "visit": {"p0": False, "p2": False}
+            "visited_screens": {},
         }
+
+    def _migrate(self):
+        """
+        Remove obsolete config keys that are no longer used.
+        Saves the file if any keys were removed, so the cleanup is persistent.
+        """
+        dead_keys = ["visit", "texto_cambio"]
+        changed = False
+        for key in dead_keys:
+            if key in self.preferences:
+                del self.preferences[key]
+                changed = True
+        if changed:
+            self.save_config()
 
     def get_preference(self, key, default=None):
         """

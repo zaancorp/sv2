@@ -150,7 +150,7 @@ class estado(pantalla.Pantalla):
         self.concepto = Text(
             600,
             200,
-            self.parent.text_content["concepts"][palabra],
+            self.parent.text_loader.concept(palabra),
             self.parent.config.get_font_size(),
             "concepto",
             1000,

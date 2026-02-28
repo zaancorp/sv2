@@ -4,6 +4,28 @@ import pygame
 
 from .palabra import palabra
 
+# ---------------------------------------------------------------------------
+# Layout constants for the 1024×572 display
+# ---------------------------------------------------------------------------
+
+# Horizontal bounds used when estimating how many lines a text block spans.
+# The estimate pass walks left→right across a virtual 1024-px line using these
+# values; the actual layout margins are then chosen from the table below.
+_MEASURE_LEFT  = 128
+_MEASURE_RIGHT = 896   # = 1024 - _MEASURE_LEFT
+
+# Left/right layout margins for auto-layout mode (custom=False), chosen by the
+# estimated line count.  Values are (left_margin, right_margin).
+_LAYOUT_1LINE = (256, 768)
+_LAYOUT_2LINE = (192, 832)
+_LAYOUT_3PLUS = (32,  992)
+
+# Vertical centre of the text-box panel that appears in content screens.
+# The panel image is placed at y=332; this constant is the pixel row used to
+# vertically centre a text block within that panel area.
+_TEXT_AREA_VCENTER = 382
+
+
 class Text:
     def __init__(self, x, y, text, size, text_type, right_limit, custom=True):
         self.x = x
@@ -30,25 +52,25 @@ class Text:
         else:
             line_count = self._estimate_line_count()
             if line_count == 1:
-                return 256, 768
+                return _LAYOUT_1LINE
             elif line_count == 2:
-                return 192, 832
+                return _LAYOUT_2LINE
             else:
-                return 32, 992
+                return _LAYOUT_3PLUS
 
     def _estimate_line_count(self):
-        x = 128
+        x = _MEASURE_LEFT
         line_count = 1
         for word in self.words:
-            if x + word.rect.width > 896:
-                x = 128
+            if x + word.rect.width > _MEASURE_RIGHT:
+                x = _MEASURE_LEFT
                 line_count += 1
             x += word.rect.width + self.space
         return line_count
 
     def _layout_words(self):
         x = self.left_limit
-        y = self.y if self.text_type == "instruccion" else 382 - (self._estimate_total_height() / 2)
+        y = self.y if self.text_type == "instruccion" else _TEXT_AREA_VCENTER - (self._estimate_total_height() / 2)
         max_width = 0
         total_height = 0
 

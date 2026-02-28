@@ -126,63 +126,6 @@ def set_preference(self, key, value):
 
 ---
 
-### E. Two parallel ways to access text content
-
-**Files:** `paginas/pantalla3.py`, `paginas/pantalla4.py`, `paginas/pantalla5.py`
-
-`pantalla4.py` accesses text via raw dict:
-```python
-self.parent.text_content["content"][self.name]["text_2"]
-```
-
-`pantalla5.py` uses a dictionary comprehension and raw access:
-```python
-content = self.parent.text_content["content"][self.name]
-```
-
-`TextLoader` already exists with a cleaner API:
-```python
-self.parent.text_loader.screen_content("screen_4")["text_2"]
-# or
-self.parent.text_loader.get("content", "screen_4", "text_2")
-```
-
-The `TextLoader` was added more recently and wasn't retroactively applied to older screens. Having two ways to do the same thing means every screen is slightly different, and mistakes (typos in key strings) fail at runtime rather than at startup.
-
-**Fix:** Standardise on `text_loader` everywhere. Consider loading all texts at screen init time and checking that all expected keys exist so you get a clear error early.
-
----
-
-### F. `cargar_textos()` is boilerplate repeated across every screen
-
-**Files:** `paginas/pantalla3.py`, `pantalla4.py`, `pantalla5.py`, `pantalla6.py`, ...
-
-Every content screen has a `cargar_textos()` method that creates 2–5 `Text` objects with almost identical constructor arguments. From `pantalla4.py`:
-
-```python
-self.texto4_2 = Text(64, 340, self.parent.text_content[...]["text_2"],
-                     self.parent.config.get_font_size(), 1, 960, False)
-self.texto4_3 = Text(64, 340, self.parent.text_content[...]["text_3"],
-                     self.parent.config.get_font_size(), 1, 960, False)
-self.texto4_4 = Text(64, 340, self.parent.text_content[...]["text_4"],
-                     self.parent.config.get_font_size(), 1, 960, False)
-self.texto4_5 = Text(64, 340, self.parent.text_content[...]["text_5"],
-                     self.parent.config.get_font_size(), 1, 960, False)
-```
-
-The only thing changing is the key string (`"text_2"`, `"text_3"`, ...). `pantalla5.py` already improved this into a dict comprehension, but only for itself.
-
-**Fix:** Add a helper on `Pantalla` (or make `cargar_textos` a shared method):
-```python
-def load_screen_texts(self, keys, x=64, y=340, text_type=1, right_limit=960):
-    content = self.parent.text_loader.screen_content(self.name)
-    return {k: Text(x, y, content[k], self.parent.config.get_font_size(),
-                    text_type, right_limit, False)
-            for k in keys}
-```
-
----
-
 ### G. `resume()` called from `__init__` — init logic is split in two
 
 **Files:** all `paginas/pantalla*.py`
@@ -243,16 +186,6 @@ This dumps `backgrounds`, `banners`, `images`, `animations`, `buttons`, `popups`
 
 ---
 
-### K. Duplicate config keys in `user_config.json`
-
-**Files:** `src/user_config.json`
-
-The saved config contains both `"text_change": false` and `"texto_cambio": false`. `Configuration` only reads `text_change`. `texto_cambio` is a leftover from an earlier version and is dead data silently persisted forever. Similarly, `"visit": {"p0": false, "p2": false}` is a legacy structure duplicated by the newer `"visited_screens": {}` which `Configuration.has_visited_screen` / `mark_screen_visited` actually uses.
-
-**Fix:** Remove `texto_cambio` and `visit` from the defaults and migrate any existing files on first load.
-
----
-
 ### L. Glossary vocabulary hardcoded in Python
 
 **Files:** `librerias/palabra.py`
@@ -276,24 +209,6 @@ These two dicts are the vocabulary index — which words in the flowing text are
 
 ---
 
-### M. Magic pixel numbers throughout `texto.py`
-
-**Files:** `librerias/texto.py`
-
-```python
-y = 382 - (self._estimate_total_height() / 2)   # vertical centre of text box
-# and in _calculate_limits:
-return 256, 768   # for 1-line text
-return 192, 832   # for 2-line text
-return 32,  992   # for 3+ line text
-```
-
-These numbers are hardcoded to the 1024×572 display size and to specific UI layout assumptions. They are not named, not derived, and invisible to anyone working on the layout. If the display resolution ever changed (or if a text box were placed differently), these would all need hunting down.
-
-**Fix:** Define layout constants at the module level or in a `constants.py`. Even just naming them makes them self-documenting: `TEXT_BOX_TOP = 332`, `TEXT_BOX_HEIGHT = 240`, etc.
-
----
-
 ### N. `Manejador.interpretar()` does two unrelated things
 
 **Files:** `manejador.py`
@@ -306,20 +221,59 @@ The Blenderplayer branch also contains a check for a Python 3.2 bytecode cache f
 
 ## Priority order for simplification
 
-Given your goal of simplifying repetitive patterns while keeping the core working:
+Given the goal of simplifying repetitive patterns while keeping the core working, the remaining open items in rough priority order:
 
-1. **Fix class-level mutable state on `Pantalla`** (item A) — this is a latent bug that will bite when you add any feature that uses `pushState` properly. Move all groups and lists into `__init__`.
+1. **Fix class-level mutable state on `Pantalla`** (A) — latent bug that will bite when any feature uses `pushState` properly. Move all groups and lists into `__init__`.
 
-2. **Standardise text loading** (items E + F) — replace raw dict access with `text_loader` everywhere, and add a shared helper method so `cargar_textos` is no longer copy-pasted in every screen.
+2. **Consolidate SpriteSheet** (H) — quick win, reduces duplication across two key modules.
 
-3. **Consolidate SpriteSheet** (item H) — quick win, reduces duplication across two key modules.
+3. **Move glossary vocabulary to JSON** (L) — makes content edits possible without touching Python, consistent with the direction already taken with `content.json`.
 
-4. **Clean up `user_config.json` dead keys** (item K) — remove `texto_cambio` and `visit` from defaults, preventing future confusion.
+4. **Fix the Singleton or remove it** (B) — technically harmless today but misleading. Either fix it or delete `singleton.py` and document the assumption.
 
-5. **Move glossary vocabulary to JSON** (item L) — makes content edits possible without touching Python, consistent with the direction already taken with `content.json`.
+5. **Fix `resume()`/`start()` split** (G) and **consolidate `tipo_objeto` dispatch** (I) — clean up the screen lifecycle and keyboard navigation respectively.
 
-6. **Fix the Singleton or remove it** (item B) — the broken Singleton is technically harmless today but makes the code misleading. Either fix it or delete `singleton.py` and document the assumption in `CLAUDE.md`.
+---
 
-7. **Named layout constants** (item M) — low effort, high readability gain.
+## Changelog
 
-8. **Fix `resume()`/`start()` split** (item G) and **consolidate `tipo_objeto` dispatch** (item I) — these are refactors that clean up the screen lifecycle and keyboard navigation respectively.
+Improvements applied so far, in chronological order.
+
+---
+
+### ✅ E + F — Standardised text loading across all screens *(2026-02)*
+
+**Files changed:** `librerias/pantalla.py`, `paginas/pantalla3–6,8–11.py`
+
+Two problems were solved together:
+
+- **E (two text-access styles):** All raw `self.parent.text_content["content"][self.name]["key"]` lookups were replaced with `self.screen_text("key")`, a thin wrapper around `text_loader.get()` added to `Pantalla`. Every screen now goes through `TextLoader` consistently.
+
+- **F (cargar_textos boilerplate):** `Pantalla` gained a `load_screen_texts(keys, x, y, text_type, right_limit, custom)` helper that builds a `{key → Text}` dict in one call. Screens that had uniform `Text(...)` constructors (pantalla3, 4, 5, 6, 8) now use it. Screens with chained-y layout (pantalla9, 11) keep their explicit `Text(...)` calls but still benefit from `screen_text()` for all their string lookups.
+
+The now-redundant `from librerias.texto import Text` imports were removed from pantalla3, 4, 5, 6, and 8.
+
+---
+
+### ✅ K — Dead config keys removed *(2026-02)*
+
+**Files changed:** `librerias/configuration.py`, `src/user_config.json`, `src/librerias/user_config.json`
+
+`texto_cambio` and `visit` removed from `Configuration.get_default_config()`. A `_migrate()` method was added and called from `__init__` so that any existing saved file has these keys stripped on first load, and the cleaned file is written back immediately.
+
+---
+
+### ✅ M — Named layout constants in `texto.py` *(2026-02)*
+
+**Files changed:** `librerias/texto.py`
+
+Six module-level constants replaced all magic pixel numbers:
+
+```python
+_MEASURE_LEFT      = 128   # left edge used when estimating line count
+_MEASURE_RIGHT     = 896   # right edge used when estimating line count
+_LAYOUT_1LINE      = (256, 768)   # (left, right) margins for single-line text
+_LAYOUT_2LINE      = (192, 832)   # margins for two-line text
+_LAYOUT_3PLUS      = (32,  992)   # margins for three-or-more lines
+_TEXT_AREA_VCENTER = 382   # vertical midpoint of the on-screen text area
+```

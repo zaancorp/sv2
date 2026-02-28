@@ -65,7 +65,7 @@ class estado(pantalla.Pantalla):
         self.texto11 = Text(
             400,
             200,
-            self.parent.text_content["content"][self.name]["text_1"],
+            self.screen_text("text_1"),
             self.parent.config.get_font_size(),
             "instruccion",
             800,
@@ -73,7 +73,7 @@ class estado(pantalla.Pantalla):
         self.texto11_5_1 = Text(
             300,
             130,
-            self.parent.text_content["content"][self.name]["text_5_1"],
+            self.screen_text("text_5_1"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -81,7 +81,7 @@ class estado(pantalla.Pantalla):
         self.texto11_5_2 = Text(
             300,
             self.texto11_5_1.y + self.texto11_5_1.ancho_final + 10,
-            self.parent.text_content["content"][self.name]["text_5_2"],
+            self.screen_text("text_5_2"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -89,7 +89,7 @@ class estado(pantalla.Pantalla):
         self.texto11_5_3 = Text(
             300,
             self.texto11_5_2.y + self.texto11_5_2.ancho_final + 10,
-            self.parent.text_content["content"][self.name]["text_5_3"],
+            self.screen_text("text_5_3"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -97,7 +97,7 @@ class estado(pantalla.Pantalla):
         self.texto11_6_1 = Text(
             300,
             130,
-            self.parent.text_content["content"][self.name]["text_6_1"],
+            self.screen_text("text_6_1"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -105,7 +105,7 @@ class estado(pantalla.Pantalla):
         self.texto11_6_2 = Text(
             300,
             self.texto11_6_1.y + self.texto11_6_1.ancho_final + 10,
-            self.parent.text_content["content"][self.name]["text_6_2"],
+            self.screen_text("text_6_2"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -113,7 +113,7 @@ class estado(pantalla.Pantalla):
         self.texto11_6_3 = Text(
             300,
             self.texto11_6_2.y + self.texto11_6_2.ancho_final + 10,
-            self.parent.text_content["content"][self.name]["text_6_3"],
+            self.screen_text("text_6_3"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -121,7 +121,7 @@ class estado(pantalla.Pantalla):
         self.texto11_7_1 = Text(
             300,
             130,
-            self.parent.text_content["content"][self.name]["text_7_1"],
+            self.screen_text("text_7_1"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -129,7 +129,7 @@ class estado(pantalla.Pantalla):
         self.texto11_7_2 = Text(
             300,
             self.texto11_7_1.y + self.texto11_7_1.ancho_final + 10,
-            self.parent.text_content["content"][self.name]["text_7_2"],
+            self.screen_text("text_7_2"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -137,7 +137,7 @@ class estado(pantalla.Pantalla):
         self.texto11_7_3 = Text(
             300,
             self.texto11_7_2.y + self.texto11_7_2.ancho_final + 10,
-            self.parent.text_content["content"][self.name]["text_7_3"],
+            self.screen_text("text_7_3"),
             self.parent.config.get_font_size(),
             1,
             900,
@@ -190,15 +190,9 @@ class estado(pantalla.Pantalla):
                                 self.banner_or_es, self.caja_or, self.banner_inf
                             )
                             self.spserver.processtext(
-                                self.parent.text_content["content"][self.name][
-                                    "text_5_1l"
-                                ]
-                                + self.parent.text_content["content"][self.name][
-                                    "text_5_2l"
-                                ]
-                                + self.parent.text_content["content"][self.name][
-                                    "text_5_3l"
-                                ]
+                                self.screen_text("text_5_1l")
+                                + self.screen_text("text_5_2l")
+                                + self.screen_text("text_5_3l")
                                 + "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
                                 self.parent.config.is_screen_reader_enabled(),
                             )
@@ -222,15 +216,9 @@ class estado(pantalla.Pantalla):
                             )
 
                             self.spserver.processtext(
-                                self.parent.text_content["content"][self.name][
-                                    "text_6_1l"
-                                ]
-                                + self.parent.text_content["content"][self.name][
-                                    "text_6_2l"
-                                ]
-                                + self.parent.text_content["content"][self.name][
-                                    "text_6_3l"
-                                ]
+                                self.screen_text("text_6_1l")
+                                + self.screen_text("text_6_2l")
+                                + self.screen_text("text_6_3l")
                                 + "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
                                 self.parent.config.is_screen_reader_enabled(),
                             )
@@ -254,15 +242,9 @@ class estado(pantalla.Pantalla):
                             )
 
                             self.spserver.processtext(
-                                self.parent.text_content["content"][self.name][
-                                    "text_7_1l"
-                                ]
-                                + self.parent.text_content["content"][self.name][
-                                    "text_7_2l"
-                                ]
-                                + self.parent.text_content["content"][self.name][
-                                    "text_7_3l"
-                                ]
+                                self.screen_text("text_7_1l")
+                                + self.screen_text("text_7_2l")
+                                + self.screen_text("text_7_3l")
                                 + "Fin de contenido, regresa al menú. ",
                                 self.parent.config.is_screen_reader_enabled(),
                             )

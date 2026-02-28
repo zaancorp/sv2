@@ -3,7 +3,6 @@
 import pygame
 
 from librerias import pantalla
-from librerias.texto import Text
 from librerias.image import Image
 
 from paginas import menucfg
@@ -55,36 +54,18 @@ class estado(pantalla.Pantalla):
         self.resume()
 
     def cargar_textos(self):
-        content = self.parent.text_content["content"][self.name]
-        font_size = self.parent.config.get_font_size()
-        
-        text_config = {
-            "text_2": (32, 340),
-            "text_3": (32, 340),
-            "text_4": (32, 340),
-            "text_5": (32, 340),
-            "text_6": (32, 340),
-            "text_7": (32, 340),
-            "text_8": (32, 340),
-            "text_9": (32, 340),
-        }
-        
-        self.text_objects = {}
-        for key, (x, y) in text_config.items():
-            self.text_objects[key] = Text(
-                x, y, content[key],
-                font_size, 1, 992, False
-            )
-
-        self.texto6_2, self.texto6_3, self.texto6_4 = [
-            self.text_objects[f"text_{i}"] for i in range(2, 5)
-        ]
-
-        self.texto7_2, self.texto7_3, self.texto7_4, self.texto7_5, self.texto7_6 = [
-            self.text_objects[f"text_{i}"] for i in range(5, 10)
-        ]
-        
-        self.words = [text.words for text in self.text_objects.values()]
+        texts = self.load_screen_texts(
+            ["text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9"],
+            x=32, right_limit=992
+        )
+        self.texto6_2 = texts["text_2"]
+        self.texto6_3 = texts["text_3"]
+        self.texto6_4 = texts["text_4"]
+        self.texto7_2 = texts["text_5"]
+        self.texto7_3 = texts["text_6"]
+        self.texto7_4 = texts["text_7"]
+        self.texto7_5 = texts["text_8"]
+        self.texto7_6 = texts["text_9"]
 
     def resume(self):
         """
@@ -160,7 +141,7 @@ class estado(pantalla.Pantalla):
 
                         elif self.x.tipo_objeto == "palabra":
                             self.spserver.processtext(
-                                self.parent.text_content["concepts"][self.x.codigo],
+                                self.parent.text_loader.concept(self.x.codigo),
                                 self.parent.config.is_screen_reader_enabled(),
                             )
 
@@ -214,13 +195,13 @@ class estado(pantalla.Pantalla):
             if self.parent.config.is_screen_reader_enabled():
                 if self.entrada_primera_vez:
                     self.spserver.processtext2(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
                 else:
                     self.spserver.processtext(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
 
@@ -241,7 +222,7 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.add(self.animation_6_3)
             self.animation_6.detener()
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["anim_1"],
+                self.screen_text("anim_1"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
@@ -254,7 +235,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto6_3.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_3"],
+                self.screen_text("text_3"),
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
@@ -269,7 +250,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto6_4.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_4"],
+                self.screen_text("text_4"),
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
@@ -284,7 +265,7 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.add(self.animation_6_4)
             self.animation_6.detener()
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["anim_2"],
+                self.screen_text("anim_2"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
@@ -297,7 +278,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto7_2.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_5"],
+                self.screen_text("text_5"),
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
@@ -310,7 +291,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto7_3.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_6"],
+                self.screen_text("text_6"),
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
@@ -323,7 +304,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto7_4.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_7"],
+                self.screen_text("text_7"),
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
@@ -337,7 +318,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto7_5.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_8"],
+                self.screen_text("text_8"),
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
@@ -352,7 +333,7 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.add(self.animation_6_5)
             self.animation_6.detener()
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["anim_3"],
+                self.screen_text("anim_3"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
@@ -366,7 +347,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto7_6.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_9"],
+                self.screen_text("text_9"),
                 self.parent.config.is_screen_reader_enabled(),
             )
             self.animation_6.continuar()
@@ -382,7 +363,7 @@ class estado(pantalla.Pantalla):
             self.grupo_anim.add(self.animation_6_6)
             self.animation_6.detener()
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["anim_4"],
+                self.screen_text("anim_4"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 

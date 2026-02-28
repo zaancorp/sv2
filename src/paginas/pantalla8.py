@@ -3,7 +3,6 @@
 import pygame
 
 from librerias import pantalla
-from librerias.texto import Text
 from librerias.image import Image
 
 from paginas import menucfg
@@ -66,33 +65,10 @@ class estado(pantalla.Pantalla):
         """
         Carga los textos utilizados en esta pantalla.
         """
-        self.texto8_2 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_2"],
-            self.parent.config.get_font_size(),
-            1,
-            992,
-            False,
-        )
-        self.texto8_3 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_3"],
-            self.parent.config.get_font_size(),
-            1,
-            992,
-            False,
-        )
-        self.texto8_4 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_4"],
-            self.parent.config.get_font_size(),
-            1,
-            992,
-            False,
-        )
+        texts = self.load_screen_texts(["text_2", "text_3", "text_4"], x=32, right_limit=992)
+        self.texto8_2 = texts["text_2"]
+        self.texto8_3 = texts["text_3"]
+        self.texto8_4 = texts["text_4"]
 
     def resume(self):
         """
@@ -166,7 +142,7 @@ class estado(pantalla.Pantalla):
 
                         elif self.x.tipo_objeto == "palabra":
                             self.spserver.processtext(
-                                self.parent.text_content["concepts"][self.x.codigo],
+                                self.parent.text_loader.concept(self.x.codigo),
                                 self.parent.config.is_screen_reader_enabled(),
                             )
 
@@ -247,13 +223,13 @@ class estado(pantalla.Pantalla):
             if self.parent.config.is_screen_reader_enabled():
                 if self.entrada_primera_vez:
                     self.spserver.processtext2(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
                 else:
                     self.spserver.processtext(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
                 self.grupo_fondotexto.add(self.caja_texto)
@@ -272,7 +248,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto8_3.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_3"],
+                self.screen_text("text_3"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
@@ -286,7 +262,7 @@ class estado(pantalla.Pantalla):
             self.txt_actual = self.texto8_4.words
             self.chequeo_palabra(self.txt_actual)
             self.spserver.processtext(
-                self.parent.text_content["content"][self.name]["text_4"],
+                self.screen_text("text_4"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 

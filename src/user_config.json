@@ -14,10 +14,5 @@
     "genero": "",
     "synvel": "baja",
     "definicion": "",
-    "visit": {
-        "p0": false,
-        "p2": false
-    },
-    "visited_screens": {},
-    "texto_cambio": false
+    "visited_screens": {}
 }

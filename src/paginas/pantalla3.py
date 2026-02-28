@@ -3,7 +3,6 @@
 import pygame
 
 from librerias import pantalla
-from librerias.texto import Text
 from librerias.image import Image
 
 from paginas import menucfg
@@ -54,15 +53,8 @@ class estado(pantalla.Pantalla):
         """
         Carga los textos utilizados en esta pantalla.
         """
-        self.texto3_2 = Text(
-            32,
-            340,
-            self.parent.text_content["content"][self.name]["text_2"],
-            self.parent.config.get_font_size(),
-            1,
-            992,
-            False,
-        )
+        texts = self.load_screen_texts(["text_2"], x=32, right_limit=992)
+        self.texto3_2 = texts["text_2"]
 
     def resume(self):
         """
@@ -130,14 +122,14 @@ class estado(pantalla.Pantalla):
 
                         elif self.x.tipo_objeto == "palabra":
                             self.spserver.processtext(
-                                self.parent.text_content["concepts"][self.x.codigo],
+                                self.parent.text_loader.concept(self.x.codigo),
                                 self.parent.config.is_screen_reader_enabled(),
                             )
                         self.deteccion_movimiento = False
 
                 elif event.key == pygame.K_SPACE:
                     self.spserver.processtext(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
 
@@ -190,13 +182,13 @@ class estado(pantalla.Pantalla):
             if self.parent.config.is_screen_reader_enabled():
                 if self.entrada_primera_vez:
                     self.spserver.processtext2(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
                 else:
                     self.spserver.processtext(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
                 self.animation_3.continuar()

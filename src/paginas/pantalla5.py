@@ -3,7 +3,6 @@
 import pygame
 
 from librerias import pantalla
-from librerias.texto import Text
 from librerias.image import Image
 
 from paginas import menucfg
@@ -84,29 +83,14 @@ class estado(pantalla.Pantalla):
         self.resume()
 
     def cargar_textos(self):
-        content = self.parent.text_content["content"][self.name]
-        font_size = self.parent.config.get_font_size()
-        
-        text_config = {
-            "text_2": (64, 340),
-            "text_3": (64, 340),
-            "text_4": (64, 340),
-            "text_5": (64, 340),
-            "text_6": (64, 340),
-        }
-        
-        self.text_objects = {}
-        for key, (x, y) in text_config.items():
-            self.text_objects[key] = Text(
-                x, y, content[key],
-                font_size, 1, 960, False
-            )
-        
-        self.texto5_2, self.texto5_3, self.texto5_4, self.texto5_5, self.texto5_6 = [
-            self.text_objects[f"text_{i}"] for i in range(2, 7)
-        ]
-        
-        self.words = [text.words for text in self.text_objects.values()]
+        texts = self.load_screen_texts(
+            ["text_2", "text_3", "text_4", "text_5", "text_6"], x=64, right_limit=960
+        )
+        self.texto5_2 = texts["text_2"]
+        self.texto5_3 = texts["text_3"]
+        self.texto5_4 = texts["text_4"]
+        self.texto5_5 = texts["text_5"]
+        self.texto5_6 = texts["text_6"]
 
     def resume(self):
         """
@@ -227,7 +211,7 @@ class estado(pantalla.Pantalla):
         animation_obj.continuar()
         
         self.spserver.processtext(
-            self.parent.text_content["content"][self.name][text_key],
+            self.screen_text(text_key),
             self.parent.config.is_screen_reader_enabled(),
         )
 
@@ -240,7 +224,7 @@ class estado(pantalla.Pantalla):
                 self.grupo_botones.remove(self.volver)
                 if self.parent.config.is_screen_reader_enabled() and self.entrada_primera_vez:
                     self.spserver.processtext2(
-                        self.parent.text_content["content"][self.name]["text_2"],
+                        self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
                     self.entrada_primera_vez = False
