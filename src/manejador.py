@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 import gc
 import sys
 import pygame
@@ -13,14 +12,13 @@ from librerias.text_repository import load_text_content
 from librerias.text_loader import TextLoader
 
 
-class Manejador(object):
+class Manejador(metaclass=Singleton):
     """
     Esta clase consiste en una implementación del patrón estrategia para python.
     La instancia de esta clase funciona como un manejador de estados y permite hacer cambios entre pantallas
     que comparten la misma estructura, atributos y métodos.
     """
 
-    __metaclass__ = Singleton
     habilitar = False
     DRAW_DEBUG_RECTANGLES = False
     VOLVER_PANTALLA_PREVIA = False
@@ -52,9 +50,8 @@ class Manejador(object):
         self.screen = pygame.display.set_mode(size)
         self.load_text_content()
         pygame.display.set_caption(titulo)
-
-    icon = pygame.image.load("./iconos/sembrando96x96.png")
-    pygame.display.set_icon(icon)
+        icon = pygame.image.load("./iconos/sembrando96x96.png")
+        pygame.display.set_icon(icon)
 
     def cleanUp(self):
         """
@@ -125,7 +122,7 @@ class Manejador(object):
         por segundo.
         """
         self.states[-1].draw()
-        self.states[-1].reloj.tick(30)
+        self.states[-1].reloj_anim.tick(30)
         pygame.display.flip()
 
     def quit(self):
@@ -136,61 +133,72 @@ class Manejador(object):
 
     def interpretar(self, codigo):
         """
-        Si el intérprete virtual esta activado, abrira un subproceso que ejecuta la aplicación Blenderplayer.
-        Al momento de llamar a blenderplayer, se le envia la configuración del intérprete virtual y la palabra
-        que se desea intérpretar. Se hace un llamado a la aplicación Wmctrl para ubicar la ventana de blenderplayer
-        por encima de la ventana del recurso.
-        Si el intérprete esta desactivado se mostrara la pantalla del glósario de términos con la definición
-        correspondiente.
+        Dispatcher: lanza el intérprete virtual de lengua de señas (Blenderplayer) cuando la
+        accesibilidad auditiva está activada, o muestra el glosario en caso contrario.
         """
-        if self.config.disc_audi == True:
-            running = subprocess.call(["pgrep", "blenderplayer"])
-            if running == 1:
-                self.config.consultar()
-
-                if os.path.isdir("./interprete/__pycache__"):
-                    print("Borrando cache del interprete")
-                    if os.path.isfile(
-                        "./interprete/__pycache__/interprete.cpython-32.pyc"
-                    ):
-                        os.remove("./interprete/__pycache__/interprete.cpython-32.pyc")
-                    os.removedirs("./interprete/__pycache__")
-
-                # subprocess.call(["rm", "-r", "./interprete/__pycache__"])
-                for ruta in self.rutas_int:
-                    try:
-                        subprocess.Popen(
-                            [
-                                ruta,
-                                "-w",
-                                "512",
-                                "372",
-                                "512",
-                                "0",
-                                "./interprete/interprete.blend",
-                                "-",
-                                str(self.config.color),
-                                str(self.config.genero),
-                                str(self.config.velocidad),
-                                str(codigo),
-                            ]
-                        )
-                        pygame.time.delay(2000)
-                        subprocess.call(
-                            ["wmctrl", "-a", "interprete", "-b", "add,above"]
-                        )
-                        break
-                    except:
-                        print("No se ha podido cargar el interprete virtual.")
-            else:
-                print("Blenderplayer ya se encuentra en ejecucion")
+        if self.config.get_preference("disc_audi", False):
+            self._launch_interpreter(codigo)
         else:
-            self.config.definicion = codigo
-            self.states[-1].portada_glosario = False
-            self.states[-1].limpiar_grupos()
-            self.states[-1].ir_glosario()
+            self._show_glossary(codigo)
+
+    def _launch_interpreter(self, codigo):
+        """
+        Lanza el subproceso Blenderplayer para interpretar el concepto dado.
+        Si Blenderplayer ya está en ejecución, no hace nada.
+        """
+        running = subprocess.call(["pgrep", "blenderplayer"])
+        if running == 1:
+            color = self.config.get_preference("color", 0)
+            genero = self.config.get_preference("genero", "Hombre")
+            velocidad = self.config.get_preference("velocidad", 0.5)
+            for ruta in self.rutas_int:
+                try:
+                    subprocess.Popen(
+                        [
+                            ruta,
+                            "-w",
+                            "512",
+                            "372",
+                            "512",
+                            "0",
+                            "./interprete/interprete.blend",
+                            "-",
+                            str(color),
+                            str(genero),
+                            str(velocidad),
+                            str(codigo),
+                        ]
+                    )
+                    pygame.time.delay(2000)
+                    subprocess.call(
+                        ["wmctrl", "-a", "interprete", "-b", "add,above"]
+                    )
+                    break
+                except:
+                    print("No se ha podido cargar el interprete virtual.")
+        else:
+            print("Blenderplayer ya se encuentra en ejecucion")
+
+    def _show_glossary(self, codigo):
+        """
+        Navega a la pantalla del glosario y muestra la definición del concepto dado.
+        """
+        self.config.set_preference("definicion", codigo)
+        self.states[-1].portada_glosario = False
+        self.states[-1].limpiar_grupos()
+        self.states[-1].ir_glosario()
 
     def load_text_content(self):
         # Load all user-facing text content from JSON.
         self.text_content = load_text_content()
         self.text_loader = TextLoader(self.text_content)
+
+        # Inject glossary vocabulary into the palabra class so screens never
+        # need to hard-code it.  The import is local to avoid a circular import
+        # (palabra → pantalla → manejador).
+        from librerias.palabra import palabra as Palabra
+        glossary = self.text_content.get("glossary", {})
+        Palabra.ENTRIES = glossary.get("entries", {})
+        Palabra.DEFINITIONS = glossary.get("definitions", {})
+        Palabra.INDICES = glossary.get("indices", [])
+        Palabra.INTERCALATED = glossary.get("intercalated", [])

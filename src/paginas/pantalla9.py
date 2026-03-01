@@ -118,7 +118,6 @@ class estado(pantalla.Pantalla):
         self.load_banners(banners)
         self.load_buttons(buttons)
         self.cargar_textos()
-        self.resume()
         self.bg = fondo(573, 377)
 
     def cargar_textos(self):
@@ -377,6 +376,9 @@ class estado(pantalla.Pantalla):
             -100,
         )
         self.popup_ins1.agregar_grupo()
+
+    def start(self):
+        self.resume()
 
     def resume(self):
         """

@@ -48,9 +48,6 @@ class estado(pantalla.Pantalla):
         self.load_buttons(buttons)
         self.cargar_textos()
 
-        # Initialize scene
-        self.resume()
-
     # def show_instructions(self):
     #     """
     #     Muestra las instrucciones de uso de la pantalla actual.
@@ -82,6 +79,9 @@ class estado(pantalla.Pantalla):
         #     265,
         #     100,
         # )
+
+    def start(self):
+        self.resume()
 
     def resume(self):
         """

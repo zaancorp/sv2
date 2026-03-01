@@ -30,41 +30,11 @@ class FontManager:
 font_manager = FontManager()
 
 class palabra(pygame.sprite.Sprite):
-    ENTRIES = {
-        "absorbe": "absorber",
-        "absorber": "absorber",
-        "célula": "celula",
-        "componentes": "componentes",
-        "fotosíntesis": "fotosintesis",
-        "germinación": "germinacion",
-        "minerales": "minerales",
-        "nutrientes": "nutrientes",
-        "órgano": "organo",
-        "órganos": "organo",
-        "reproducción asexual": "rasexual",
-        "reproducción sexual": "rsexual",
-        "transformación": "transformacion",
-        "transporta": "transportar",
-    }
-
-    DEFINITIONS = {
-        "Absorber": "absorber",
-        "Célula": "celula",
-        "Componentes": "componentes",
-        "Fotosíntesis": "fotosintesis",
-        "Germinar": "germinar",
-        "Germinación": "germinacion",
-        "Mineral": "minerales",
-        "Nutriente": "nutrientes",
-        "Órgano": "organo",
-        "Reproducción asexual": "rasexual",
-        "Reproducción sexual": "rsexual",
-        "Transformación": "transformacion",
-        "Transportar": "transportar",
-    }
-
-    INDICES = ["A", "C", "F", "G", "M", "N", "O", "R", "T"]
-    INTERCALATED = ["RATON", "DIR", "ENTER"]
+    # Populated at startup by Manejador.load_text_content() from content.json "glossary".
+    ENTRIES: dict = {}
+    DEFINITIONS: dict = {}
+    INDICES: list = []
+    INTERCALATED: list = []
 
     def __init__(self, text, size, text_type, font_manager=font_manager):
         super().__init__()
@@ -76,6 +46,7 @@ class palabra(pygame.sprite.Sprite):
         self.definable = False
         self.definition = False
         self.interpretable = False
+        self.tipo_objeto = "palabra"
 
         self.clean_text = self.clean_word(text)
         self.code = self.get_code()
@@ -125,6 +96,10 @@ class palabra(pygame.sprite.Sprite):
         if update_type in [1, 2] and self.text_type in [TextType.DEFINITION, TextType.INDEX]:
             self.selected = False
             self.render()
+
+    def get_reader_text(self):
+        """Text spoken by the screen reader when this word is focused."""
+        return "explicar la palabra:" + self.text
 
     @staticmethod
     def clean_word(word):

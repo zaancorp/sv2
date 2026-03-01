@@ -9,7 +9,13 @@ from librerias.button import Button, RenderButton
 from librerias.speechserver import Speechserver
 from librerias.magnificador import magnificador, Rendermag
 from librerias.texto import Text
-from librerias.assets_data import *
+from librerias.assets_data import (
+    backgrounds as _backgrounds,
+    banners as _banners,
+    images as _images,
+    animations as _animations,
+    buttons as _buttons,
+)
 
 
 class Pantalla(object):
@@ -18,90 +24,20 @@ class Pantalla(object):
     "Sembrando para el futuro".
     """
 
-    x = ""
-    """Indica el objeto actual cuando se utiliza la navegación por teclado. """
-    pops = "./imagenes/png/popups/"
-    """Ruta de las imágenes de los pop-ups. """
+    # Shared resources — one instance for the entire application lifetime.
+    # Intentionally class-level: the TTS server, cursor, and magnifier are
+    # shared singletons that must not be recreated on every screen transition.
+    spserver = Speechserver()
+    raton = cursor()
+    obj_magno = magnificador()
 
+    # Immutable path constants.
+    pops = "./imagenes/png/popups/"
     animations_path = "./imagenes/png/animations/"
     backgrounds_path = "./imagenes/png/backgrounds/"
     banners_path = "./imagenes/png/banners/"
     buttons_path = "./imagenes/png/buttons/"
-
     varios = "./imagenes/png/varios/"
-    """Ruta de imágenes variadas. """
-
-    anim_actual = 0
-    """Indica la animación que se esta reproduciendo en un determinado momento. """
-    elemento_actual = -1
-    """Indica el indice del elemento de la pantalla que esta seleccionado en un determinado momento. """
-    numero_elementos = 0
-    """Indica la cantidad de elementos de la pantalla con los que se puede interactuar al usar 
-    la navegabilidad por teclado. """
-    lista_final = []
-    """Lista que contiene todos los elementos de la pantalla accesibles a través de la navegabilidad
-    por teclado."""
-    lista_botones = []
-    """Lista que contiene solo los botones accesibles a través de la navegabilidad por teclado. """
-    lista_palabra = []
-    """Lista que contiene solo las palabras accesibles a través de la navegabilidad por teclado. """
-    rect = pygame.Rect(0, 0, 0, 0)
-    """Rectángulo que aparece sobre el elemento actual al usar la navegabilidad por teclado. """
-    reloj = pygame.time.Clock()
-    """Contador utilizado para sincronizar las animationes. """
-    spserver = Speechserver()
-    """Instancia de la clase speechserver, utilizada para enviar información al lector de pantalla. """
-    raton = cursor()
-    """Instancia de la clase cursor, utilizada para interactuar fácilmente con el ratón. """
-    obj_magno = magnificador()
-    """Instancia del magnificador de pantalla. """
-    grupo_anim = RenderAnim()
-    """Grupo en el cual se dibujar las animationes. """
-    grupo_update = RenderAnim()
-    """Grupo utilizado para reiniciar varias animationes simultáneamente. """
-    grupo_imagen = RenderAnim()
-    """Grupo utilizado para dibujar imágenes de fondo. """
-    grupo_botones = RenderButton()
-    """Grupo utilizado para dibujar los botones. """
-    grupo_magnificador = Rendermag()
-    """Grupo utilizado para dibujar el magnificador de pantalla. """
-    grupo_banner = pygame.sprite.Group()
-    """Grupo utilizado para dibujar los banner. """
-    grupo_tooltip = pygame.sprite.Group()
-    """Grupo utilizado para dibujar los tooltip. """
-
-    grupo_cuadro_texto = pygame.sprite.Group()
-
-    text_button_group = pygame.sprite.Group()
-
-    grupo_mapa = pygame.sprite.OrderedUpdates()
-    """Grupo utilizado para dibujar los mapas colisionables. """
-    grupo_popup = pygame.sprite.OrderedUpdates()
-    """Grupo utilizado para dibujar los mensajes emergentes. """
-    grupo_fondotexto = pygame.sprite.GroupSingle()
-    """Grupo utilizado para dibujar el fondo de los textos en las pantallas de contenido. """
-    grupo_palabras = pygame.sprite.OrderedUpdates()
-    """Grupo utilizado para dibujar textos. """
-
-    debug_groups = [
-        grupo_imagen,
-        grupo_botones,
-        text_button_group,
-        grupo_banner,
-        grupo_tooltip,
-        grupo_popup,
-        grupo_palabras,
-        grupo_cuadro_texto,
-    ]
-
-    enable = False
-    """Si es True permite cambiar la posición del magnificador de pantalla. 
-    Si es falso no se mueve el magnificador. """
-    entrada_primera_vez = True
-    """Indica la primera vez que se ingresa a una pantalla. Si es False no se ha ingresado, 
-    si es True ya fue visitada. """
-    deteccion_movimiento = False
-    """Indica cuando se utiliza la navegación por teclado para desplazarse por los elementos de la pantalla. """
 
     def __init__(self, parent, screen_id):
         self.parent = parent
@@ -109,17 +45,55 @@ class Pantalla(object):
         self.previa = True
         self.reloj_anim = pygame.time.Clock()
         self.reloj_anim.tick(30)
+
+        # Per-screen navigation state — reset fresh for every new screen.
+        self.x = ""
+        self.anim_actual = 0
+        self.elemento_actual = -1
+        self.numero_elementos = 0
+        self.lista_final = []
+        self.lista_botones = []
+        self.lista_palabra = []
         self.rect = pygame.Rect(0, 0, 0, 0)
+        self.enable = False
+        self.entrada_primera_vez = True
+        self.deteccion_movimiento = False
+
+        # Per-screen sprite groups — each screen gets its own fresh groups so
+        # that pushed/popped screens never corrupt each other's sprite state.
+        self.grupo_anim = RenderAnim()
+        self.grupo_update = RenderAnim()
+        self.grupo_imagen = RenderAnim()
+        self.grupo_botones = RenderButton()
+        self.grupo_magnificador = Rendermag()
+        self.grupo_banner = pygame.sprite.Group()
+        self.grupo_tooltip = pygame.sprite.Group()
+        self.grupo_cuadro_texto = pygame.sprite.Group()
+        self.text_button_group = pygame.sprite.Group()
+        self.grupo_mapa = pygame.sprite.OrderedUpdates()
+        self.grupo_popup = pygame.sprite.OrderedUpdates()
+        self.grupo_fondotexto = pygame.sprite.GroupSingle()
+        self.grupo_palabras = pygame.sprite.OrderedUpdates()
+        self.debug_groups = [
+            self.grupo_imagen,
+            self.grupo_botones,
+            self.text_button_group,
+            self.grupo_banner,
+            self.grupo_tooltip,
+            self.grupo_popup,
+            self.grupo_palabras,
+            self.grupo_cuadro_texto,
+        ]
 
     def load_animations(self, animation_ids):
         for id in animation_ids:
-            x, y = animations.get(id).get("coordinates")
-            columns = animations.get(id).get("columns")
-            rows = animations.get(id).get("rows")
-            colorkey = animations.get(id).get("colorkey")
-            loop = animations.get(id).get("loop")
-            frames = animations.get(id).get("frames")
-            filename = animations.get(id).get("filename")
+            x, y = _animations.get(id).get("coordinates")
+            columns = _animations.get(id).get("columns")
+            rows = _animations.get(id).get("rows")
+            colorkey = _animations.get(id).get("colorkey")
+            loop = _animations.get(id).get("loop")
+            frames = _animations.get(id).get("frames")
+            filename = _animations.get(id).get("filename")
             attribute_name = id.replace("-", "_")
             setattr(
                 self,
@@ -139,18 +113,19 @@ class Pantalla(object):
 
     def load_background(self, screen_id):
         self.background = pygame.image.load(
-            self.backgrounds_path + backgrounds.get(screen_id)
+            self.backgrounds_path + _backgrounds.get(screen_id)
         ).convert()
 
     def load_buttons(self, button_ids):
+        font_size = self.parent.config.get_font_size()
         for id in button_ids:
-            x, y = buttons.get(id).get("coordinates")
-            tooltip = buttons.get(id).get("tooltip")
-            colorkey = buttons.get(id).get("colorkey")
-            loop = buttons.get(id).get("loop")
-            frames = buttons.get(id).get("frames")
-            frame_speed = buttons.get(id).get("frame_speed")
-            filename = buttons.get(id).get("filename")
+            x, y = _buttons.get(id).get("coordinates")
+            tooltip = _buttons.get(id).get("tooltip")
+            colorkey = _buttons.get(id).get("colorkey")
+            loop = _buttons.get(id).get("loop")
+            frames = _buttons.get(id).get("frames")
+            frame_speed = _buttons.get(id).get("frame_speed")
+            filename = _buttons.get(id).get("filename")
             attribute_name = id.replace("-", "_")
             setattr(
                 self,
@@ -160,6 +135,7 @@ class Pantalla(object):
                     y,
                     id,
                     tooltip,
+                    font_size,
                     self.buttons_path + filename,
                     frames,
                     colorkey,
@@ -170,14 +146,14 @@ class Pantalla(object):
 
     def load_banners(self, banner_ids):
         for id in banner_ids:
-            x, y = banners.get(id).get("coordinates")
-            filename = banners.get(id).get("filename")
+            x, y = _banners.get(id).get("coordinates")
+            filename = _banners.get(id).get("filename")
             attribute_name = id.replace("-", "_")
             setattr(self, attribute_name, Image(x, y, self.banners_path + filename))
 
     def load_images(self, image_ids):
         for id in image_ids:
-            filename = images.get(id)
+            filename = _images.get(id)
             attribute_name = id.replace("-", "_")
             setattr(
                 self,
@@ -359,6 +335,20 @@ class Pantalla(object):
         self.lista_mascaras = []
         [self.lista_mascaras.append(mask) for mask in grupomask]
 
+    def _announce_current(self):
+        """
+        Announce the current keyboard-navigation element via TTS.
+
+        Each focusable object type (Button, palabra, object_mask) implements
+        ``get_reader_text()`` to supply its own TTS string, eliminating the
+        need for a tipo_objeto string-dispatch here.
+        """
+        self.definir_rect(self.x.rect)
+        self.spserver.processtext(
+            self.x.get_reader_text(),
+            self.parent.config.is_screen_reader_enabled(),
+        )
+
     def controlador_lector_evento_K_RIGHT(self):
         """
         Gestiona los eventos que se producen cuando se pulsa la flecha derecha del teclado.
@@ -368,20 +358,7 @@ class Pantalla(object):
             if self.elemento_actual >= self.numero_elementos:
                 self.elemento_actual = self.numero_elementos - 1
             self.x = self.lista_final[self.elemento_actual]
-            if self.x.tipo_objeto == "palabra":
-                self.definir_rect(self.x.rect)
-                self.spserver.processtext(
-                    "explicar la palabra:" + self.x.palabra,
-                    self.parent.config.is_screen_reader_enabled(),
-                )
-
-            elif self.x.tipo_objeto == "mapa":
-                self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.id, self.parent.config.is_screen_reader_enabled())
-
-            elif self.x.tipo_objeto == "boton":
-                self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.tt, self.parent.config.is_screen_reader_enabled())
+            self._announce_current()
 
     def controlador_lector_evento_K_LEFT(self):
         """
@@ -392,20 +369,7 @@ class Pantalla(object):
             if self.elemento_actual <= 0:
                 self.elemento_actual = 0
             self.x = self.lista_final[self.elemento_actual]
-            if self.x.tipo_objeto == "palabra":
-                self.definir_rect(self.x.rect)
-                self.spserver.processtext(
-                    "explicar la palabra:" + self.x.palabra,
-                    self.parent.config.is_screen_reader_enabled(),
-                )
-
-            elif self.x.tipo_objeto == "mapa":
-                self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.id, self.parent.config.is_screen_reader_enabled())
-
-            elif self.x.tipo_objeto == "boton":
-                self.definir_rect(self.x.rect)
-                self.spserver.processtext(self.x.tt, self.parent.config.is_screen_reader_enabled())
+            self._announce_current()
 
     def start(self):
         pass

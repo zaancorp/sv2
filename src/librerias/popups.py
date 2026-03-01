@@ -81,13 +81,13 @@ class PopUp(Sprite):
                 (self.sprite.rect.width * 2 / 3),
             )
             self.area_texto = Rect(
-                x, y, self.sprite.rect.w * 2 / 3, self.texto.ancho_final
+                x, y, self.sprite.rect.w * 2 / 3, self.texto.total_height
             )
             self.area_imagenes = Rect(
                 (self.sprite.rect.w * 2 / 3) + 80,
                 y,
                 self.sprite.rect.w / 3,
-                self.texto.ancho_final,
+                self.texto.total_height,
             )
             self.parent = parent
             self.boton = TextButton(0, self.parent, palabra_boton)
@@ -171,9 +171,9 @@ class PopUp(Sprite):
                     )
                 o += 1
             self.texto.rect = Rect(
-                x, y, self.sprite.rect.w - 80, self.texto.ancho_final
+                x, y, self.sprite.rect.w - 80, self.texto.total_height
             )
-            y += self.texto.ancho_final + separacion
+            y += self.texto.total_height + separacion
             for i in self.arreglo_botones:
                 i.rect.x = x + tabulacion / 2
                 i.rect.y = y

@@ -59,8 +59,6 @@ class estado(pantalla.Pantalla):
         self.tiempo = 0
         self.tractor = -2
 
-        self.resume()
-
     def cargar_textos(self):
         """
         Carga los textos utilizados en esta pantalla.
@@ -69,6 +67,9 @@ class estado(pantalla.Pantalla):
         self.texto8_2 = texts["text_2"]
         self.texto8_3 = texts["text_3"]
         self.texto8_4 = texts["text_4"]
+
+    def start(self):
+        self.resume()
 
     def resume(self):
         """

@@ -60,8 +60,6 @@ class estado(pantalla.Pantalla):
             self.animation_4_4,
         )
 
-        self.resume()
-
     def cargar_textos(self):
         """
         Carga los textos utilizados en esta pantalla.
@@ -73,6 +71,9 @@ class estado(pantalla.Pantalla):
         self.texto4_3 = texts["text_3"]
         self.texto4_4 = texts["text_4"]
         self.texto4_5 = texts["text_5"]
+
+    def start(self):
+        self.resume()
 
     def resume(self):
         """

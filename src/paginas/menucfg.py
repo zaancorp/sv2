@@ -54,7 +54,6 @@ class estado(pantalla.Pantalla):
 
         self.cargar_img_intrucciones()
         self.rect = pygame.Rect(0, 0, 0, 0)
-        self.resume()
 
     def cargar_img_intrucciones(self):
         """
@@ -74,6 +73,9 @@ class estado(pantalla.Pantalla):
             "DFA": self.img5,
             "DFV": self.img6,
         }
+
+    def start(self):
+        self.resume()
 
     def resume(self):
         """

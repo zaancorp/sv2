@@ -2,90 +2,7 @@
 
 import pygame
 
-
-class spritesheet(object):
-    """
-    Esta clase se encarga de transformar una imagen en una tira de imágenes que simula ser una animación.
-    """
-
-    def __init__(self, filename):
-        """
-        Método inicializador de la clase.
-
-        @param filename: Ruta de la imagen que se desea cargar para convertir en una tira de imágenes.
-        @type filename: str
-        """
-        try:
-            self.sheet = pygame.image.load(filename).convert_alpha()
-        except (pygame.error):
-            raise (SystemExit)
-
-    def image_at(self, rectangle, colorkey=None):
-        """
-        Carga una imagen suministrando el rectángulo en el que esta ubicada.
-
-        @param rectangle: Rectángulo que especifica la zona de la imagen principal de la que se obtiene un
-        fotograma.
-        @type rectangle: pygame.Rect
-        @param colorkey: Define el color utilizado como transparencia, por defecto no es necesario.
-        @type colorkey: tuple
-        @return: Imagen en la ubicación suministrada.
-        @rtype: pygame.Surface
-        """
-        rect = pygame.Rect(rectangle)
-        image = self.sheet.subsurface(rect)
-        if colorkey is not None:
-            if colorkey == -1:
-                colorkey = image.get_at((0, 0))
-            image.set_colorkey(colorkey, pygame.RLEACCEL)
-        return image
-
-    def images_at(self, rects, colorkey=None):
-        """
-        Carga varias imágenes suministrando una lista de rectángulos que contiene respectivamente a cada imagen.
-
-        @param rects: Define el conjunto de rectángulos que sera parte de la tira de imágenes.
-        @type rects: list
-        @param colorkey: Define el color utilizado como transparencia, por defecto no es necesario.
-        @type colorkey: tuple
-        @return: Lista de las imágenes cargadas.
-        @rtype: list
-        """
-        return [self.image_at(rect, colorkey) for rect in rects]
-
-    def load_strip(self, rect, image_count, fila, pos_fila, colorkey=None):
-        """
-        Carga una lista de imágenes.
-
-        @param rect: Lista de los rectángulos de cada imagen.
-        @type rect: list
-        @param image_count: Numero de columnas que tendrá la tira de imágenes.
-        @type image_count: int
-        @param fila: Numero de filas que tendrá la tira de imágenes.
-        @type fila: int
-        @param pos_fila: Fila de la que se sacara la tira de imágenes.
-        @type pos_fila: int
-        @param colorkey: Define el color utilizado como transparencia, por defecto no es necesario.
-        @type colorkey: tuple
-        @return: Lista de imágenes que conforman la tira de imágenes.
-        @rtype: list
-        """
-        if fila <= 1:
-            tups = [
-                (rect[0] + rect[2] * x, rect[1], rect[2], rect[3])
-                for x in range(image_count)
-            ]
-        else:
-            tups = [
-                (
-                    rect[0] + rect[2] * x,
-                    rect[1] + (pos_fila * rect[3]),
-                    rect[2],
-                    rect[3],
-                )
-                for x in range(image_count)
-            ]
-        return self.images_at(tups, colorkey)
+from librerias.spritesheet import SpriteSheet
 
 
 class Animation(pygame.sprite.Sprite):
@@ -133,7 +50,7 @@ class Animation(pygame.sprite.Sprite):
         self.fil = fil
         self.tipo_objeto = "animacion"
         self.filename = filename
-        self.ss = spritesheet(filename)
+        self.ss = SpriteSheet(filename)
         (_, _, w, h) = self.ss.sheet.get_rect()
         self.ck = colorkey
         self.fila_pos = 0

@@ -37,6 +37,10 @@ class object_mask(pygame.sprite.Sprite):
         self.rect.top = y
         self.hitmask = pygame.surfarray.array_alpha(self.image)
 
+    def get_reader_text(self):
+        """Text spoken by the screen reader when this map area is focused."""
+        return self.id
+
     def iluminar(self):
         """
         Cambia la imagen del objeto por la imagen activa.

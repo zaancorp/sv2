@@ -1,75 +1,17 @@
 #!/usr/bin/env python3
 
-from pygame import error, Rect, Surface
-
-from pygame import RLEACCEL
-
-from pygame.image import load
+from pygame import Rect, Surface
 from pygame.font import match_font, Font, SysFont
+from pygame.image import load
 from pygame.mouse import get_pos
 from pygame.sprite import Group, OrderedUpdates, Sprite
 
-from manejador import Manejador as parent
-
 from .texto import Text
 from .object import GameObject
+from .spritesheet import SpriteSheet
 
 RED = (213, 0, 0)
 TEXT_COLOR = (255, 255, 255)
-
-
-class SpriteSheet(object):
-    """
-    Esta clase se encarga de transformar una imagen en una tira de imágenes que simula ser un botón animado.
-    """
-
-    def __init__(self, filename):
-        try:
-            self.sheet = load(filename).convert_alpha()
-        except (error):
-            raise (SystemExit)
-
-    def image_at(self, rectangle, colorkey=None):
-        rect = Rect(rectangle)
-        image = self.sheet.subsurface(rect)
-        if colorkey is not None:
-            if colorkey == -1:
-                colorkey = image.get_at((0, 0))
-            image.set_colorkey(colorkey, RLEACCEL)
-        return image
-
-    def load_images_at(self, rects, colorkey=None):
-        """
-        Carga varias imágenes suministrando una lista de rectángulos que contiene respectivamente a cada imagen.
-
-        @param rects: Define el conjunto de rectángulos que sera parte de la tira de imágenes.
-        @type rects: list
-        @param colorkey: Define el color utilizado como transparencia, por defecto no es necesario.
-        @type colorkey: tuple
-        @return: Lista de las imágenes cargadas.
-        @rtype: list
-        """
-
-        return [self.image_at(rect, colorkey) for rect in rects]
-
-    def load_strip(self, rect, frames, colorkey=None):
-        """
-        Carga una lista de imágenes.
-
-        @param rect: Lista de los rectángulos de cada imagen.
-        @type rect: list
-        @param frames: Numero de columnas que tendrá la tira de imágenes.
-        @type frames: int
-        @param colorkey: Define el color utilizado como transparencia, por defecto no es necesario.
-        @type colorkey: tuple
-        @return: Lista de imágenes que conforman la tira de imágenes.
-        @rtype: list
-        """
-
-        tuples = [
-            (rect[0] + rect[2] * x, rect[1], rect[2], rect[3]) for x in range(frames)
-        ]
-        return self.load_images_at(tuples, colorkey)
 
 
 class Button(GameObject):
@@ -83,6 +25,7 @@ class Button(GameObject):
         y,
         id,
         tooltip,
+        font_size,
         filename,
         frames,
         colorkey=None,
@@ -117,7 +60,7 @@ class Button(GameObject):
         self.x = x
         self.y = y
         self.id = id
-        self.parent = parent
+        self.tipo_objeto = "boton"
 
         # Boolean states
         self.loop = loop
@@ -125,7 +68,7 @@ class Button(GameObject):
         self.sonar = True
 
         # Tooltip attributes
-        my_font = SysFont("arial", self.parent.config.get_font_size())
+        my_font = SysFont("arial", font_size)
         self.tooltip = tooltip
         self.texto = Sprite()
         self.texto.image = my_font.render(
@@ -139,7 +82,7 @@ class Button(GameObject):
         (_, _, width, height) = ss.sheet.get_rect()
         self.rect = Rect(x, y, int(width / frames), height)
         rt = Rect(0, 0, int(width / frames), height)
-        self.images = ss.load_strip(rt, frames, colorkey)
+        self.images = ss.load_strip(rt, frames, colorkey=colorkey)
 
         self.current_frame = 0
         self.frame_speed = frame_speed
@@ -243,6 +186,10 @@ class Button(GameObject):
             self.current_image = self.images[0]
             self.stop = True
             return False
+
+    def get_reader_text(self):
+        """Text spoken by the screen reader when this button is focused."""
+        return self.tooltip
 
 
 class TextButton(GameObject):

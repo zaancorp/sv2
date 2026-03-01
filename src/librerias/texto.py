@@ -91,8 +91,8 @@ class Text:
     def indexar(self, letter):
         if self.text_type == "indice":
             for word in self.words:
-                if letter == word.palabra.strip():
-                    word.selec = True
-                    word.destacar()
+                if letter == word.text.strip():
+                    word.selected = True
+                    word.highlight()
                 else:
-                    word.restaurar()
+                    word.restore()

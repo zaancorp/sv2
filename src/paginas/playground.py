@@ -20,8 +20,6 @@ class estado(pantalla.Pantalla):
         self.load_buttons(buttons)
         self.cargar_img_intrucciones()
 
-        self.resume()
-
     def cargar_img_intrucciones(self):
         """
         Carga las imágenes usadas para las instrucciones iniciales.
@@ -42,7 +40,7 @@ class estado(pantalla.Pantalla):
         }
 
     def start(self):
-        pass
+        self.resume()
 
     def cleanUp(self):
         pass

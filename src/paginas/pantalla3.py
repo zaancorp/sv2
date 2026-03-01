@@ -47,14 +47,15 @@ class estado(pantalla.Pantalla):
         self.load_buttons(buttons)
         self.cargar_textos()
 
-        self.resume()
-
     def cargar_textos(self):
         """
         Carga los textos utilizados en esta pantalla.
         """
         texts = self.load_screen_texts(["text_2"], x=32, right_limit=992)
         self.texto3_2 = texts["text_2"]
+
+    def start(self):
+        self.resume()
 
     def resume(self):
         """

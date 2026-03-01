@@ -80,8 +80,6 @@ class estado(pantalla.Pantalla):
             self.sig: self.go_next,
         }
 
-        self.resume()
-
     def cargar_textos(self):
         texts = self.load_screen_texts(
             ["text_2", "text_3", "text_4", "text_5", "text_6"], x=64, right_limit=960
@@ -91,6 +89,9 @@ class estado(pantalla.Pantalla):
         self.texto5_4 = texts["text_4"]
         self.texto5_5 = texts["text_5"]
         self.texto5_6 = texts["text_6"]
+
+    def start(self):
+        self.resume()
 
     def resume(self):
         """

@@ -13,10 +13,10 @@ This document analyses the current codebase with an eye towards simplification a
 `assets_data.py` holds every button, animation, and banner spec in one place. The loader methods on `Pantalla` (`load_buttons`, `load_animations`, `load_banners`) iterate over those specs and do the heavy lifting. Screen files only declare which assets they need, not how to load them. That is a good separation.
 
 ### 3. Text content is in JSON
-Moving all user-facing Spanish text to `content.json` was the right call. Text that changes together belongs together, and it gives a single place to make translation or copy edits without touching Python files.
+All user-facing Spanish text lives in `content.json`. Text that changes together belongs together, and it gives a single place to make translation or copy edits without touching Python files.
 
 ### 4. `TextLoader` is a good accessor
-The `get` / `require` / `screen_content` / `concept` API is clean. `require` raising a `KeyError` with a readable path is better than a silent `None`. LRU-caching the JSON load in `text_repository.py` is correct.
+The `get` / `require` / `screen_content` / `concept` / `ui` API is clean. `require` raising a `KeyError` with a readable path is better than a silent `None`. LRU-caching the JSON load in `text_repository.py` is correct.
 
 ### 5. `FontManager` caches fonts properly
 Font creation is expensive. `FontManager` in `palabra.py` memoises by `(size, bold, underline)` tuples, which avoids creating a new `pygame.font.Font` on every render call.
@@ -24,107 +24,21 @@ Font creation is expensive. `FontManager` in `palabra.py` memoises by `(size, bo
 ### 6. Accessibility is first-class
 Screen magnifier, TTS / screen reader, keyboard navigation, and configurable font size and character skin colour are all built into the base layer. For a personal project this is genuinely impressive.
 
----
+### 7. Per-screen sprite groups are now instance-level *(fixed in A)*
+Each screen gets its own fresh sprite groups at construction time, eliminating the silent state-sharing bug that corrupted `pushState` scenarios.
 
-## Anti-patterns and areas for improvement
+### 8. `Configuration` has a clean getter/setter API *(fixed in D, K)*
+Dead keys are auto-migrated. `set_preference` only writes to memory; an explicit `flush()` / `save_config()` persists to disk. `mark_screen_visited` still saves immediately (intentional).
 
-These are ordered roughly from most impactful to least.
+### 9. `SpriteSheet` is unified *(fixed in H)*
+`librerias/spritesheet.py` is the single source of truth for loading sprite-sheet images. Both `Animation` (multi-row) and `Button` (single-row) import from it.
 
----
-
-### A. Class-level mutable state on `Pantalla` — shared between all screens
-
-**Files:** `librerias/pantalla.py`
-
-Every sprite group, every list, and several flags are defined as *class* attributes on `Pantalla`:
-
-```python
-class Pantalla(object):
-    grupo_anim = RenderAnim()
-    grupo_botones = RenderButton()
-    lista_final = []
-    lista_botones = []
-    lista_palabra = []
-    entrada_primera_vez = True
-    elemento_actual = -1
-    ...
-```
-
-In Python, mutable class attributes are shared by every instance. This means every screen object shares the exact same `grupo_anim`, the same `lista_final`, etc. The only reason the app does not visibly break is that there is almost never more than one screen alive at once, and `limpiar_grupos()` empties everything before a new screen starts.
-
-This is fragile. Any time two screens coexist (e.g. via `pushState` for the config overlay) they corrupt each other's state. The correct fix is to move all of these into `__init__` so each screen gets its own copies.
-
-**Fix:** Move every mutable group and list into `__init__`:
-```python
-def __init__(self, parent, screen_id):
-    self.parent = parent
-    self.grupo_anim = RenderAnim()
-    self.grupo_botones = RenderButton()
-    self.lista_final = []
-    ...
-```
+### 10. Screen-reader navigation uses a polymorphic protocol *(fixed in I)*
+`Button`, `palabra`, and `object_mask` each implement `get_reader_text()`. `Pantalla._announce_current()` calls it without a `tipo_objeto` string switch.
 
 ---
 
-### B. The Manejador Singleton is broken (Python 2 syntax)
-
-**Files:** `librerias/singleton.py`, `manejador.py`
-
-```python
-class Manejador(object):
-    __metaclass__ = Singleton   # Python 2 only — does nothing in Python 3
-```
-
-`__metaclass__` is silently ignored in Python 3. The `Singleton` metaclass is never applied. `Manejador` is not actually a singleton — you can create multiple instances and each will call `pygame.init()` again and create a new display.
-
-The code "works" only because:
-- `inicio.py` only ever creates one `Manejador`, and
-- The class-level attributes (`config = Configuration()`, `grupo_magnificador = Rendermag()`) are shared across all instances by accident of Python's class model.
-
-The `Configuration()` and `Rendermag()` being class attributes means they are instantiated at *class definition time*, before `pygame.init()` is called. `Rendermag` probably survives this, but anything that touches pygame display surfaces would not.
-
-**Fix options:**
-1. Fix the Singleton properly: `class Manejador(metaclass=Singleton)`.
-2. Or drop the Singleton entirely — just create one instance in `inicio.py` and pass it around (which is already what happens). Document the assumption explicitly. The Singleton pattern buys nothing here.
-
----
-
-### C. `Button` imports `Manejador` as its "parent" — class not instance
-
-**Files:** `librerias/button.py`
-
-```python
-from manejador import Manejador as parent
-
-class Button(GameObject):
-    def __init__(self, ...):
-        self.parent = parent          # This is the CLASS, not an instance
-        my_font = SysFont("arial", self.parent.config.get_font_size())
-```
-
-`self.parent` on `Button` is the `Manejador` **class** itself, not a game manager instance. It then accesses `self.parent.config` which resolves to the class-level attribute `config = Configuration()` on `Manejador`. This works as a back-channel to the configuration singleton but it is deeply unintuitive — an object whose `parent` is a class, not an object.
-
-The accidental correctness here depends on `config` being a class attribute, which depends on the Singleton being broken, which depends on nobody ever creating two `Manejador`s. It is a house of cards.
-
-**Fix:** Pass the `Manejador` instance to `Button` from the screen that creates it (screens already have `self.parent`). Or just pass `config` directly. Either way, pass data explicitly.
-
----
-
-### D. Configuration is saved on every single key write
-
-**Files:** `librerias/configuration.py`
-
-```python
-def set_preference(self, key, value):
-    self.preferences[key] = value
-    self.save_config()   # full JSON write every time
-```
-
-`save_config()` writes and flushes the entire JSON file synchronously. If a screen updates three settings at once (e.g. the accessibility menu saving magnifier + font size + screen reader), that is three blocking file writes in a row. `update_preferences()` exists and does one write for N changes, but screens rarely use it.
-
-**Fix:** Use `update_preferences` when changing multiple settings at once, or mark config as dirty and flush once at the end of a frame or on `cleanUp`.
-
----
+## Open anti-patterns
 
 ### G. `resume()` called from `__init__` — init logic is split in two
 
@@ -137,38 +51,6 @@ The intent seems to be: `resume()` resets the screen to its initial visual state
 The base class also has an empty `start()` that is never called by anything meaningful, and an empty `cleanUp()`. The contract of `start` / `pause` / `resume` / `cleanUp` is informally documented but not enforced.
 
 **Fix:** Distinguish what is one-time setup (belongs in `__init__`) from what is "return to ready state" (belongs in `resume`). Do not call `resume` from `__init__`; call it from `start` instead, which `Manejador.changeState` already invokes.
-
----
-
-### H. Duplicate `SpriteSheet` implementation
-
-**Files:** `librerias/animations.py` (class `spritesheet`), `librerias/button.py` (class `SpriteSheet`)
-
-Both classes load a sprite sheet image and extract sub-images. The implementations are nearly identical. `animations.py` has a slightly richer `load_strip` (it handles multi-row sheets), but the core logic is the same. If a bug is found in one, it must be fixed in both.
-
-**Fix:** Consolidate into one class in a shared module (e.g. `librerias/spritesheet.py`) and import from both `animations.py` and `button.py`.
-
----
-
-### I. `tipo_objeto` string dispatch — three identical if/elif blocks
-
-**Files:** `librerias/pantalla.py`
-
-`controlador_lector_evento_K_RIGHT` and `controlador_lector_evento_K_LEFT` each contain:
-
-```python
-if self.x.tipo_objeto == "palabra":
-    self.definir_rect(self.x.rect)
-    self.spserver.processtext("explicar la palabra:" + self.x.palabra, ...)
-elif self.x.tipo_objeto == "mapa":
-    self.definir_rect(self.x.rect)
-    self.spserver.processtext(self.x.id, ...)
-elif self.x.tipo_objeto == "boton":
-    self.definir_rect(self.x.rect)
-    self.spserver.processtext(self.x.tt, ...)
-```
-
-Three branches that all call `definir_rect(self.x.rect)` and `spserver.processtext(some_attribute, ...)`. The only difference is which attribute holds the speech text. This is manual dynamic dispatch that should instead be a method on each object type: give `palabra`, `Button`, and map objects a common `get_reader_text()` method.
 
 ---
 
@@ -217,27 +99,127 @@ Half of `interpretar()` launches `blenderplayer` (a legacy 3D application from a
 
 The Blenderplayer branch also contains a check for a Python 3.2 bytecode cache file (`cpython-32.pyc`), which is a historical artefact from when the project ran on Python 2/3.2.
 
+**Fix:** Split into `launch_interpreter(codigo)` and `show_glossary(codigo)`. Remove the Python 3.2 cache check.
+
 ---
 
-## Priority order for simplification
+### O. Accessibility config screens use a defunct `Configuration` API
 
-Given the goal of simplifying repetitive patterns while keeping the core working, the remaining open items in rough priority order:
+**Files:** `paginas/menuauditivo.py`, `paginas/menuvisual.py`
 
-1. **Fix class-level mutable state on `Pantalla`** (A) — latent bug that will bite when any feature uses `pushState` properly. Move all groups and lists into `__init__`.
+Both screens pre-date the `Configuration` refactor and still call methods and attributes that no longer exist. **These screens will crash at runtime.** Enumerated failures:
 
-2. **Consolidate SpriteSheet** (H) — quick win, reduces duplication across two key modules.
+**Methods that were removed:**
+- `self.parent.config.consultar()` — ×3 in `menuauditivo`, ×2 in `menuvisual`
+- `self.parent.config.cargar_default()` — ×1 in `menuauditivo`
+- `self.parent.config.guardar_preferencias()` — ×1 in `menuauditivo`, ×2 in `menuvisual`
 
-3. **Move glossary vocabulary to JSON** (L) — makes content edits possible without touching Python, consistent with the direction already taken with `content.json`.
+**Direct attribute reads/writes that bypass the new API:**
+- `.cache` (dead attribute — now a preference key, not a direct attribute)
+- `.disc_audi` — ×6 in `menuauditivo`
+- `.genero` — ×4 in `menuauditivo`
+- `.color` — ×6 in `menuauditivo`
+- `.velocidad` — ×1 in `menuauditivo`
+- `.ubx` — ×1 in `menuauditivo`
+- `.synvel` — ×8 in `menuvisual`
+- `.preferencias["t_fuente"]` — ×2 in `menuvisual` (raw dict access, violates API)
 
-4. **Fix the Singleton or remove it** (B) — technically harmless today but misleading. Either fix it or delete `singleton.py` and document the assumption.
+**Wrong method used as condition:**
+- `menuvisual.py` line 206: `if self.parent.config.set_screen_reader_enabled(True):` — a setter used as a boolean condition; should be `is_screen_reader_enabled()`.
 
-5. **Fix `resume()`/`start()` split** (G) and **consolidate `tipo_objeto` dispatch** (I) — clean up the screen lifecycle and keyboard navigation respectively.
+**Fix:** Replace every removed method and direct attribute with the corresponding new API:
+- `consultar()` → remove (config is already in-memory; re-loading from disk is unnecessary)
+- `cargar_default()` → `update_preferences(config.get_default_config())`
+- `guardar_preferencias()` → `flush()` (or `save_config()`)
+- Direct attribute writes (`.disc_audi = x`, `.genero = x`, etc.) → `set_preference("disc_audi", x)` etc.
+- `.preferencias["t_fuente"]` → `get_font_size()` or `get_preference("t_fuente")`
+- `.cache = True` → `set_preference("cache", True)` (then `flush()` at save time)
+
+---
+
+### P. Glossary screen (`pantalla10`) uses stale `palabra` attribute names
+
+**Files:** `paginas/pantalla10.py`
+
+`pantalla10.py` is the in-app glossary screen. It interacts directly with `palabra` sprite objects and uses the old attribute and method names that were renamed during the `palabra` refactor. **This screen will crash when a user clicks a glossary entry.**
+
+Stale API usage (all at the `sprite[0]` level):
+- `.definible` → should be `.definable`
+- `.definicion` → should be `.definition`
+- `.selec = True` → should be `.selected = True`
+- `.destacar()` → should be `.highlight()`
+- `.restaurar()` → should be `.restore()`
+- `.negrita()` → **method removed with no direct equivalent**; the new `update(2)` + `render()` flow handles bold-on-selection automatically via `selected` flag
+- `.palabra` (as text string) → should be `.text`
+- `.codigo` → already correct (`.code` is the new name, but `.codigo` was the old one — verify which is current)
+
+**Fix:** Update every stale call in `pantalla10.py` to the current `palabra` API. For `.negrita()`, remove the explicit call; setting `sprite[0].selected = True` before `render()` (or `highlight()`) achieves the same visual result via the new render path.
+
+---
+
+### Q. `popups.py` uses stale `Text` attribute
+
+**Files:** `librerias/popups.py`
+
+`PopUp.__init__` and at least one other location reference `txt.ancho_final` — an attribute that was renamed `total_height` during the `texto.py` refactor. Any screen that loads a popup will crash at construction time.
+
+**Fix:** Replace `txt.ancho_final` → `txt.total_height` in `popups.py`.
+
+---
+
+## Priority order for remaining work
+
+1. **O — Fix accessibility config screens** (`menuauditivo`, `menuvisual`): critical path for every new user setting up the app. ~25 mechanical substitutions, no logic changes.
+
+2. **P — Fix glossary screen** (`pantalla10`): the in-app dictionary is entirely broken. ~10 attribute/method renames.
+
+3. **Q — Fix `popups.py`** stale attribute: causes a crash on any screen that shows a popup. Quick single-line fix.
+
+4. **L — Move glossary vocabulary to JSON**: content addition no longer requires touching Python.
+
+5. **G — Fix `resume()`/`start()` split**: clean up screen lifecycle.
+
+6. **J — Replace `import *` for assets**: explicit imports + optional startup validation.
+
+7. **N — Split `interpretar()`**: separate Blenderplayer launch from glossary navigation.
 
 ---
 
 ## Changelog
 
 Improvements applied so far, in chronological order.
+
+---
+
+### ✅ B — Singleton metaclass fixed to Python 3 syntax *(2026-02)*
+
+**Files changed:** `manejador.py`
+
+`class Manejador(object)` with the dead `__metaclass__ = Singleton` (Python 2 syntax, silently ignored in Python 3) was replaced with `class Manejador(metaclass=Singleton)`. The Singleton metaclass in `singleton.py` was already correct; only the class declaration was wrong.
+
+Two additional bugs fixed in the same pass:
+- The `icon = pygame.image.load(...)` and `pygame.display.set_icon(icon)` lines were sitting loose in the class body, executing at import time before `pygame.init()`. Moved into `__init__` immediately after `pygame.init()`.
+- `manejador.draw()` called `self.states[-1].reloj.tick(30)`, but `reloj` was the dead class attribute removed in fix A. Updated to `reloj_anim`, the per-screen clock already initialised in `Pantalla.__init__`.
+
+---
+
+### ✅ C — `Button` no longer imports `Manejador` as its parent *(2026-02)*
+
+**Files changed:** `librerias/button.py`, `librerias/pantalla.py`
+
+`Button.__init__` used `from manejador import Manejador as parent` and `self.parent = parent` (the *class*, not an instance) solely to read `self.parent.config.get_font_size()` for the tooltip font. The import and the `self.parent` assignment are gone. A `font_size` parameter was added to `Button.__init__`, and `Pantalla.load_buttons()` now reads `self.parent.config.get_font_size()` once and forwards it to every `Button` it constructs. Data now flows explicitly instead of through a hidden class-level back-channel.
+
+---
+
+### ✅ A — Class-level mutable state moved into `__init__` *(2026-02)*
+
+**Files changed:** `librerias/pantalla.py`
+
+All mutable sprite groups (`grupo_anim`, `grupo_botones`, `grupo_banner`, `grupo_palabras`, etc.), navigation lists (`lista_final`, `lista_botones`, `lista_palabra`), and per-screen flags (`x`, `elemento_actual`, `enable`, `entrada_primera_vez`, `deteccion_movimiento`) were moved from class attributes into `Pantalla.__init__`. Each screen instance now gets its own fresh groups, eliminating the silent state-sharing bug that would corrupt `pushState` scenarios.
+
+Three intentionally shared resources remain as class attributes with an explanatory comment: `spserver` (TTS server process), `raton` (cursor sprite), and `obj_magno` (magnifier — preserving zoom level across screen transitions). The dead `reloj = pygame.time.Clock()` class attribute was also removed.
+
+`debug_groups` is now built in `__init__` from the instance groups, so debug overlays correctly reflect the current screen's own sprite groups.
 
 ---
 
@@ -251,13 +233,11 @@ Two problems were solved together:
 
 - **F (cargar_textos boilerplate):** `Pantalla` gained a `load_screen_texts(keys, x, y, text_type, right_limit, custom)` helper that builds a `{key → Text}` dict in one call. Screens that had uniform `Text(...)` constructors (pantalla3, 4, 5, 6, 8) now use it. Screens with chained-y layout (pantalla9, 11) keep their explicit `Text(...)` calls but still benefit from `screen_text()` for all their string lookups.
 
-The now-redundant `from librerias.texto import Text` imports were removed from pantalla3, 4, 5, 6, and 8.
-
 ---
 
 ### ✅ K — Dead config keys removed *(2026-02)*
 
-**Files changed:** `librerias/configuration.py`, `src/user_config.json`, `src/librerias/user_config.json`
+**Files changed:** `librerias/configuration.py`
 
 `texto_cambio` and `visit` removed from `Configuration.get_default_config()`. A `_migrate()` method was added and called from `__init__` so that any existing saved file has these keys stripped on first load, and the cleaned file is written back immediately.
 
@@ -270,10 +250,48 @@ The now-redundant `from librerias.texto import Text` imports were removed from p
 Six module-level constants replaced all magic pixel numbers:
 
 ```python
-_MEASURE_LEFT      = 128   # left edge used when estimating line count
-_MEASURE_RIGHT     = 896   # right edge used when estimating line count
-_LAYOUT_1LINE      = (256, 768)   # (left, right) margins for single-line text
-_LAYOUT_2LINE      = (192, 832)   # margins for two-line text
-_LAYOUT_3PLUS      = (32,  992)   # margins for three-or-more lines
-_TEXT_AREA_VCENTER = 382   # vertical midpoint of the on-screen text area
+_MEASURE_LEFT      = 128        # left edge used when estimating line count
+_MEASURE_RIGHT     = 896        # right edge used when estimating line count
+_LAYOUT_1LINE      = (256, 768) # (left, right) margins for single-line text
+_LAYOUT_2LINE      = (192, 832) # margins for two-line text
+_LAYOUT_3PLUS      = (32,  992) # margins for three-or-more lines
+_TEXT_AREA_VCENTER = 382        # vertical midpoint of the on-screen text area
 ```
+
+---
+
+### ✅ D — Configuration no longer auto-saves on every key write *(2026-02)*
+
+**Files changed:** `librerias/configuration.py`
+
+`set_preference()` previously called `save_config()` after every single key update, triggering a synchronous full-file JSON write for each individual setting change. The save call was removed; `set_preference` now only updates the in-memory dict and sets `self.changed = True`. `save_config()` now resets the dirty flag when it writes.
+
+A `flush()` convenience method was added as an explicit save shorthand. The two call sites that should still save immediately are unchanged: `mark_screen_visited()` (screen visits are always persisted right away) and `update_preferences()` (its explicit purpose is a batch in-memory update followed by a single disk write).
+
+---
+
+### ✅ H — Duplicate `SpriteSheet` classes consolidated *(2026-02)*
+
+**Files changed:** `librerias/spritesheet.py` (new), `librerias/animations.py`, `librerias/button.py`
+
+`librerias/animations.py` had a `spritesheet` class and `librerias/button.py` had a `SpriteSheet` class — both loading sprite-sheet images and extracting frames, with nearly identical `image_at` and `images_at` implementations but different `load_strip` signatures (animations supported multi-row sheets; buttons only needed single-row).
+
+A single `SpriteSheet` class was created in `librerias/spritesheet.py` with a unified `load_strip(rect, image_count, rows=1, row=0, colorkey=None)` signature. The `rows`/`row` parameters default to single-row behaviour, preserving backward compatibility for Button's call site (which now passes `colorkey` as a keyword argument). Both `animations.py` and `button.py` now import from the shared module and their local class definitions are gone.
+
+A regression was also fixed: `button.py`'s import cleanup had accidentally dropped `from pygame.image import load`, which is still used by `TextButton`. The import was restored.
+
+---
+
+### ✅ I — `tipo_objeto` string dispatch deduplicated *(2026-02)*
+
+**Files changed:** `librerias/pantalla.py`, `librerias/palabra.py`, `librerias/button.py`, `librerias/objmask.py`, `librerias/texto.py`
+
+`controlador_lector_evento_K_RIGHT` and `controlador_lector_evento_K_LEFT` each contained an identical three-branch `if/elif tipo_objeto` block that called `definir_rect` then `spserver.processtext` with a different attribute depending on the object type. Three problems in one: duplicated logic, stale attribute names (`.palabra` instead of `.text`, `.tt` instead of `.tooltip`), and `tipo_objeto` was not even set on `Button` or `palabra` objects so the check would `AttributeError` at runtime.
+
+**Changes:**
+- `palabra.__init__` now sets `self.tipo_objeto = "palabra"` and gains `get_reader_text()` returning `"explicar la palabra:" + self.text`.
+- `Button.__init__` now sets `self.tipo_objeto = "boton"` and gains `get_reader_text()` returning `self.tooltip`.
+- `object_mask` gains `get_reader_text()` returning `self.id` (already had `tipo_objeto = "mapa"`).
+- `Pantalla` gains a private `_announce_current()` helper that calls `self.x.get_reader_text()` — the entire `if/elif` dispatch is gone.
+- Both `controlador_lector_evento_K_RIGHT` and `controlador_lector_evento_K_LEFT` now end with a single `self._announce_current()` call.
+- `texto.py`'s `indexar()` was updated to use the current `palabra` attribute names (`word.text`, `word.selected`, `word.highlight()`, `word.restore()`) replacing the stale `word.palabra`, `word.selec`, `word.destacar()`, `word.restaurar()`.

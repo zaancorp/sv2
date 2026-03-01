@@ -455,5 +455,41 @@
         ]
       }
     }
+  },
+
+  "glossary": {
+    "entries": {
+      "absorbe": "absorber",
+      "absorber": "absorber",
+      "célula": "celula",
+      "componentes": "componentes",
+      "fotosíntesis": "fotosintesis",
+      "germinación": "germinacion",
+      "minerales": "minerales",
+      "nutrientes": "nutrientes",
+      "órgano": "organo",
+      "órganos": "organo",
+      "reproducción asexual": "rasexual",
+      "reproducción sexual": "rsexual",
+      "transformación": "transformacion",
+      "transporta": "transportar"
+    },
+    "definitions": {
+      "Absorber": "absorber",
+      "Célula": "celula",
+      "Componentes": "componentes",
+      "Fotosíntesis": "fotosintesis",
+      "Germinar": "germinar",
+      "Germinación": "germinacion",
+      "Mineral": "minerales",
+      "Nutriente": "nutrientes",
+      "Órgano": "organo",
+      "Reproducción asexual": "rasexual",
+      "Reproducción sexual": "rsexual",
+      "Transformación": "transformacion",
+      "Transportar": "transportar"
+    },
+    "indices": ["A", "C", "F", "G", "M", "N", "O", "R", "T"],
+    "intercalated": ["RATON", "DIR", "ENTER"]
   }
 }

@@ -27,10 +27,11 @@ class Configuration:
 
     def save_config(self):
         """
-        Saves the current configuration to a JSON file.
+        Saves the current configuration to a JSON file and clears the dirty flag.
         """
         with open(self.config_file, 'w', encoding='utf-8') as f:
             json.dump(self.preferences, f, indent=4, ensure_ascii=False)
+        self.changed = False
 
     def get_default_config(self):
         """
@@ -77,9 +78,16 @@ class Configuration:
 
     def set_preference(self, key, value):
         """
-        Sets a preference value and saves the configuration.
+        Updates a preference value in memory and marks the config as dirty.
+
+        Does NOT write to disk — call save_config() / flush() explicitly when
+        you want to persist, e.g. after the user clicks a "save" button.
         """
         self.preferences[key] = value
+        self.changed = True
+
+    def flush(self):
+        """Persist all in-memory preference changes to disk."""
         self.save_config()
 
     def update_preferences(self, new_preferences):
