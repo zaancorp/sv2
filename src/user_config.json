@@ -1,18 +1,19 @@
 {
     "color": 0,
-    "ubx": 499,
-    "vel_anim": 4,
+    "ubx": 532.5,
+    "vel_anim": 2,
     "t_fuente": 18,
-    "velocidad": 0.5,
+    "velocidad": 1,
     "audio": false,
-    "cache": false,
-    "disc_audi": false,
+    "cache": true,
+    "disc_audi": true,
     "disc_vis": false,
     "text_change": false,
     "magnificador": false,
-    "activar_lector": false,
-    "genero": "",
-    "synvel": "baja",
+    "activar_lector": true,
+    "genero": "Mujer",
+    "synvel": "rapida",
     "definicion": "",
-    "visited_screens": {}
+    "visited_screens": {},
+    "language": "hu"
 }

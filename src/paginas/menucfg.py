@@ -5,12 +5,13 @@ import pygame
 from librerias import pantalla
 from librerias.popups import PopUp
 from librerias.image import Image
-from paginas import pantalla2, menuauditivo, menuvisual
+from paginas import pantalla2, menuauditivo, menuvisual, menugeneral
 
 buttons = [
     "puerta",
     "boton_sordo",
     "boton_visual",
+    "boton_config_gen",
     "inicio",
 ]
 
@@ -90,7 +91,7 @@ class estado(pantalla.Pantalla):
             if self.parent.primera_vez:
                 self.load_buttons(buttons)
                 self.grupo_banner.add(self.banner_inf)
-                self.grupo_botones.add(self.boton_sordo, self.boton_visual, self.inicio)
+                self.grupo_botones.add(self.boton_sordo, self.boton_visual, self.boton_config_gen, self.inicio)
                 # self.popup_ins = PopUp(
                 #     self.parent,
                 #     # TODO: If the parent is already being passed we can grab the
@@ -131,7 +132,7 @@ class estado(pantalla.Pantalla):
                 #     self.parent.text_content["popups"][self.name]["reader_2"], True
                 # )
                 self.grupo_banner.add(self.banner_config, self.banner_inf)
-                self.grupo_botones.add(self.boton_sordo, self.boton_visual, self.puerta)
+                self.grupo_botones.add(self.boton_sordo, self.boton_visual, self.boton_config_gen, self.puerta)
 
     def handleEvents(self, events):
         """
@@ -185,6 +186,12 @@ class estado(pantalla.Pantalla):
                                     menuvisual.estado(self.parent, self.previa)
                                 )
 
+                            elif self.x.id == "boton_config_gen":
+                                self.limpiar_grupos()
+                                self.parent.pushState(
+                                    menugeneral.estado(self.parent, self.previa)
+                                )
+
                             elif self.x.id == "inicio":
                                 self.limpiar_grupos()
                                 self.parent.changeState(pantalla2.estado(self.parent))
@@ -217,6 +224,12 @@ class estado(pantalla.Pantalla):
                         self.limpiar_grupos()
                         self.parent.pushState(
                             menuvisual.estado(self.parent, self.previa)
+                        )
+
+                    elif sprite[0].id == "boton_config_gen":
+                        self.limpiar_grupos()
+                        self.parent.pushState(
+                            menugeneral.estado(self.parent, self.previa)
                         )
         self.minimag(events)
 

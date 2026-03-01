@@ -48,16 +48,14 @@ class estado(pantalla.Pantalla):
         pantalla fue cargada a través del método changeState del Manejador.
         @type previa: bool
         """
+        self.name = "screen_aud"
         self.parent = parent
+        super().__init__(parent, self.name)
+        self.previa = previa
         self.spserver.processtext(
             self.parent.text_loader.ui("config_screens", "auditory", "title_reader"),
             False,
         )
-        self.previa = previa
-        self.fondo_acc = pygame.image.load(
-            self.backgrounds_path + "fondo-acc.png"
-        ).convert()
-        self.background = self.fondo_acc
         self.load_buttons(buttons)
         self.camisas_mujer = [self.amarillo, self.rosado, self.v_mujer]
         self.camisas_hombre = [self.amarillo, self.rojo, self.v_hombre]

@@ -8,7 +8,11 @@ import subprocess
 from librerias.singleton import Singleton
 from librerias.magnificador import Rendermag
 from librerias.configuration import Configuration
-from librerias.text_repository import load_text_content
+from librerias.text_repository import (
+    load_text_content as _load_text_content,
+    invalidate_text_cache,
+    content_path_for_language,
+)
 from librerias.text_loader import TextLoader
 
 
@@ -189,8 +193,10 @@ class Manejador(metaclass=Singleton):
         self.states[-1].ir_glosario()
 
     def load_text_content(self):
-        # Load all user-facing text content from JSON.
-        self.text_content = load_text_content()
+        # Load all user-facing text content from the language-specific JSON.
+        lang = self.config.get_language()
+        path = content_path_for_language(lang)
+        self.text_content = _load_text_content(path)
         self.text_loader = TextLoader(self.text_content)
 
         # Inject glossary vocabulary into the palabra class so screens never
@@ -198,7 +204,12 @@ class Manejador(metaclass=Singleton):
         # (palabra → pantalla → manejador).
         from librerias.palabra import palabra as Palabra
         glossary = self.text_content.get("glossary", {})
-        Palabra.ENTRIES = glossary.get("entries", {})
+        Palabra.ENTRIES   = glossary.get("entries", {})
         Palabra.DEFINITIONS = glossary.get("definitions", {})
-        Palabra.INDICES = glossary.get("indices", [])
+        Palabra.INDICES     = glossary.get("indices", [])
         Palabra.INTERCALATED = glossary.get("intercalated", [])
+
+    def reload_text_content(self):
+        """Invalidate the LRU cache and reload text for the active language."""
+        invalidate_text_cache()
+        self.load_text_content()

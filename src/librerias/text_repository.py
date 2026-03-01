@@ -11,8 +11,14 @@ def _src_dir() -> str:
     return os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 
 
+def content_path_for_language(lang: str) -> str:
+    """Returns the absolute path to content-{lang}.json."""
+    filename = f"content-{lang}.json"
+    return os.path.join(_src_dir(), "paginas", "text", filename)
+
+
 def default_content_path() -> str:
-    return os.path.join(_src_dir(), "paginas", "text", "content.json")
+    return content_path_for_language("es")
 
 
 @lru_cache(maxsize=1)

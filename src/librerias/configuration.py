@@ -53,6 +53,7 @@ class Configuration:
             "genero": "",
             "synvel": "baja",
             "definicion": "",
+            "language": "es",
             "visited_screens": {},
         }
 
@@ -137,3 +138,12 @@ class Configuration:
 
     def set_text_change_enabled(self, value):
         self.set_preference("text_change", bool(value))
+
+    def get_language(self):
+        """Returns the active UI language code ('es' or 'hu')."""
+        return self.get_preference("language", "es")
+
+    def set_language(self, lang: str):
+        """Sets the active UI language. Accepted values: 'es', 'hu'."""
+        if lang in ("es", "hu"):
+            self.set_preference("language", lang)

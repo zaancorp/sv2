@@ -50,7 +50,7 @@ class texto2:
         self.espacio = 6 + medidas[self.nro_linea]
 
         for i in self.words:
-            if (self.posx + i.rect.width > self.limite_der) or (i.palabra == "|"):
+            if (self.posx + i.rect.width > self.limite_der) or (i.text == "|"):
                 self.nro_linea += 1
                 self.espacio = 6 + medidas[self.nro_linea]
                 self.posx = self.limite_izq
@@ -62,7 +62,7 @@ class texto2:
 
             if not self.dic == 0:
                 for n in self.dic.keys():
-                    if n == i.palabra:
+                    if n == i.text:
                         i.image = self.dic[n]
                         i.rect.width, i.rect.height = i.image.get_size()
                         i.rect.x = self.posx
@@ -85,7 +85,7 @@ class texto2:
         ancho_total = 0
         altos_lineas = []
         for i in self.words:
-            if (px + i.rect.width > self.limite_der) or (i.palabra == "|"):
+            if (px + i.rect.width > self.limite_der) or (i.text == "|"):
                 if ppl == 1:
                     medida_lineas.append((self.limite_der - px) / ppl)
                 else:
@@ -97,7 +97,7 @@ class texto2:
                 ancho = 0
             if not self.dic == 0:
                 for n in self.dic.keys():
-                    if n == i.palabra:
+                    if n == i.text:
                         i.image = self.dic[n]
                         i.rect = i.image.get_rect()
 
@@ -130,7 +130,7 @@ class texto2:
         for i in self.words:
             if not self.dic == 0:
                 for n in self.dic.keys():
-                    if n == i.palabra:
+                    if n == i.text:
                         i.image = self.dic[n]
                         i.rect = i.image.get_rect()
 
@@ -147,7 +147,7 @@ class texto2:
 
             #            if not self.dic == 0 :
             #                for n in self.dic.keys():
-            #                    if n == i.palabra:
+            #                    if n == i.text:
             #                        i.image = self.dic[n]
             #                        i.rect = i.image.get_rect()
 

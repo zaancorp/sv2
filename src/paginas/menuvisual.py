@@ -49,12 +49,10 @@ class estado(pantalla.Pantalla):
         pantalla fue cargada a través del método changeState del Manejador.
         @type previa: bool
         """
+        self.name = "screen_vis"
         self.parent = parent
         self.previa = previa
-        self.fondo_acc = pygame.image.load(
-            self.backgrounds_path + "fondo-acc-visual.png"
-        ).convert()
-        self.background = self.fondo_acc
+        super().__init__(parent, self.name)
 
         # Botones magnificador
         self.img1 = pygame.image.load(self.pops + "f5.png").convert_alpha()
