@@ -186,8 +186,7 @@ class estado(pantalla.Pantalla):
             self.acc3_9.words,
         )
         self.grupo_banner.add(self.banner_acc_visual, self.banner_inf)
-        self.parent.config.consultar()
-        if self.parent.config.cache == True:
+        if self.parent.config.get_preference("cache", False) == True:
             self.grupo_botones.add(self.puerta)
             if self.parent.config.is_magnifier_enabled():
                 self.grupo_botones.add(self.onmag_si, self.offmag)
@@ -203,16 +202,16 @@ class estado(pantalla.Pantalla):
             elif self.parent.config.get_font_size() == 22:
                 self.grupo_botones.add(self.tam18, self.tam20, self.tam22_sel)
 
-            if self.parent.config.set_screen_reader_enabled(True):
+            if self.parent.config.is_screen_reader_enabled():
                 self.grupo_botones.add(self.lector_si, self.oflector)
                 self.grupo_palabras.add(
                     self.acc3_5.words, self.acc3_6.words
                 )
-                if self.parent.config.synvel == "baja":
+                if self.parent.config.get_preference("synvel", "baja") == "baja":
                     self.grupo_botones.add(self.vbaja_sel, self.vmedia, self.vrapida)
-                elif self.parent.config.synvel == "media":
+                elif self.parent.config.get_preference("synvel", "baja") == "media":
                     self.grupo_botones.add(self.vbaja, self.vmedia_sel, self.vrapida)
-                elif self.parent.config.synvel == "rapida":
+                elif self.parent.config.get_preference("synvel", "baja") == "rapida":
                     self.grupo_botones.add(self.vbaja, self.vmedia, self.vrapida_sel)
             else:
                 self.grupo_botones.add(self.lector, self.oflector_si)
@@ -291,7 +290,7 @@ class estado(pantalla.Pantalla):
                 self.grupo_botones.add(
                     self.vbaja_sel, self.vmedia, self.vrapida, self.guardar
                 )
-                self.parent.config.synvel = "baja"
+                self.parent.config.set_preference("synvel", "baja")
 
             elif tecla == 2:
                 self.grupo_botones.remove(
@@ -305,7 +304,7 @@ class estado(pantalla.Pantalla):
                 self.grupo_botones.add(
                     self.vbaja, self.vmedia_sel, self.vrapida, self.guardar
                 )
-                self.parent.config.synvel = "media"
+                self.parent.config.set_preference("synvel", "media")
 
             elif tecla == 3:
                 self.grupo_botones.remove(
@@ -319,7 +318,7 @@ class estado(pantalla.Pantalla):
                 self.grupo_botones.add(
                     self.vbaja, self.vmedia, self.vrapida_sel, self.guardar
                 )
-                self.parent.config.synvel = "rapida"
+                self.parent.config.set_preference("synvel", "rapida")
             self.opcion += 1
             self.spserver.processtext(
                 self.parent.text_loader.ui("config_screens", "visual", "reader_success"),
@@ -328,13 +327,13 @@ class estado(pantalla.Pantalla):
 
         elif self.opcion == 3:
             if tecla == 4:
-                self.parent.config.cache = True
+                self.parent.config.set_preference("cache", True)
                 if (
                     self.parent.config.get_font_size()
-                    != self.parent.config.preferencias["t_fuente"]
+                    != self.parent.config.get_preference("t_fuente", 18)
                 ):
                     self.parent.set_text_change_enabled(True)
-                self.parent.config.guardar_preferencias()
+                self.parent.config.flush()
                 self.spserver.actualizar_servidor()
                 self.limpiar_grupos()
                 if self.parent.primera_vez:
@@ -358,7 +357,6 @@ class estado(pantalla.Pantalla):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.limpiar_grupos()
-                    self.parent.config.consultar()
                     if self.previa:
                         self.parent.VOLVER_PANTALLA_PREVIA = True
                     self.parent.popState()
@@ -379,7 +377,6 @@ class estado(pantalla.Pantalla):
 
                     if sprite[0].id == "puerta":
                         self.limpiar_grupos()
-                        self.parent.config.consultar()
                         self.parent.popState()
 
                     elif sprite[0].id == "tam18":
@@ -413,13 +410,13 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.remove(self.onmag, self.offmag_si)
                         self.grupo_botones.add(self.onmag_si, self.offmag, self.guardar)
                         self.popup_mag.agregar_grupo()
-                        self.parent.config.enable_magnifier
+                        self.parent.config.set_preference("magnificador", True)
 
                     elif sprite[0].id == "offmag":
                         self.grupo_botones.remove(self.onmag_si, self.offmag)
                         self.grupo_botones.add(self.onmag, self.offmag_si, self.guardar)
                         self.popup_mag.eliminar_grupo()
-                        self.parent.config.disable_magnifier
+                        self.parent.config.set_preference("magnificador", False)
 
                     elif sprite[0].id == "oflector":
                         self.grupo_botones.remove(
@@ -436,13 +433,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.remove(
                             self.acc3_5.words, self.acc3_6.words
                         )
-                        if (
-                            self.parent.config.synvel
-                            != self.parent.config.preferencias["synvel"]
-                        ):
-                            self.parent.config.synvel = self.parent.config.preferencias[
-                                "synvel"
-                            ]
+                        # synvel rollback removed — set_preference writes to in-memory store directly.
                         self.grupo_botones.add(
                             self.lector, self.oflector_si, self.guardar
                         )
@@ -452,7 +443,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.remove(
                             self.lector, self.oflector_si, self.guardar
                         )
-                        if self.parent.config.synvel == "baja":
+                        if self.parent.config.get_preference("synvel", "baja") == "baja":
                             self.grupo_botones.add(
                                 self.lector_si,
                                 self.oflector,
@@ -461,7 +452,7 @@ class estado(pantalla.Pantalla):
                                 self.vrapida,
                                 self.guardar,
                             )
-                        elif self.parent.config.synvel == "media":
+                        elif self.parent.config.get_preference("synvel", "baja") == "media":
                             self.grupo_botones.add(
                                 self.lector_si,
                                 self.oflector,
@@ -470,7 +461,7 @@ class estado(pantalla.Pantalla):
                                 self.vrapida,
                                 self.guardar,
                             )
-                        elif self.parent.config.synvel == "rapida":
+                        elif self.parent.config.get_preference("synvel", "baja") == "rapida":
                             self.grupo_botones.add(
                                 self.lector_si,
                                 self.oflector,
@@ -495,7 +486,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.add(
                             self.vbaja_sel, self.vmedia, self.vrapida, self.guardar
                         )
-                        self.parent.config.synvel = "baja"
+                        self.parent.config.set_preference("synvel", "baja")
 
                     elif sprite[0].id == "vmedia":
                         self.grupo_botones.remove(
@@ -509,7 +500,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.add(
                             self.vbaja, self.vmedia_sel, self.vrapida, self.guardar
                         )
-                        self.parent.config.synvel = "media"
+                        self.parent.config.set_preference("synvel", "media")
 
                     elif sprite[0].id == "vrapida":
                         self.grupo_botones.remove(
@@ -523,17 +514,17 @@ class estado(pantalla.Pantalla):
                         self.grupo_botones.add(
                             self.vbaja, self.vmedia, self.vrapida_sel, self.guardar
                         )
-                        self.parent.config.synvel = "rapida"
+                        self.parent.config.set_preference("synvel", "rapida")
 
                     elif sprite[0].id == "guardar":
                         self.spserver.stopserver()
-                        self.parent.config.cache = True
+                        self.parent.config.set_preference("cache", True)
                         if (
                             self.parent.config.get_font_size()
-                            != self.parent.config.preferencias["t_fuente"]
+                            != self.parent.config.get_preference("t_fuente", 18)
                         ):
                             self.parent.set_text_change_enabled(True)
-                        self.parent.config.guardar_preferencias()
+                        self.parent.config.flush()
                         self.spserver.actualizar_servidor()
                         self.limpiar_grupos()
                         if self.parent.primera_vez:

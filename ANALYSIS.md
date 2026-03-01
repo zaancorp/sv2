@@ -13,7 +13,7 @@ This document analyses the current codebase with an eye towards simplification a
 `assets_data.py` holds every button, animation, and banner spec in one place. The loader methods on `Pantalla` (`load_buttons`, `load_animations`, `load_banners`) iterate over those specs and do the heavy lifting. Screen files only declare which assets they need, not how to load them. That is a good separation.
 
 ### 3. Text content is in JSON
-All user-facing Spanish text lives in `content.json`. Text that changes together belongs together, and it gives a single place to make translation or copy edits without touching Python files.
+All user-facing Spanish text lives in `content.json`, including the glossary vocabulary look-up tables (`ENTRIES`, `DEFINITIONS`, `INDICES`, `INTERCALATED`) that mark which words in running text are clickable. Text that changes together belongs together, and it gives a single place to make translation or copy edits without touching Python files.
 
 ### 4. `TextLoader` is a good accessor
 The `get` / `require` / `screen_content` / `concept` / `ui` API is clean. `require` raising a `KeyError` with a readable path is better than a silent `None`. LRU-caching the JSON load in `text_repository.py` is correct.
@@ -36,152 +36,29 @@ Dead keys are auto-migrated. `set_preference` only writes to memory; an explicit
 ### 10. Screen-reader navigation uses a polymorphic protocol *(fixed in I)*
 `Button`, `palabra`, and `object_mask` each implement `get_reader_text()`. `Pantalla._announce_current()` calls it without a `tipo_objeto` string switch.
 
+### 11. Screen lifecycle is cleanly separated *(fixed in G)*
+Screens are constructed via `__init__`, then `Manejador.changeState` calls `start()`. `start()` delegates to `resume()`, which populates the sprite groups and sets flags. Returning from a pushed overlay calls `resume()` directly. One-time setup and visual-reset logic are no longer interleaved.
+
+### 12. Asset dicts are imported explicitly *(fixed in J)*
+`pantalla.py` imports `backgrounds`, `banners`, `images`, `animations`, and `buttons` from `assets_data.py` using private-prefixed names (`_backgrounds`, `_banners`, etc.). The wildcard import is gone; the names are scoped and not visible to subclasses.
+
+### 13. Glossary vocabulary lives in JSON *(fixed in L)*
+`ENTRIES`, `DEFINITIONS`, `INDICES`, and `INTERCALATED` now live in `content.json` under `"glossary"`. Adding a new concept no longer requires touching Python source. `Manejador.load_text_content()` injects the tables into `palabra`'s class attributes at startup via a local import.
+
+### 14. `Manejador.interpretar()` is correctly dispatched *(fixed in N)*
+`interpretar(codigo)` is now a thin dispatcher: it calls `_launch_interpreter(codigo)` (Blenderplayer sign-language interpreter) if auditory-disability mode is active, or `_show_glossary(codigo)` otherwise. Dead Python 3.2 bytecode cache cleanup code has been removed.
+
+### 15. Accessibility config screens use the current Configuration API *(fixed in O)*
+`menuauditivo.py` and `menuvisual.py` no longer call the removed `consultar()`, `cargar_default()`, or `guardar_preferencias()` methods, and no longer read or write preferences as direct object attributes. All preference access goes through `get_preference()` / `set_preference()` / `flush()`.
+
+### 16. Glossary screen uses the current `palabra` API *(fixed in P)*
+`pantalla10.py` uses the current attribute and method names: `.definable`, `.definition`, `.selected`, `.highlight()`, `.text`, `.code`. The removed `.negrita()` calls have been deleted; bold-on-selection is handled automatically by the new render path.
+
 ---
 
 ## Open anti-patterns
 
-### G. `resume()` called from `__init__` — init logic is split in two
-
-**Files:** all `paginas/pantalla*.py`
-
-Every screen's `__init__` ends with `self.resume()`. The `resume()` method re-adds sprites to groups and sets state flags. This means initialisation logic is split across two methods with no clear rule about what belongs where.
-
-The intent seems to be: `resume()` resets the screen to its initial visual state so it can be called both after creation and after returning from a pushed overlay (like the config menu). That is a reasonable idea, but calling it from `__init__` makes `__init__` responsible for setup *and* for calling what is semantically a "return from pause" handler.
-
-The base class also has an empty `start()` that is never called by anything meaningful, and an empty `cleanUp()`. The contract of `start` / `pause` / `resume` / `cleanUp` is informally documented but not enforced.
-
-**Fix:** Distinguish what is one-time setup (belongs in `__init__`) from what is "return to ready state" (belongs in `resume`). Do not call `resume` from `__init__`; call it from `start` instead, which `Manejador.changeState` already invokes.
-
----
-
-### J. `assets_data.py` exported via `import *`
-
-**Files:** `librerias/pantalla.py`, `librerias/assets_data.py`
-
-```python
-from librerias.assets_data import *
-```
-
-This dumps `backgrounds`, `banners`, `images`, `animations`, `buttons`, `popups` into the `pantalla` module namespace. The name `buttons` in `assets_data` collides conceptually (though not technically) with the `buttons` list defined in every screen module. `animations` and `images` are generic names. There's also no schema validation — a mistyped key in a screen file fails at runtime when the screen is loaded, not at startup.
-
-**Fix:** Import the dicts explicitly by name, or wrap them in a namespace object. Consider validating that every key referenced by screens exists in the data at startup.
-
----
-
-### L. Glossary vocabulary hardcoded in Python
-
-**Files:** `librerias/palabra.py`
-
-```python
-class palabra(pygame.sprite.Sprite):
-    ENTRIES = {
-        "absorbe": "absorber",
-        "célula": "celula",
-        ...
-    }
-    DEFINITIONS = {
-        "Absorber": "absorber",
-        ...
-    }
-```
-
-These two dicts are the vocabulary index — which words in the flowing text are clickable, and which words appear in the glossary index. They belong in `content.json` alongside the concept definitions they point to. Having them in Python means adding a new concept requires editing both a Python file and the JSON.
-
-**Fix:** Move `ENTRIES` and `DEFINITIONS` into `content.json` under a `"glossary"` key. Load them at startup through `TextLoader`.
-
----
-
-### N. `Manejador.interpretar()` does two unrelated things
-
-**Files:** `manejador.py`
-
-Half of `interpretar()` launches `blenderplayer` (a legacy 3D application from a discontinued Blender game engine). The other half navigates to the in-app glossary screen. These are completely different code paths that should be separate methods.
-
-The Blenderplayer branch also contains a check for a Python 3.2 bytecode cache file (`cpython-32.pyc`), which is a historical artefact from when the project ran on Python 2/3.2.
-
-**Fix:** Split into `launch_interpreter(codigo)` and `show_glossary(codigo)`. Remove the Python 3.2 cache check.
-
----
-
-### O. Accessibility config screens use a defunct `Configuration` API
-
-**Files:** `paginas/menuauditivo.py`, `paginas/menuvisual.py`
-
-Both screens pre-date the `Configuration` refactor and still call methods and attributes that no longer exist. **These screens will crash at runtime.** Enumerated failures:
-
-**Methods that were removed:**
-- `self.parent.config.consultar()` — ×3 in `menuauditivo`, ×2 in `menuvisual`
-- `self.parent.config.cargar_default()` — ×1 in `menuauditivo`
-- `self.parent.config.guardar_preferencias()` — ×1 in `menuauditivo`, ×2 in `menuvisual`
-
-**Direct attribute reads/writes that bypass the new API:**
-- `.cache` (dead attribute — now a preference key, not a direct attribute)
-- `.disc_audi` — ×6 in `menuauditivo`
-- `.genero` — ×4 in `menuauditivo`
-- `.color` — ×6 in `menuauditivo`
-- `.velocidad` — ×1 in `menuauditivo`
-- `.ubx` — ×1 in `menuauditivo`
-- `.synvel` — ×8 in `menuvisual`
-- `.preferencias["t_fuente"]` — ×2 in `menuvisual` (raw dict access, violates API)
-
-**Wrong method used as condition:**
-- `menuvisual.py` line 206: `if self.parent.config.set_screen_reader_enabled(True):` — a setter used as a boolean condition; should be `is_screen_reader_enabled()`.
-
-**Fix:** Replace every removed method and direct attribute with the corresponding new API:
-- `consultar()` → remove (config is already in-memory; re-loading from disk is unnecessary)
-- `cargar_default()` → `update_preferences(config.get_default_config())`
-- `guardar_preferencias()` → `flush()` (or `save_config()`)
-- Direct attribute writes (`.disc_audi = x`, `.genero = x`, etc.) → `set_preference("disc_audi", x)` etc.
-- `.preferencias["t_fuente"]` → `get_font_size()` or `get_preference("t_fuente")`
-- `.cache = True` → `set_preference("cache", True)` (then `flush()` at save time)
-
----
-
-### P. Glossary screen (`pantalla10`) uses stale `palabra` attribute names
-
-**Files:** `paginas/pantalla10.py`
-
-`pantalla10.py` is the in-app glossary screen. It interacts directly with `palabra` sprite objects and uses the old attribute and method names that were renamed during the `palabra` refactor. **This screen will crash when a user clicks a glossary entry.**
-
-Stale API usage (all at the `sprite[0]` level):
-- `.definible` → should be `.definable`
-- `.definicion` → should be `.definition`
-- `.selec = True` → should be `.selected = True`
-- `.destacar()` → should be `.highlight()`
-- `.restaurar()` → should be `.restore()`
-- `.negrita()` → **method removed with no direct equivalent**; the new `update(2)` + `render()` flow handles bold-on-selection automatically via `selected` flag
-- `.palabra` (as text string) → should be `.text`
-- `.codigo` → already correct (`.code` is the new name, but `.codigo` was the old one — verify which is current)
-
-**Fix:** Update every stale call in `pantalla10.py` to the current `palabra` API. For `.negrita()`, remove the explicit call; setting `sprite[0].selected = True` before `render()` (or `highlight()`) achieves the same visual result via the new render path.
-
----
-
-### Q. `popups.py` uses stale `Text` attribute
-
-**Files:** `librerias/popups.py`
-
-`PopUp.__init__` and at least one other location reference `txt.ancho_final` — an attribute that was renamed `total_height` during the `texto.py` refactor. Any screen that loads a popup will crash at construction time.
-
-**Fix:** Replace `txt.ancho_final` → `txt.total_height` in `popups.py`.
-
----
-
-## Priority order for remaining work
-
-1. **O — Fix accessibility config screens** (`menuauditivo`, `menuvisual`): critical path for every new user setting up the app. ~25 mechanical substitutions, no logic changes.
-
-2. **P — Fix glossary screen** (`pantalla10`): the in-app dictionary is entirely broken. ~10 attribute/method renames.
-
-3. **Q — Fix `popups.py`** stale attribute: causes a crash on any screen that shows a popup. Quick single-line fix.
-
-4. **L — Move glossary vocabulary to JSON**: content addition no longer requires touching Python.
-
-5. **G — Fix `resume()`/`start()` split**: clean up screen lifecycle.
-
-6. **J — Replace `import *` for assets**: explicit imports + optional startup validation.
-
-7. **N — Split `interpretar()`**: separate Blenderplayer launch from glossary navigation.
+All anti-patterns identified in this analysis (A through Q) have been resolved. See the Changelog below for details of each fix.
 
 ---
 
@@ -295,3 +172,131 @@ A regression was also fixed: `button.py`'s import cleanup had accidentally dropp
 - `Pantalla` gains a private `_announce_current()` helper that calls `self.x.get_reader_text()` — the entire `if/elif` dispatch is gone.
 - Both `controlador_lector_evento_K_RIGHT` and `controlador_lector_evento_K_LEFT` now end with a single `self._announce_current()` call.
 - `texto.py`'s `indexar()` was updated to use the current `palabra` attribute names (`word.text`, `word.selected`, `word.highlight()`, `word.restore()`) replacing the stale `word.palabra`, `word.selec`, `word.destacar()`, `word.restaurar()`.
+
+---
+
+### ✅ G — `resume()` no longer called from `__init__` *(2026-03)*
+
+**Files changed:** `paginas/pantalla2–6,8–9.py`, `paginas/menucfg.py`, `paginas/playground.py`
+
+Every screen's `__init__` used to end with `self.resume()`, causing init logic to span two methods with no clear ownership boundary. Screen construction now ends cleanly; `start()` (which `Manejador.changeState` already calls on every new state) is the single entry point into `resume()`:
+
+```python
+def start(self):
+    self.resume()
+```
+
+`playground.py` already had a `def start(self): pass` stub; its body was replaced with `self.resume()`.
+
+---
+
+### ✅ J — `assets_data.py` imported explicitly *(2026-03)*
+
+**Files changed:** `librerias/pantalla.py`
+
+The `from librerias.assets_data import *` wildcard was replaced with five explicit named imports using private-prefixed aliases:
+
+```python
+from librerias.assets_data import (
+    backgrounds as _backgrounds,
+    banners     as _banners,
+    images      as _images,
+    animations  as _animations,
+    buttons     as _buttons,
+)
+```
+
+The `popups` dict (also exported by `assets_data`) is not used by any `Pantalla` load method and was not imported. All five load methods (`load_animations`, `load_background`, `load_buttons`, `load_banners`, `load_images`) were updated to reference the new names.
+
+---
+
+### ✅ L — Glossary vocabulary moved to JSON *(2026-03)*
+
+**Files changed:** `librerias/palabra.py`, `paginas/text/content.json`, `manejador.py`
+
+`palabra.ENTRIES`, `DEFINITIONS`, `INDICES`, and `INTERCALATED` were 36-line hardcoded class-level dicts. They now live in `content.json` under a `"glossary"` key:
+
+```json
+"glossary": {
+  "entries":       { "absorbe": "absorber", "célula": "celula", ... },
+  "definitions":   { "Absorber": "absorber", "Célula": "celula", ... },
+  "indices":       ["A", "C", "F", "G", "M", "N", "O", "R", "T"],
+  "intercalated":  ["RATON", "DIR", "ENTER"]
+}
+```
+
+`palabra.py` now declares the four attributes as empty-default class attributes with a comment. `Manejador.load_text_content()` injects the live values via a local import (to avoid a circular-import chain):
+
+```python
+from librerias.palabra import palabra as Palabra
+Palabra.ENTRIES      = glossary.get("entries", {})
+Palabra.DEFINITIONS  = glossary.get("definitions", {})
+Palabra.INDICES      = glossary.get("indices", [])
+Palabra.INTERCALATED = glossary.get("intercalated", [])
+```
+
+---
+
+### ✅ N — `interpretar()` split into focused methods *(2026-03)*
+
+**Files changed:** `manejador.py`
+
+`Manejador.interpretar(codigo)` was a single method that did two unrelated things depending on `config.disc_audi`. It is now a three-method group:
+
+- `interpretar(codigo)` — thin dispatcher; reads `get_preference("disc_audi", False)`.
+- `_launch_interpreter(codigo)` — launches the Blenderplayer sign-language interpreter subprocess. Reads `color`, `genero`, and `velocidad` via `get_preference()`. Dead Python 3.2 bytecode cache cleanup (`os.path.isdir("__pycache__")` block) removed. `import os` removed.
+- `_show_glossary(codigo)` — writes `definicion` via `set_preference()`, then calls the current screen's `ir_glosario()`.
+
+---
+
+### ✅ Q — `popups.py` stale `ancho_final` attribute fixed *(2026-03)*
+
+**Files changed:** `librerias/popups.py`
+
+`PopUp.__init__` referenced `self.texto.ancho_final` (renamed `total_height` in the `texto.py` refactor) in the `tipo == 0` and `tipo == 1` branches — any screen loading a popup would crash at construction. The four affected call sites were updated to `self.texto.total_height`.
+
+The `tipo == 2` branch (which uses a `texto2` instance, not a `Text` instance) was intentionally left unchanged: `texto2` still exposes `ancho_final` under its own API.
+
+---
+
+### ✅ O — Accessibility config screens updated to current Configuration API *(2026-03)*
+
+**Files changed:** `paginas/menuauditivo.py`, `paginas/menuvisual.py`
+
+Both screens pre-dated the `Configuration` refactor and used removed methods and direct attribute access. Without this fix they crashed at runtime as soon as a user entered either config screen.
+
+**`menuauditivo.py`** (~25 sites):
+- Removed `consultar()` (×2) and `cargar_default()` (×1)
+- Replaced `.cache`, `.disc_audi`, `.genero`, `.color`, `.velocidad`, `.ubx` reads with `get_preference(key, default)`
+- Replaced the same attribute writes with `set_preference(key, value)`
+- Replaced `.preferencias["t_fuente"]` with `get_preference("t_fuente", 18)`
+- Replaced `guardar_preferencias()` with `flush()`
+
+**`menuvisual.py`** (~17 sites):
+- Removed `consultar()` (×3)
+- Fixed `if config.set_screen_reader_enabled(True):` (setter used as condition) → `if config.is_screen_reader_enabled():`
+- Replaced `.synvel` reads (×5) with `get_preference("synvel", "baja") == "..."`
+- Replaced `.synvel` writes (×6) with `set_preference("synvel", "...")`
+- Replaced bare `config.enable_magnifier` / `config.disable_magnifier` property no-ops with `set_preference("magnificador", True/False)`
+- Removed stale `synvel` rollback block in the `oflector` handler (replaced with a comment)
+- Replaced `.preferencias["t_fuente"]` (×2) with `get_preference("t_fuente", 18)`
+- Replaced `guardar_preferencias()` (×2) with `flush()`
+
+---
+
+### ✅ P — Glossary screen updated to current `palabra` API *(2026-03)*
+
+**Files changed:** `paginas/pantalla10.py`
+
+`pantalla10.py` is the in-app glossary. It used the old `palabra` attribute and method names from before the `palabra` refactor. Without this fix, clicking any glossary entry crashed the screen.
+
+Changes made:
+- `config.definicion` (×3) → `config.get_preference("definicion", "")`
+- `self.concepto.ancho_final` (×2) → `self.concepto.total_height`
+- `.definible` → `.definable`
+- `.definicion ==` → `.definition ==`
+- `.selec = True/False` (×3) → `.selected = True/False`
+- `.destacar()` → `.highlight()`
+- `.negrita()` (×2) → deleted (bold-on-selection is now automatic via the `selected` flag in the new render path)
+- `sprite[0].palabra` / `i.words[0].palabra` → `.text`
+- `sprite[0].codigo` / `i.words[0].codigo` → `.code`

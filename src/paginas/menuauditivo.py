@@ -145,9 +145,8 @@ class estado(pantalla.Pantalla):
         """
         self.grupo_palabras.add(self.acc2_1.words, self.acc2_2.words)
         self.grupo_banner.add(self.banner_acc_sordo, self.banner_inf)
-        self.parent.config.consultar()
-        if self.parent.config.cache == True:
-            if self.parent.config.disc_audi == True:
+        if self.parent.config.get_preference("cache", False) == True:
+            if self.parent.config.get_preference("disc_audi", False) == True:
                 self.grupo_botones.add(
                     self.no,
                     self.check_si,
@@ -156,9 +155,9 @@ class estado(pantalla.Pantalla):
                     self.velocidad,
                     self.hoja,
                 )
-                if self.parent.config.genero == "Mujer":
+                if self.parent.config.get_preference("genero", "") == "Mujer":
                     self.grupo_anim.add(self.colors_woman)
-                    self.colors_woman.cambiar_rect(self.parent.config.color)
+                    self.colors_woman.cambiar_rect(self.parent.config.get_preference("color", 0))
                     self.grupo_botones.add(
                         self.boton_nino,
                         self.boton_nina_sel,
@@ -173,9 +172,9 @@ class estado(pantalla.Pantalla):
                         self.acc2_6f.words,
                         self.acc2_7.words,
                     )
-                elif self.parent.config.genero == "Hombre":
+                elif self.parent.config.get_preference("genero", "") == "Hombre":
                     self.grupo_anim.add(self.colors_man)
-                    self.colors_man.cambiar_rect(self.parent.config.color)
+                    self.colors_man.cambiar_rect(self.parent.config.get_preference("color", 0))
                     self.grupo_botones.add(
                         self.boton_nina,
                         self.boton_nino_sel,
@@ -192,20 +191,19 @@ class estado(pantalla.Pantalla):
                     )
                 self.colors_man.cambiar_vel(self.parent.config.get_animation_speed())
                 self.colors_woman.cambiar_vel(self.parent.config.get_animation_speed())
-                self.hoja.relocate(x=self.parent.config.ubx)
-            elif self.parent.config.disc_audi == False:
+                self.hoja.relocate(x=self.parent.config.get_preference("ubx", 499))
+            elif self.parent.config.get_preference("disc_audi", False) == False:
                 self.grupo_palabras.add(self.acc2_7.words)
                 self.grupo_botones.add(
                     self.si, self.check_no, self.puerta, self.guardar
                 )
         else:
-            self.parent.config.cargar_default()
             self.grupo_botones.add(self.si, self.check_no, self.puerta)
             self.hoja.relocate(x=499)
             self.colors_man.cambiar_vel(self.parent.config.get_animation_speed())
             self.colors_woman.cambiar_vel(self.parent.config.get_animation_speed())
-            self.colors_man.cambiar_rect(self.parent.config.color)
-            self.colors_woman.cambiar_rect(self.parent.config.color)
+            self.colors_man.cambiar_rect(self.parent.config.get_preference("color", 0))
+            self.colors_woman.cambiar_rect(self.parent.config.get_preference("color", 0))
 
     def handleEvents(self, events):
         """
@@ -239,12 +237,11 @@ class estado(pantalla.Pantalla):
                             self.colors_woman.cambiar_vel(int(factor_anim))
                             self.colors_man.cambiar_vel(int(factor_anim))
                             self.parent.config.set_preference("vel_anim", factor_anim)
-                            self.parent.config.velocidad = factor
-                            self.parent.config.ubx = ux
+                            self.parent.config.set_preference("velocidad", factor)
+                            self.parent.config.set_preference("ubx", ux)
 
                     elif sprite[0].id == "puerta":
                         self.limpiar_grupos()
-                        self.parent.config.consultar()
                         self.parent.popState()
 
                     elif sprite[0].id == "si":
@@ -256,7 +253,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.add(
                             self.acc2_3.words, self.acc2_4.words
                         )
-                        self.parent.config.disc_audi = True
+                        self.parent.config.set_preference("disc_audi", True)
 
                     elif sprite[0].id == "no":
                         self.grupo_anim.empty()
@@ -282,7 +279,7 @@ class estado(pantalla.Pantalla):
                             self.acc2_5m.words,
                             self.acc2_6m.words,
                         )
-                        self.parent.config.disc_audi = False
+                        self.parent.config.set_preference("disc_audi", False)
 
                     elif sprite[0].id == "boton_nino":
                         self.grupo_anim.empty()
@@ -311,7 +308,7 @@ class estado(pantalla.Pantalla):
                             self.guardar,
                             self.camisas_hombre,
                         )
-                        self.parent.config.genero = "Hombre"
+                        self.parent.config.set_preference("genero", "Hombre")
 
                     elif sprite[0].id == "boton_nina":
                         self.grupo_anim.empty()
@@ -340,7 +337,7 @@ class estado(pantalla.Pantalla):
                             self.guardar,
                             self.camisas_mujer,
                         )
-                        self.parent.config.genero = "Mujer"
+                        self.parent.config.set_preference("genero", "Mujer")
 
                     elif sprite[0].id == "amarillo":
                         self.grupo_anim.empty()
@@ -348,17 +345,17 @@ class estado(pantalla.Pantalla):
                         self.grupo_palabras.remove(
                             self.acc2_6f.words, self.acc2_6m.words
                         )
-                        if self.parent.config.genero == "Mujer":
+                        if self.parent.config.get_preference("genero", "") == "Mujer":
                             self.grupo_palabras.add(self.acc2_6f.words)
                             self.grupo_anim.add(self.colors_woman)
                             self.colors_woman.cambiar_rect(0)
-                            self.parent.config.color = self.colors_woman.fila_pos
+                            self.parent.config.set_preference("color", self.colors_woman.fila_pos)
                             self.colors_woman.continuar()
                         else:
                             self.grupo_palabras.add(self.acc2_6m.words)
                             self.grupo_anim.add(self.colors_man)
                             self.colors_man.cambiar_rect(0)
-                            self.parent.config.color = self.colors_man.fila_pos
+                            self.parent.config.set_preference("color", self.colors_man.fila_pos)
                             self.colors_man.continuar()
 
                     elif sprite[0].id == "rojo":
@@ -368,7 +365,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_anim.add(self.colors_man)
                         self.grupo_palabras.add(self.acc2_6m.words)
                         self.colors_man.cambiar_rect(1)
-                        self.parent.config.color = self.colors_man.fila_pos
+                        self.parent.config.set_preference("color", self.colors_man.fila_pos)
                         self.colors_man.continuar()
 
                     elif sprite[0].id == "rosado":
@@ -378,7 +375,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_anim.add(self.colors_woman)
                         self.grupo_palabras.add(self.acc2_6f.words)
                         self.colors_woman.cambiar_rect(1)
-                        self.parent.config.color = self.colors_woman.fila_pos
+                        self.parent.config.set_preference("color", self.colors_woman.fila_pos)
                         self.colors_woman.continuar()
 
                     elif sprite[0].id == "v_hombre":
@@ -388,7 +385,7 @@ class estado(pantalla.Pantalla):
                         self.grupo_anim.add(self.colors_man)
                         self.grupo_palabras.add(self.acc2_6m.words)
                         self.colors_man.cambiar_rect(2)
-                        self.parent.config.color = self.colors_man.fila_pos
+                        self.parent.config.set_preference("color", self.colors_man.fila_pos)
                         self.colors_man.continuar()
 
                     elif sprite[0].id == "v_mujer":
@@ -398,22 +395,22 @@ class estado(pantalla.Pantalla):
                         self.grupo_anim.add(self.colors_woman)
                         self.grupo_palabras.add(self.acc2_6f.words)
                         self.colors_woman.cambiar_rect(2)
-                        self.parent.config.color = self.colors_woman.fila_pos
+                        self.parent.config.set_preference("color", self.colors_woman.fila_pos)
                         self.colors_woman.continuar()
 
                     elif sprite[0].id == "guardar":
                         if (
-                            self.parent.config.velocidad == 0.5
+                            self.parent.config.get_preference("velocidad", 0.5) == 0.5
                             and self.parent.config.get_animation_speed() == 4
                         ):
-                            self.parent.config.ubx = self.hoja.x
-                        self.parent.config.cache = True
+                            self.parent.config.set_preference("ubx", self.hoja.x)
+                        self.parent.config.set_preference("cache", True)
                         if (
                             self.parent.config.get_font_size()
-                            != self.parent.config.preferencias["t_fuente"]
+                            != self.parent.config.get_preference("t_fuente", 18)
                         ):
                             self.parent.set_text_change_enabled(True)
-                        self.parent.config.guardar_preferencias()
+                        self.parent.config.flush()
                         self.limpiar_grupos()
                         if self.parent.primera_vez:
                             self.parent.changeState(pantalla2.estado(self.parent))

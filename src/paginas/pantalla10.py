@@ -37,14 +37,14 @@ class estado(pantalla.Pantalla):
         self.cargar_textos()
         self.load_buttons(buttons)
 
-        inicial = self.parent.config.definicion[0].upper()
+        inicial = self.parent.config.get_preference("definicion", "")[0].upper()
         self.abc.indexar(inicial)
         self.grupo_palabras.add(
             self.abc.words,
-            self.indices(inicial, self.parent.config.definicion),
-            self.mostrar_concepto(self.parent.config.definicion),
+            self.indices(inicial, self.parent.config.get_preference("definicion", "")),
+            self.mostrar_concepto(self.parent.config.get_preference("definicion", "")),
         )
-        self.caja_concepto.resize(height=self.concepto.ancho_final)
+        self.caja_concepto.resize(height=self.concepto.total_height)
         self.grupo_palabras.add(self.abc.words)
         self.grupo_banner.add(self.banner_glo, self.caja_concepto, self.banner_inf)
         self.grupo_botones.add(self.volver, self.home)
@@ -99,24 +99,23 @@ class estado(pantalla.Pantalla):
                     self.raton, self.grupo_palabras, False
                 )
                 if pygame.mouse.get_pressed() == (True, False, False):
-                    if sprite[0].definible == True:
-                        self.abc.indexar(sprite[0].palabra)
+                    if sprite[0].definable == True:
+                        self.abc.indexar(sprite[0].text)
                         self.grupo_palabras.update(1)
-                        sprite[0].selec = True
-                        sprite[0].destacar()
+                        sprite[0].selected = True
+                        sprite[0].highlight()
                         self.grupo_palabras.empty()
                         self.grupo_banner.remove(self.caja_concepto)
                         self.grupo_palabras.add(
-                            self.abc.words, self.indices(sprite[0].palabra)
+                            self.abc.words, self.indices(sprite[0].text)
                         )
-                    if sprite[0].definicion == True:
+                    if sprite[0].definition == True:
                         self.grupo_palabras.update(2)
-                        sprite[0].selec = True
-                        sprite[0].negrita()
+                        sprite[0].selected = True
                         self.grupo_banner.add(self.caja_concepto)
                         self.grupo_palabras.remove(self.concepto.words)
-                        self.grupo_palabras.add(self.mostrar_concepto(sprite[0].codigo))
-                        self.caja_concepto.resize(height=self.concepto.ancho_final)
+                        self.grupo_palabras.add(self.mostrar_concepto(sprite[0].code))
+                        self.caja_concepto.resize(height=self.concepto.total_height)
 
             if pygame.sprite.spritecollideany(self.raton, self.grupo_botones):
                 sprite = pygame.sprite.spritecollide(
@@ -178,11 +177,10 @@ class estado(pantalla.Pantalla):
         if valor in indices:
             tupla = indices[valor]
             for i in tupla:
-                if i.words[0].codigo == palabra_negrita:
-                    i.words[0].selec = True
-                    i.words[0].negrita()
+                if i.words[0].code == palabra_negrita:
+                    i.words[0].selected = True
                 else:
-                    i.words[0].selec = False
+                    i.words[0].selected = False
                     i.words[0].update(2)
                 palabras.append(i.words)
             return palabras
