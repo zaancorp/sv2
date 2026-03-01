@@ -1,0 +1,501 @@
+{
+  "concepts" : {
+    "absorber": "    Folyadékot szív be érintkezési felületén keresztül, így annak molekulái bejutnak bele. ",
+    "celula": "    Az élő szervezetek alapegysége, amely képes önállóan szaporodni, mikroszkopikus méretű, és citoplazmából, sejtmagból és sejtmembránból áll. ",
+    "componentes": "    Olyan elemek, amelyek valamilyen kapcsolat révén egységes egészet alkotnak. ",
+    "fotosintesis": "    Az a folyamat, amelynek során a zöld növények, algák és egyes baktériumok a fényenergiát fejlődésükre, növekedésükre és szaporodásukra használják fel. ",
+    "germinar": "    Magból való fejlődés megkezdése. ",
+    "germinacion": "    A csírázás folyamata. ",
+    "minerales": "    Egyszerű kémiai elem, amelynek jelenléte és közreműködése nélkülözhetetlen a sejtek működéséhez. ",
+    "nutrientes": "    A sejten kívülről érkező kémiai anyag, amelyre a sejtnek szüksége van életfunkcióinak elvégzéséhez. ",
+    "organo": "    Az állati vagy növényi test egyes részei, amelyek meghatározott funkciót látnak el. ",
+    "rasexual": "    Abból áll, hogy egy szervezetből egyetlen sejt vagy testtöredék válik le, amely mitotikus folyamatok révén képes egy teljesen azonos egyedet létrehozni. ",
+    "rsexual": "    Az a folyamat, amelynek során az élőlényeikhez hasonló új egyedek jönnek létre hím és nőstény ivarsejtek egyesülésével. ",
+    "transformacion": "    Az a folyamat, amelynek során valami módosul, megváltozik vagy alakot változtat, miközben megőrzi azonosságát. ",
+    "transportar": "    Valakit vagy valamit egyik helyről a másikra visz. "
+  },
+
+  "content" : {
+    "screen_3" : {
+      "text_2" : "A növények, mint minden élőlény, végrehajtják a növekedés, táplálkozás, légzés és szaporodás funkcióit, de más élőlényekkel ellentétben ők az egyedüli élőlények, amelyek elvégzik a fotoszintézis funkcióját, amely lehetővé teszi számukra, hogy táplálékukat előállítsák táplálkozásukhoz. "
+    },
+
+    "screen_4" : {
+      "text_2": "A gyökér az a szerv, amely a talajhoz rögzíti a növényt, és a gyökérszőrökön keresztül felszívja a talajból az ásványokat, vizet és tápanyagokat, amelyek szükségesek a növény és gyümölcseinek táplálásához. ",
+      "text_3": "A szár az a szerv, amely párologtat, tartja a leveleket, és a gyökértől komplex csatornákon keresztül szállítja a vizet és az ásványokat. ",
+      "text_4": "A levelek azok a szervek, amelyek elvégzik az alapvető összetevők (víz és ásványok) tápanyagokká való átalakítását. Egyéb funkcióik közé tartozik a légzés, a párologtatás és a fotoszintézis. ",
+      "text_5": "A virág a növények szaporítószerve, belsejében termi a gyümölcsöt, amely viszont magában zárja a magot. ",
+
+      "anim_1": "A gyökér felszívja a talajból a nyers nedvet, és elvezeti a szárba. ",
+      "anim_2": "A leveleken kívül a szár tartja az ágakat, a virágokat és a gyümölcsöket. ",
+      "anim_3": "A növények a leveleken keresztül is felszívják a vizet, amikor eső esik. ",
+      "anim_4": "A mag a pollen és a petesejt egyesülésével keletkezik. A tartalom vége, visszatér a menübe. "
+    },
+
+    "screen_5" : {
+      "text_2": "A szaporodás az a folyamat, amely lehetővé teszi az élőlények számára, hogy hozzájuk hasonló vagy egyező élőlényeket hozzanak létre. ",
+      "text_3": "A növények két nagy csoportra oszthatók: virágos növényekre és virág nélküli növényekre. ",
+      "text_4": "A növények szaporodása lehet ivartalan, vagyis nincsenek differenciált ivarsejtek, ami azt jelenti, hogy egyetlen szervezet ad életet egy új egyednek. ",
+      "text_5": "A növények szaporodása szintén lehet ivaros, ha az új egyed egy nőstény és egy hím ivarsejt egyesüléséből jön létre. ",
+      "text_6": "Megismerjük az ivaros szaporodást. ",
+
+      "anim_1": "Minden növénynél végbemegy a szaporodás folyamata. ",
+      "anim_2": "A növényekben a szaporodásnak két típusa létezik, amelyeket ivaros szaporodásnak és ivartalan szaporodásnak nevezünk. ",
+      "anim_3": "A virág nélküli növények ivartalan úton szaporodnak. ",
+      "anim_4": "A virágos növények ivaros úton szaporodnak. "
+    },
+
+    "screen_6" : {
+      "text_2": "A virág a növények szaporítószerve, ahol a magszaporodás zajlik; a virág belsejében egy nőstény és egy hím ivarsejt egyesül, hogy gyümölcsöt, majd magot képezzen, amelyből azután új növény fejlődik. ",
+      "text_3": "A csírázás a szaporodás egyik formája, amely abból áll, hogy egy természetesen vagy mesterségesen leváló mag képes addig növekedni, amíg egy új egyedet alkot, hasonlót ahhoz a növényhez, amelyből levált. ",
+      "text_4": "Vannak nagyon apró magok, mint a paprika és a paradicsom magja; és vannak nagyon nagy magok, mint a mangó és a kókuszdió magja. ",
+
+      "text_5": "Az ivartalan szaporodás általában a növény bármely szervéből, például hagymákból vagy szárrészletekből megy végbe. ",
+      "text_6": "Szeretnéd tudni, hogyan megy végbe az ivartalan szaporodás? Ismerkedjünk meg vele! ",
+      "text_7": "Az emberek az ivartalan szaporodás folyamatához folyamodnak jobb minőségű és nagyobb mennyiségű termés elérése érdekében. Ezek a folyamatok a bujtás és az oltás nevet viselik. ",
+      "text_8": "Bujtással: abból áll, hogy egy növény ágát lehajlítják, elföldezik, és amikor gyökereket ereszt, elválasztják az anyagövénytől. Példa erre a szeder. ",
+      "text_9": "Oltással: abból áll, hogy az egyik növény szártöredékét egy másik, azonos fajú növénybe illesztik, ezzel egy új növényt hozva létre, amely megőrzi az eredeti növények jellemzőit. ",
+
+      "anim_1": "A virág a következőkből áll: szirom, párta, csészelevelek, csésze, bibe, porzó. A bibe a nőstény szaporítószerv, és a következőkből áll: bibefej, termőfalevél (magház), petesejt és bibeszál. A porzó a hím szaporítószerv, és a következőkből áll: portok és porzószál. ",
+      "anim_2": "A csírázás folyamata a maggal kezdődik; belőle gyökerek kezdenek kinőni, majd miután a gyökerek jól kialakultak, megindul a szár, az ágak és ezt követően a levelek növekedése. ",
+      "anim_3": "Néhány példa azokra a növényekre, amelyeket Venezuelában termesztenek és bujtással szaporíthatók: guanábana, szilva, níspero. ",
+      "anim_4": "Az avokádó egy Venezuelában termesztett gyümölcs, amely oltással szaporítható. A tartalom vége, visszatér a menübe. "
+    },
+
+    "screen_8" : {
+      "text_2": "A mezőgazdaság a föld megművelésére vonatkozó technikák és ismeretek összessége. Magában foglalja a talajkezelés és a növénytermesztés különböző munkálatait. ",
+      "text_3": "A természetes környezetet átalakító emberi tevékenységek összességét foglalja magában, azzal a céllal, hogy azt alkalmassabbá tegye a közösség által igényelt élelmiszerek termesztéséhez. ",
+      "text_4": "Stratégiailag fontos tevékenység, amely a nemzetek élelmiszer-szuverenitásának alapvető alapját képezi. "
+    },
+
+    "screen_9" : {
+      "text_2_1": "Főváros Régió ",
+      "text_2_1l": "Főváros Régió. ",
+      "text_2_2": "Ebben a régióban termesztett mezőgazdasági termékek: kakaó, kókusz, manióka, gabona és mások. ",
+      "text_2_3": "Ismered azoknak az államoknak a nevét, amelyek ezt a régiót alkotják? Írd le ezeknek az államoknak a nevét. ",
+      "text_2_4": "Tudtad-e... hogy a Főváros Régióban a mezőgazdaság több típusa is jelen van. ",
+
+      "text_3_1": "Középső Régió ",
+      "text_3_1l": "Középső Régió. ",
+      "text_3_2": "Ebben a régióban termesztett mezőgazdasági termékek: avokádó, kávé, feketebab, hagyma, kukorica, paprika, galambborsó, rizs, dohány, burgonya, banán, paradicsom, hüvelyesek és mások. ",
+      "text_3_3": "Meglátogattad-e már ennek a régiónak valamelyik államát? Írd le az általad meglátogatott állam nevét, meséld el társaidnak a régió mezőgazdaságáról szóló tapasztalataidat. ",
+
+      "text_4_1": "Llanos Régió ",
+      "text_4_1l": "Llanos Régió. ",
+      "text_4_2": "Ebben a régióban termesztett mezőgazdasági termékek: rizs, feketebab, bab, kukorica, mangó, görögdinnye, dohány, pamut, cirok, paradicsom, banán, főzőbanán és mások. ",
+      "text_4_3": "Apure állam jelképes fája a Merecure. Ismered a régiót alkotó államok jelképes fáinak nevét? Írd le ezeket a fákat, és fogalmazz meg egy üzenetet az erdőirtás megelőzéséről. ",
+
+      "text_5_1": "Nyugati Régió ",
+      "text_5_1l": "Nyugati Régió. ",
+      "text_5_2": "Ebben a régióban termesztett mezőgazdasági termékek: cukornád, kókusz, kukorica, sárgadinnye, ñame, taro, görögdinnye, paradicsom, cirok, padlizsán, kávé, bab, narancs, olajpálma, főzőbanán, rizs, pamut, szezám és mások. ",
+      "text_5_3": "Ez a régió 4 államból áll. Melyik a legszárazabb állam Venezuelában? Vitassátok meg társaitokkal ennek az államnak jellemzőit. ",
+
+      "text_6_1": "Zuliai Régió ",
+      "text_6_1l": "Zuliai Régió. ",
+      "text_6_2": "Ebben a régióban termesztett mezőgazdasági termékek: banán, főzőbanán, cukornád, kókusz, manióka, pamut, bab, sárgadinnye, kakaó, kukorica, cirok és mások. ",
+      "text_6_3": "Melyik tó található ebben a régióban? Írj egy fogalmazást erről a tóról, és oszd meg társaiddal. ",
+
+      "text_7_1": "Andoki Régió ",
+      "text_7_1l": "Andoki Régió. ",
+      "text_7_2": "Ebben a régióban termesztett mezőgazdasági termékek: kávé, cukornád, kakaó, kukorica, burgonya, fokhagyma, banán, feketebab, hagyma, főzőbanán, paradicsom, saláta, zeller, karfiol, sárgarépa és mások. ",
+      "text_7_3": "Ennek a régiónak melyik állama fővárosa San Cristóbal? Az Andoki Régió 4 államból áll; írj Venezuela ezen régiójának növényvilágáról. Miért fejlődik az Andoki Régióban a mezőgazdaság teraszos formában? ",
+
+      "text_8_1": "Észak-Keleti Régió ",
+      "text_8_1l": "Észak-Keleti Régió. ",
+      "text_8_2": "Ebben a régióban termesztett mezőgazdasági termékek: mogyoró, kukorica, pamut, cukornád, cirok, kávé, kakaó, banán, gyökerek, gumós növény, kókusz, manióka és mások. ",
+      "text_8_3": "Ismered Anzoátegui állam növényvilágát? Készíts receptet ebben a régióban termesztett mezőgazdasági termékekből. ",
+
+      "text_9_1": "Guayana Régió ",
+      "text_9_1l": "Guayana Régió. ",
+      "text_9_2": "Ebben a régióban termesztett mezőgazdasági termékek: rizs, kukorica, kókusz, főzőbanán, manióka, ananász, pálmabél, mapuey, ñame, kaucsuk, sarrapia, sarsaparilla, vanília és mások. ",
+      "text_9_3": "A Guayana Régió különösen erdős vidék; az ott termesztett élelmiszereknek sok vízre van szükségük. Ismered ennek a régiónak legfontosabb folyóit? Írj fogalmazást ezen folyók valamelyikéről. ",
+
+      "text_10_1": "Szigeti Régió ",
+      "text_10_1l": "Szigeti Régió. ",
+      "text_10_2": "Ebben a régióban termesztett mezőgazdasági termékek: padlizsán, kukorica, sárgadinnye, paprika és paradicsom és mások. ",
+      "text_10_3": "Ismered, hogy melyek azok a szigetek, amelyek Nueva Esparta államát alkotják? Vitassátok meg társaitokkal, hogyan fejlődik a mezőgazdaság ebben a régióban. ",
+      "text_10_4": "Hogyan szállítják a Szigeti Régió terményeit Venezuela más régióiba? "
+    },
+
+    "screen_11" : {
+      "text_1": "    Kattints minden gombra, hogy felfedezhesd az útmutatásokat és javaslatokat. ",
+
+      "text_5_1": "• Osszák meg egymással a tanulók az otthoni zöldterület-gondozással kapcsolatos tevékenységek tapasztalatait ",
+      "text_5_2": "• Végezz a tanár segítségével növénytani besorolási tevékenységeket, figyelembe véve a szaporodás típusát ",
+      "text_5_3": "• Készíts csíráztatókat, amelyek később a közösség javát szolgálhatják ",
+
+      "text_6_1": "• Ösztönözd a csoportmunkát, hogy erősítsd a tapasztalatcsere a növények besorolása terén ",
+      "text_6_2": "• Szervezz tevékenységeket, amelyek során a tanulók kísérleteznek és gyakorolják a növényültetést ",
+      "text_6_3": "• Ösztönözd a zöldterületek helyreállítását, amely elősegíti a környezet megőrzését ",
+
+      "text_7_1": "• Fejleszd a növényekre, azok szaporodására és otthoni gondozására vonatkozó ismereteket ",
+      "text_7_2": "• Vegyen részt a közösségi zöldterületek helyreállításában ",
+      "text_7_3": "• Szervez tudatosító kampányokat a közösség zöldterületeinek megőrzése érdekében ",
+
+      "text_5_1l": "Osszák meg egymással a tanulók az otthoni zöldterület-gondozással kapcsolatos tevékenységek tapasztalatait. ",
+      "text_5_2l": "Végezz a tanár segítségével növénytani besorolási tevékenységeket, figyelembe véve a szaporodás típusát. ",
+      "text_5_3l": "Készíts csíráztatókat, amelyek később a közösség javát szolgálhatják. ",
+
+      "text_6_1l": "Ösztönözd a csoportmunkát, hogy erősítsd a tapasztalatcserét a növények besorolása terén. ",
+      "text_6_2l": "Szervezz tevékenységeket, amelyek során a tanulók kísérleteznek és gyakorolják a növényültetést. ",
+      "text_6_3l": "Ösztönözd a zöldterületek helyreállítását, amely elősegíti a környezet megőrzését. ",
+
+      "text_7_1l": "Fejleszd a növényekre, azok szaporodására és otthoni gondozására vonatkozó ismereteket. ",
+      "text_7_2l": "Vegyen részt a közösségi zöldterületek helyreállításában. ",
+      "text_7_3l": "Szervez tudatosító kampányokat a közösség zöldterületeinek megőrzése érdekében. "
+    }
+  },
+
+  "popups" : {
+    "screen_1" : {
+      "text_1": "    Üdvözlünk a Sembrando para el futuro alkalmazásban. Kövesd az utasításokat: a forrásban való navigáláshoz használd az EGERET (RATON), vagy a billentyűzeten a NYILAKAT (TECLAS) és az ENTER billentyűt a képernyőkbe való belépéshez. ",
+      "reader_1": "Üdvözlünk a Sembrando para el futuro alkalmazásban. Kövesd az utasításokat: a forrásban való navigáláshoz használd az egeret, vagy a billentyűzeten az iránybillentyűket és az enter billentyűt a képernyőkbe való belépéshez. ",
+      "text_2": "    Utasítások: kattints a Hallássérülés DFA gombra vagy a Látássérülés DFV gombra az akadálymentesítési szinted szerint. ",
+      "reader_2": "Képernyő: konfigurációs menü. Utasítások: kattints a Hallássérülés gombra vagy a Látássérülés gombra az akadálymentesítési szinted szerint. "
+    },
+
+    "screen_1_reader" : {
+      "text_magnifier": "Nyomd meg az F5 billentyűt a nagyító be- vagy kikapcsolásához. A PLUSZ és MÍNUSZ billentyűkkel közelíthetsz és távolíthatsz. Nyomd meg és húzd a nagyítót a képernyő más helyére. "
+    },
+
+    "screen_2" : {
+      "text_1": "    Utasítások: fedezd fel a képernyőt a tartalom megtekintéséhez. A bejárás során aláhúzott szavakat fogsz találni; kattints rájuk, hogy megtudhasd a jelentésüket. Az F1 billentyű be- vagy kikapcsolja ezt az utasítást. ",
+      "reader_1": "Utasítások: fedezd fel a képernyőt a tartalom megtekintéséhez. A bejárás során aláhúzott szavakat fogsz találni; kattints rájuk, hogy megtudhasd a jelentésüket. Az F1 gomb be- vagy kikapcsolja ezt az utasítást."
+    },
+
+    "screen_9" : {
+      "text_1": "    Kattints Venezuela térképének minden régiójára, hogy megtudd, milyen mezőgazdasági termékeket termesztenek mindegyikükben. ",
+      "reader_1": "Képernyő: Mit termesztenek Venezuela régióiban? Kattints Venezuela térképének minden régiójára, hogy megtudd, milyen mezőgazdasági termékeket termesztenek mindegyikükben. "
+    }
+  },
+
+  "ui": {
+    "config_screens": {
+      "auditory": {
+        "title_reader": "Hallássérülteknek szóló akadálymentesítési beállítások.",
+        "q1_interpreter": "1.- Szeretnéd-e a bejárást virtuális tolmáccsal elvégezni? ",
+        "opt_yes_no": "Igen            Nem ",
+        "q2_gender": "2.- Válaszd ki a tolmács nemét, akivel a bejárást el szeretnéd végezni. ",
+        "opt_f_m": "N             F ",
+        "q3_color_m": "3.- Válaszd ki a virtuális tolmács ingének színét.  ",
+        "q3_color_f": "3.- Válaszd ki a virtuális tolmács (nő) ingének színét.  ",
+        "q4_speed_m": "4.- Válaszd ki a virtuális tolmács sebességét. ",
+        "q4_speed_f": "4.- Válaszd ki a virtuális tolmács (nő) sebességét. ",
+        "save_hint": "Kattints a mentés gombra a beállítások elmentéséhez. "
+      },
+      "visual": {
+        "q1_magnifier": "1.- Szeretnéd-e a bejárást képernyőnagyítóval elvégezni? ",
+        "opt_yes_no": "Igen             Nem ",
+        "q2_font_size": "2.- Válaszd ki a betűméretet. ",
+        "opt_font_sizes": "18         20        22 ",
+        "q3_screen_reader": "3.- Szeretnéd aktiválni a képernyőolvasót? ",
+        "q4_reader_speed": "4.- Válaszd ki a képernyőolvasó sebességét. ",
+        "opt_reader_speeds": "Lassú         Közepes         Gyors ",
+        "save_hint": "Kattints a mentés gombra a beállítások elmentéséhez. ",
+        "reader_instructions": "Képernyő: Látássérülteknek szóló akadálymentesítés: Utasítások: nyomj egyes, 2 vagy 3 billentyűt a következő kérdések mindegyikénél a kívánt lehetőség kiválasztásához, vagy nyomj escape billentyűt a menübe való visszatéréshez: ",
+        "reader_q1": "Szeretnéd aktiválni a képernyőolvasót? Ha igen, nyomj egyest. Ha nem szeretnéd aktiválni, nyomj 2-t. ",
+        "reader_q2": "Válaszd ki a képernyőolvasó sebességét: lassú sebességhez nyomj egyest. Közepes sebességhez nyomj 2-t. Gyors sebességhez nyomj 3-t.",
+        "reader_success": "Sikeresen beállítottad a képernyőolvasót, a folytatáshoz nyomj entert. "
+      },
+      "general": {
+        "title_reader": "Általános beállítások.",
+        "q1_language": "1.- Válaszd ki az alkalmazás nyelvét. ",
+        "opt_languages": "Spanyol                    Magyar ",
+        "save_hint": "Kattints a mentés gombra a beállítások elmentéséhez. "
+      }
+    }
+  },
+
+  "activity1": {
+    "instructions": {
+      "popup": "    Utasítások: gyűjtsd össze az összes szükséges elemet a növények elültetéséhez. Használd a BILLENTYŰZETET (TECLADO) a mozgáshoz; minden elemhez válaszd ki az egérrel (RATON) vagy az 1, 2 illetve 3 billentyű megnyomásával az egyes állításoknak megfelelő lehetőséget. Az ESC billentyűvel kiléphet. ",
+      "reader": "Utasítások: gyűjtsd össze az összes szükséges elemet a növények elültetéséhez. Használd az iránybillentyűket a mozgáshoz; minden elemhez válaszd ki az egérrel vagy az 1, 2 illetve 3 billentyű megnyomásával az egyes állításoknak megfelelő lehetőséget. Az escape billentyűvel kiléphet. Az F1 billentyűvel indíthatja a tevékenységet. "
+    },
+    "questions": {
+      "0": {
+        "prompt": "    A növényt a talajhoz rögzítő szerv, amely a gyökérszőrökön keresztül felszívja a talajból az ásványokat, vizet és tápanyagokat, amelyek szükségesek a növény és gyümölcseinek táplálásához. ",
+        "popup": [
+          "    A növényt a talajhoz rögzítő szerv, amely a gyökérszőrökön keresztül felszívja a talajból az ásványokat, vizet és tápanyagokat, amelyek szükségesek a növény és gyümölcseinek táplálásához. ",
+          "1. Szár ",
+          "2. Virág ",
+          "3. Gyökér "
+        ],
+        "options": ["1. Szár ", "2. Virág ", "3. Gyökér "],
+        "options_reader": ["1. Szár. ", "2. Virág. ", "3. Gyökér. "],
+        "correct": "3. Gyökér ",
+        "hints": [
+          "    Emlékezz: ez egy levél nélküli szerv. ",
+          "    Emlékezz: a föld alatt nő. ",
+          "    Nagyon jó! Tudtad-e... hogy 1948. május 29-én az Araguaneyt Venezuela nemzeti fájává nyilvánítják. "
+        ]
+      },
+      "1": {
+        "prompt": "    Az a szerv, amely párologtat, tartja a leveleket, és a gyökértől komplex csatornákon keresztül szállítja a vizet és az ásványokat. ",
+        "popup": [
+          "    Az a szerv, amely párologtat, tartja a leveleket, és a gyökértől komplex csatornákon keresztül szállítja a vizet és az ásványokat. ",
+          "1. Levél ",
+          "2. Gyökér ",
+          "3. Szár "
+        ],
+        "options": ["1. Levél ", "2. Gyökér ", "3. Szár "],
+        "options_reader": ["1. Levél. ", "2. Gyökér. ", "3. Szár. "],
+        "correct": "3. Szár ",
+        "hints": [
+          "    Emlékezz: a gyökérrel ellentétes irányban nő. ",
+          "    Emlékezz: belőle ágaznak ki az ágak, a virágok és a gyümölcsök. ",
+          "    Kiváló! Tudtad-e... hogy az Apamate fa az Araguaney unokatestvére. Virágainak színe a lila és a rózsaszín között változik. "
+        ]
+      },
+      "2": {
+        "prompt": "    Az alapvető összetevők (víz és ásványok) tápanyagokká való átalakítását végző szervek. ",
+        "popup": [
+          "    Az alapvető összetevők (víz és ásványok) tápanyagokká való átalakítását végző szervek. ",
+          "1. Levelek ",
+          "2. Gyökér ",
+          "3. Virág "
+        ],
+        "options": ["1. Levelek ", "2. Gyökér ", "3. Virág "],
+        "options_reader": ["1. Levelek. ", "2. Gyökér. ", "3. Virág. "],
+        "correct": "1. Levelek ",
+        "hints": [
+          "    Nagyon jó! A levelek zöld színe egy klorofill nevű anyagnak köszönhető. ",
+          "    Emlékezz: zöldek és a szárból nőnek ki. ",
+          "    Emlékezz: vékonyak és alakjuk egy csepp alakjához hasonlít. "
+        ]
+      },
+      "3": {
+        "prompt": "    A növények szaporítószerve. ",
+        "popup": [
+          "    A növények szaporítószerve. ",
+          "1. Virág ",
+          "2. Szár ",
+          "3. Levél "
+        ],
+        "options": ["1. Virág ", "2. Szár ", "3. Levél "],
+        "options_reader": ["1. Virág. ", "2. Szár. ", "3. Levél. "],
+        "correct": "1. Virág ",
+        "hints": [
+          "    Kiváló! A venezuelai Orchidea a Parti-hegylánc szülötte. 1951. május 23-án hivatalos rendelettel nyilvánították nemzeti virággá. ",
+          "    Emlékezz: van benne egy nőstény ivarsejt és egy hím ivarsejt. ",
+          "    Emlékezz: különböző színük és alakjuk van. "
+        ]
+      },
+      "4": {
+        "prompt": "    Az a folyamat, amely lehetővé teszi az élőlények számára, hogy hozzájuk hasonló vagy egyező élőlényeket hozzanak létre. ",
+        "popup": [
+          "    Az a folyamat, amely lehetővé teszi az élőlények számára, hogy hozzájuk hasonló vagy egyező élőlényeket hozzanak létre. ",
+          "1. Bujtás ",
+          "2. Szaporodás ",
+          "3. Oltás "
+        ],
+        "options": ["1. Bujtás ", "2. Szaporodás ", "3. Oltás "],
+        "options_reader": ["1. Bujtás. ", "2. Szaporodás. ", "3. Oltás. "],
+        "correct": "2. Szaporodás ",
+        "hints": [
+          "    Emlékezz: 2 típusa létezik: ivaros és ivartalan. ",
+          "    Kiváló! A szaporodás az élőlények egyik legfontosabb funkciója, mert lehetővé teszi a fajok fennmaradását. ",
+          "    Emlékezz: a csírázás az a folyamat, amelynek során egy mag egy új élőlényt hoz létre. "
+        ]
+      },
+      "5": {
+        "prompt": "    Az a szaporodási forma, amelynek során egyetlen szervezet ad életet egy új egyednek. ",
+        "popup": [
+          "    Az a szaporodási forma, amelynek során egyetlen szervezet ad életet egy új egyednek. ",
+          "1. Ivaros szaporodás ",
+          "2. Ivartalan szaporodás "
+        ],
+        "options": ["1. Ivaros szaporodás ", "2. Ivartalan szaporodás "],
+        "options_reader": ["1. Ivaros szaporodás. ", "2. Ivartalan szaporodás. "],
+        "correct": "2. Ivartalan szaporodás ",
+        "hints": [
+          "    Emlékezz: ez a fajta szaporodás dugványozással, hajtásokkal vagy szemzéssel is elvégezhető. ",
+          "    Nagyon jó! A manióka ivartalan úton szaporodik. A manióka egy gumós növény, amely hazánkban is nagyon elterjedt. "
+        ]
+      },
+      "6": {
+        "prompt": "    Az a szaporodási forma, amelynek során egy új egyed egy nőstény és egy hím ivarsejt egyesüléséből jön létre. ",
+        "popup": [
+          "    Az a szaporodási forma, amelynek során egy új egyed egy nőstény és egy hím ivarsejt egyesüléséből jön létre. ",
+          "1. Ivaros szaporodás ",
+          "2. Ivartalan szaporodás "
+        ],
+        "options": ["1. Ivaros szaporodás ", "2. Ivartalan szaporodás "],
+        "options_reader": ["1. Ivaros szaporodás. ", "2. Ivartalan szaporodás. "],
+        "correct": "1. Ivaros szaporodás ",
+        "hints": [
+          "    Nagyon jó! A mangó Venezuela jellegzetes gyümölcse, és ivaros úton szaporodik. ",
+          "    Emlékezz: az emberek és az állatok is a hím és nőstény ivarsejtek egyesülésével szaporodnak. "
+        ]
+      },
+      "7": {
+        "prompt": "    A föld megművelésére vonatkozó technikák és ismeretek összessége. ",
+        "popup": [
+          "    A föld megművelésére vonatkozó technikák és ismeretek összessége. ",
+          "1. Mezőgazdaság ",
+          "2. Vetés ",
+          "3. Oltás "
+        ],
+        "options": ["1. Mezőgazdaság ", "2. Vetés ", "3. Oltás "],
+        "options_reader": ["1. Mezőgazdaság. ", "2. Vetés. ", "3. Oltás. "],
+        "correct": "1. Mezőgazdaság ",
+        "hints": [
+          "    Kiváló! Tudtad-e... hogy Venezuelában a kukorica legfontosabb termelő állama Portuguesa. ",
+          "    Emlékezz: szükség van a talajok kezelésére. ",
+          "    Emlékezz: növénytermesztést foglal magában. "
+        ]
+      },
+      "8": {
+        "prompt": "    Az a folyamat, amelynek során egy növény ágát lehajlítják, elföldezik, és amikor gyökereket ereszt, elválasztják az anyagövénytől. ",
+        "popup": [
+          "    Az a folyamat, amelynek során egy növény ágát lehajlítják, elföldezik, és amikor gyökereket ereszt, elválasztják az anyagövénytől. ",
+          "1. Ivartalan szaporodás típusa bujtással ",
+          "2. Hím és nőstény ivarsejtek egyesülése ",
+          "3. Ivartalan szaporodás típusa oltással "
+        ],
+        "options": [
+          "1. Ivartalan szaporodás típusa bujtással ",
+          "2. Hím és nőstény ivarsejtek egyesülése ",
+          "3. Ivartalan szaporodás típusa oltással "
+        ],
+        "options_reader": [
+          "1. Ivartalan szaporodás típusa bujtással. ",
+          "2. Hím és nőstény ivarsejtek egyesülése. ",
+          "3. Ivartalan szaporodás típusa oltással. "
+        ],
+        "correct": "1. Ivartalan szaporodás típusa bujtással ",
+        "hints": [
+          "    Nagyon jó! Azt mondják, hogy a bujtásos ivartalan szaporodáshoz a legjobb évszak a tavasz. ",
+          "    Emlékezz: az ág fájának fiatalnak kell lennie. ",
+          "    Emlékezz: a szeder szaporodik ezzel a módszerrel. "
+        ]
+      },
+      "9": {
+        "prompt": "    Az az eljárás, amelynek során az egyik növény szártöredékét egy másik, azonos fajú növénybe illesztik, ezzel egy új növényt hozva létre. ",
+        "popup": [
+          "    Az az eljárás, amelynek során az egyik növény szártöredékét egy másik, azonos fajú növénybe illesztik, ezzel egy új növényt hozva létre. ",
+          "1. Ivartalan szaporodás típusa bujtással ",
+          "2. Hím és nőstény ivarsejtek egyesülése ",
+          "3. Ivartalan szaporodás típusa oltással "
+        ],
+        "options": [
+          "1. Ivartalan szaporodás típusa bujtással ",
+          "2. Hím és nőstény ivarsejtek egyesülése ",
+          "3. Ivartalan szaporodás típusa oltással "
+        ],
+        "options_reader": [
+          "1. Ivartalan szaporodás típusa bujtással. ",
+          "2. Hím és nőstény ivarsejtek egyesülése. ",
+          "3. Ivartalan szaporodás típusa oltással. "
+        ],
+        "correct": "3. Ivartalan szaporodás típusa oltással ",
+        "hints": [
+          "    Emlékezz: ez a szaporodási típus lehetővé teszi egy másik 2 növény jellemzőit hordozó új növény létrehozását. ",
+          "    Emlékezz: ez a technika egy növény jellemzőinek megőrzésére is szolgál. ",
+          "    Kiváló! Az oltásnak két típusa van: a hajtásoltás és a szemzés. "
+        ]
+      }
+    },
+    "markers": {
+      "nivel1": {
+        "semilla": [
+          "Felfele találod a magzsákot. ",
+          "Mozdulj jobbra, amíg meg nem találod a locsolókannát. ",
+          "Jobbra találod az utolsó elemet. "
+        ],
+        "semilla1": [
+          "Megvan a mag, menj le a folytatáshoz"
+        ],
+        "pala": [
+          "Lefele találod az ásót. ",
+          ""
+        ],
+        "regadera": [
+          "Mozdulj jobbra, amíg meg nem találod a locsolókannát. ",
+          "Balra találod a magokat. ",
+          "Balra találod az utolsó elemet. "
+        ],
+        "regadera1": [
+          "Megvan a locsolókanna, menj balra a folytatáshoz. "
+        ]
+      },
+      "nivel2": {
+        "sem_car": [
+          "Lefele találod a magzsákot. ",
+          "Jobbra több elem van. ",
+          "Először menj fel a talicskáért. "
+        ],
+        "semillas1": [
+          "Megvan a mag, menj fel a folytatáshoz"
+        ],
+        "carretilla1": [
+          "Megvan a talicska, menj le a folytatáshoz"
+        ],
+        "regadera1": [
+          "Megvan a locsolókanna, menj le a folytatáshoz"
+        ],
+        "insect1": [
+          "Megvan a biológiai ellenőrző, menj le a folytatáshoz"
+        ],
+        "abono1": [
+          "Megvan a trágya, menj fel a folytatáshoz"
+        ],
+        "regadera": [
+          "Felfele találod a locsolókannát",
+          "Jobbra más elemek is találhatók. ",
+          "Balra a magok, jobbra más elemek találhatók. "
+        ],
+        "pala": [
+          "Lefele találod az ásót. ",
+          "Ajánlott először a többi elemet megkeresni. "
+        ],
+        "insec": [
+          "Felfele találod a biológiai ellenőrzőt. ",
+          "Balra még van összegyűjtendő elem. ",
+          "Jobbra találod a trágyát",
+          "Balra találod az utolsó elemet. "
+        ],
+        "abono": [
+          "Lefele találod a trágyát. ",
+          "Balra még van összegyűjtendő elem. ",
+          "Balra találod az utolsó elemet. "
+        ]
+      }
+    }
+  },
+
+  "glossary": {
+    "entries": {
+      "felszív": "absorber",
+      "felszívja": "absorber",
+      "sejt": "celula",
+      "összetevők": "componentes",
+      "fotoszintézis": "fotosintesis",
+      "csírázás": "germinacion",
+      "ásványok": "minerales",
+      "tápanyagok": "nutrientes",
+      "szerv": "organo",
+      "szervek": "organo",
+      "ivartalan szaporodás": "rasexual",
+      "ivaros szaporodás": "rsexual",
+      "átalakítását": "transformacion",
+      "szállítja": "transportar"
+    },
+    "definitions": {
+      "Felszívni": "absorber",
+      "Sejt": "celula",
+      "Összetevők": "componentes",
+      "Fotoszintézis": "fotosintesis",
+      "Csírázni": "germinar",
+      "Csírázás": "germinacion",
+      "Ásványok": "minerales",
+      "Tápanyagok": "nutrientes",
+      "Szerv": "organo",
+      "Ivartalan szaporodás": "rasexual",
+      "Ivaros szaporodás": "rsexual",
+      "Átalakítás": "transformacion",
+      "Szállítani": "transportar"
+    },
+    "indices": ["Á", "Cs", "F", "I", "S", "T"],
+    "intercalated": ["RATON", "DIR", "ENTER"]
+  }
+}
