@@ -1,35 +1,44 @@
 #!/usr/bin/env python3
+"""Developer scratch screen used for manual testing; not part of the production flow."""
 
 import pygame
 
-from librerias import pantalla
+from sv2.src.components import screen
 from paginas import pantalla2
 
 banners = ["banner-inf"]
 
-buttons = ["inicio"]
+buttons = ["intro"]
 
 
-class estado(pantalla.Pantalla):
-    def __init__(self, parent, previa=False):
+class Screen(screen.Screen):
+    """Playground screen used during development to test UI components in isolation."""
+
+    def __init__(self, parent, is_overlay=False):
+        """
+        Initialise the playground screen.
+
+        @param parent: Screen manager instance.
+        @type parent: Manejador
+        @param is_overlay: True if pushed over another screen; False if loaded via changeState.
+        @type is_overlay: bool
+        """
 
         self.name = "screen_2"
         super().__init__(parent, self.name)
 
         self.load_banners(banners)
         self.load_buttons(buttons)
-        self.cargar_img_intrucciones()
+        self.load_instruction_images()
 
-    def cargar_img_intrucciones(self):
-        """
-        Carga las imágenes usadas para las instrucciones iniciales.
-        """
-        self.img1 = pygame.image.load(self.pops + "touch.png").convert_alpha()
-        self.img2 = pygame.image.load(self.pops + "flechas.png").convert_alpha()
-        self.img3 = pygame.image.load(self.pops + "enter.png").convert_alpha()
-        self.img4 = pygame.image.load(self.pops + "f1.png").convert_alpha()
-        self.img5 = pygame.image.load(self.pops + "sordo.png").convert_alpha()
-        self.img6 = pygame.image.load(self.pops + "visual.png").convert_alpha()
+    def load_instruction_images(self):
+        """Load image assets used in the instruction overlay."""
+        self.img1 = pygame.image.load(self.popups_path + "touch.png").convert_alpha()
+        self.img2 = pygame.image.load(self.popups_path + "flechas.png").convert_alpha()
+        self.img3 = pygame.image.load(self.popups_path + "enter.png").convert_alpha()
+        self.img4 = pygame.image.load(self.popups_path + "f1.png").convert_alpha()
+        self.img5 = pygame.image.load(self.popups_path + "sordo.png").convert_alpha()
+        self.img6 = pygame.image.load(self.popups_path + "visual.png").convert_alpha()
         self.dic_img = {
             "RATON": self.img1,
             "TECLAS": self.img2,
@@ -49,20 +58,17 @@ class estado(pantalla.Pantalla):
         pass
 
     def resume(self):
-        """
-        Verifica si es la primera vez que se muestra esta pantalla. Carga los objetos correspondientes
-        según el caso.
-        """
+        """Reload buttons and populate sprite groups."""
 
         self.load_buttons(buttons)
-        self.grupo_banner.add(self.banner_inf)
-        self.grupo_botones.add(self.inicio)
+        self.banner_group.add(self.banner_inf)
+        self.button_group.add(self.intro)
 
     def handleEvents(self, events):
         """
-        Evalúa los eventos que se generan en esta pantalla.
+        Process input events for this screen.
 
-        @param events: Lista de los eventos.
+        @param events: Event list from the main loop.
         @type events: list
         """
 
@@ -72,81 +78,75 @@ class estado(pantalla.Pantalla):
                 self.parent.quit()
 
             if event.type == pygame.KEYDOWN:
-                self.chequeo_botones(self.grupo_botones)
-                self.numero_elementos = len(self.lista_botones)
+                self.collect_buttons(self.button_group)
+                self.element_count = len(self.button_list)
 
                 if event.key == pygame.K_RIGHT:
-                    if self.elemento_actual < self.numero_elementos:
-                        self.elemento_actual += 1
-                        if self.elemento_actual >= self.numero_elementos:
-                            self.elemento_actual = self.numero_elementos - 1
-                        self.x = self.lista_botones[self.elemento_actual]
-                        self.spserver.processtext(self.x.tooltip, True)
-                        self.definir_rect(self.x.rect)
-                        self.deteccion_movimiento = True
+                    if self.focus_index < self.element_count:
+                        self.focus_index += 1
+                        if self.focus_index >= self.element_count:
+                            self.focus_index = self.element_count - 1
+                        self.x = self.button_list[self.focus_index]
+                        self.speech_server.processtext(self.x.tooltip, True)
+                        self.set_focus_rect(self.x.rect)
+                        self.keyboard_nav_active = True
 
                 elif event.key == pygame.K_LEFT:
-                    if self.elemento_actual > 0:
-                        self.elemento_actual -= 1
-                        if self.elemento_actual <= 0:
-                            self.elemento_actual = 0
-                        self.x = self.lista_botones[self.elemento_actual]
-                        self.spserver.processtext(self.x.tt, True)
-                        self.definir_rect(self.x.rect)
-                        self.deteccion_movimiento = True
+                    if self.focus_index > 0:
+                        self.focus_index -= 1
+                        if self.focus_index <= 0:
+                            self.focus_index = 0
+                        self.x = self.button_list[self.focus_index]
+                        self.speech_server.processtext(self.x.tt, True)
+                        self.set_focus_rect(self.x.rect)
+                        self.keyboard_nav_active = True
 
-                elif self.deteccion_movimiento:
+                elif self.keyboard_nav_active:
                     if event.key == pygame.K_RETURN:
-                        self.elemento_actual = -1
-                        if self.x.tipo_objeto == "boton":
-                            if self.x.id == "inicio":
-                                self.limpiar_grupos()
-                                self.parent.changeState(pantalla2.estado(self.parent))
+                        self.focus_index = -1
+                        if self.x.obj_type == "button":
+                            if self.x.id == "intro":
+                                self.clear_groups()
+                                self.parent.changeState(pantalla2.Screen(self.parent))
 
                             elif self.x.id == "puerta":
-                                self.limpiar_grupos()
+                                self.clear_groups()
                                 self.parent.popState()
 
-            if pygame.sprite.spritecollideany(self.raton, self.grupo_botones):
+            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
                 sprite = pygame.sprite.spritecollide(
-                    self.raton, self.grupo_botones, False
+                    self.mouse, self.button_group, False
                 )
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.spserver.stopserver()
-                    if sprite[0].id == "inicio":
-                        self.limpiar_grupos()
-                        self.parent.changeState(pantalla2.estado(self.parent))
+                    self.speech_server.stopserver()
+                    if sprite[0].id == "intro":
+                        self.clear_groups()
+                        self.parent.changeState(pantalla2.Screen(self.parent))
 
                     elif sprite[0].id == "puerta":
-                        self.limpiar_grupos()
+                        self.clear_groups()
                         self.parent.popState()
 
-        self.minimag(events)
+        self.handle_magnifier(events)
 
     def update(self):
-        """
-        Actualiza la posición del cursor, el magnificador de pantalla en caso de que este activado y los
-        tooltip de los botones.
-        """
+        """Update cursor position, magnifier, and button tooltips."""
 
-        self.raton.update()
-        self.obj_magno.magnificar(self.parent.screen)
-        self.grupo_botones.update(self.grupo_tooltip)
+        self.mouse.update()
+        self.magnifier.magnificar(self.parent.screen)
+        self.button_group.update(self.tooltip_group)
 
     def draw(self):
-        """
-        Dibuja el fondo de pantalla y los elementos pertenecientes a los grupos de sprites sobre la superficie
-        del manejador de pantallas.
-        """
+        """Draw the background and all sprite groups onto the screen manager surface."""
 
         self.parent.screen.blit(self.background, (0, 0))
-        self.grupo_banner.draw(self.parent.screen)
-        self.grupo_botones.draw(self.parent.screen)
-        self.grupo_fondotexto.draw(self.parent.screen)
-        self.grupo_palabras.draw(self.parent.screen)
-        self.grupo_tooltip.draw(self.parent.screen)
-        self.grupo_popup.draw(self.parent.screen)
-        if self.parent.habilitar:
-            self.grupo_magnificador.draw(self.parent.screen, self.enable)
-        self.dibujar_rect()
+        self.banner_group.draw(self.parent.screen)
+        self.button_group.draw(self.parent.screen)
+        self.text_bg_group.draw(self.parent.screen)
+        self.word_group.draw(self.parent.screen)
+        self.tooltip_group.draw(self.parent.screen)
+        self.popup_group.draw(self.parent.screen)
+        if self.parent.magnifier_active:
+            self.magnifier_group.draw(self.parent.screen, self.enable)
+        self.draw_focus_rect()
         self.draw_debug_rectangles()

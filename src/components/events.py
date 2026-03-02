@@ -4,19 +4,17 @@ import sys
 import pygame
 
 
-class ManejadorEventos:
+class EventHandler:
+    """Event handler that collects pressed and held key states each frame."""
+
     def __init__(self):
-        """
-        Método inicializador de la clase.
-        """
+        """Initialise the event handler with empty key and modifier state lists."""
         self.keyspressed = []
         self.keys = []
         self.mods = []
 
     def update(self):
-        """
-        Obtiene la lista de los eventos actuales y determina que teclas estan siendo presionadas.
-        """
+        """Poll the pygame event queue and update the key and modifier states."""
         self.event = pygame.event.get()
         for event in self.event:
             if event.type == pygame.QUIT:
@@ -32,17 +30,17 @@ class ManejadorEventos:
         self.get_pressed()
 
     def get_pressed(self):
-        """
-        Obtiene la lista de teclas que se están presionando así como la lista de modificadores usados.
-        """
+        """Refresh the held-key bitmask and the active modifier flags."""
         self.keyspressed = pygame.key.get_pressed()
         self.mods = pygame.key.get_mods()
 
     def pressed(self, key):
         """
-        Verifica si una tecla especifica esta fue pulsada.
+        Check whether a key was pressed this frame.
 
-        @return: True si la tecla fue pulsada, de lo contrario False.
+        @param key: pygame key constant to test.
+        @type key: int
+        @return: True if the key was pressed, False otherwise.
         @rtype: bool
         """
         if key in self.keys:
@@ -52,9 +50,11 @@ class ManejadorEventos:
 
     def held(self, key):
         """
-        Verifica si una tecla especifica se mantiene pulsada.
+        Check whether a key is currently being held down.
 
-        @return: True si la tecla se mantiene pulsada, de lo contrario False.
+        @param key: pygame key constant to test.
+        @type key: int
+        @return: True if the key is held, False otherwise.
         @rtype: bool
         """
 
@@ -65,9 +65,11 @@ class ManejadorEventos:
 
     def modded(self, key):
         """
-        Verifica si una tecla especifica fue pulsada conjuntamente con una tecla modificadora.
+        Check whether a modifier key is currently active.
 
-        @return: True si la tecla fue pulsada conjuntamente con un modificador, de lo contrario False.
+        @param key: pygame modifier constant (e.g. pygame.KMOD_CTRL) to test.
+        @type key: int
+        @return: True if the modifier is active, False otherwise.
         @rtype: bool
         """
         if self.mods & key:

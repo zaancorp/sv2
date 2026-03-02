@@ -9,25 +9,21 @@ from .object import GameObject
 
 
 class Image(GameObject):
-    """
-    Esta clase permite cargar una imagen y realizar ciertas operaciones básicas.
-
-    @todo: Crear una superclase 'objeto' que defina los métodos usados por las clases: imagen, objeto, entre otras.
-    """
+    """Sprite that loads a single image file and places it at a given screen position."""
 
     # Backup of the original surface
     _original = Surface((0, 0))
 
     def __init__(self, x, y, image):
         """
-        Método inicializador de la clase.
+        Load an image and position it on screen.
 
-        @param imagen: Ruta de la imagen que se desea cargar.
-        @type imagen: str
-        @param x: Coordenada X donde se desea dibujar la imagen.
+        @param x: X coordinate at which to draw the image.
         @type x: int
-        @param y: Coordenada Y donde se desea dibujar la imagen.
+        @param y: Y coordinate at which to draw the image.
         @type y: int
+        @param image: Path to the image file to load.
+        @type image: str
         """
 
         Sprite.__init__(self)

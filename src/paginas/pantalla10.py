@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+"""Glossary screen allowing students to look up plant biology concepts (screen 10)."""
 
 import pygame
 
-from librerias import pantalla
-from librerias.texto import Text
-from librerias.image import Image
+from components import screen
+from components.texto import Text
+from components.image import Image
 
 from paginas import pantalla2
 
@@ -14,45 +15,45 @@ banners = [
     "banner-glo",
 ]
 
-buttons = ["home", "volver"]
+buttons = ["home", "back"]
 
 
-class estado(pantalla.Pantalla):
+class Screen(screen.Screen):
+    """Screen that presents a navigable alphabetical glossary of plant biology terms."""
+
     def __init__(self, parent):
         """
-        Método inicializador de la clase.
+        Initialise the glossary screen and display the entry for the last-viewed concept.
 
-        @param parent: Instancia del gestor de pantallas.
+        @param parent: Screen manager instance.
         @type parent: Manejador
         """
 
         self.name = "screen_10"
         super().__init__(parent, self.name)
 
-        self.previa = False
+        self.is_overlay = False
 
-        self.caja_concepto = Image(590, 190, self.varios + "caja-concepto.png")
+        self.caja_concepto = Image(590, 190, self.misc_path + "caja-concepto.png")
 
         self.load_banners(banners)
-        self.cargar_textos()
+        self.load_texts()
         self.load_buttons(buttons)
 
         inicial = self.parent.config.get_preference("definicion", "")[0].upper()
         self.abc.indexar(inicial)
-        self.grupo_palabras.add(
+        self.word_group.add(
             self.abc.words,
             self.indices(inicial, self.parent.config.get_preference("definicion", "")),
             self.mostrar_concepto(self.parent.config.get_preference("definicion", "")),
         )
         self.caja_concepto.resize(height=self.concepto.total_height)
-        self.grupo_palabras.add(self.abc.words)
-        self.grupo_banner.add(self.banner_glo, self.caja_concepto, self.banner_inf)
-        self.grupo_botones.add(self.volver, self.home)
+        self.word_group.add(self.abc.words)
+        self.banner_group.add(self.banner_glo, self.caja_concepto, self.banner_inf)
+        self.button_group.add(self.back, self.home)
 
-    def cargar_textos(self):
-        """
-        Carga los textos utilizados en esta pantalla.
-        """
+    def load_texts(self):
+        """Build the alphabet index, concept display, and all glossary entry text objects."""
         self.abc = Text(
             290,
             140,
@@ -80,9 +81,9 @@ class estado(pantalla.Pantalla):
 
     def handleEvents(self, events):
         """
-        Evalúa los eventos que se generan en esta pantalla.
+        Process input events for this screen.
 
-        @param events: Lista de los eventos.
+        @param events: Event list from the main loop.
         @type events: list
         """
         for event in events:
@@ -91,58 +92,58 @@ class estado(pantalla.Pantalla):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.limpiar_grupos()
-                    self.parent.changeState(pantalla2.estado(self.parent))
+                    self.clear_groups()
+                    self.parent.changeState(pantalla2.Screen(self.parent))
 
-            if pygame.sprite.spritecollideany(self.raton, self.grupo_palabras):
+            if pygame.sprite.spritecollideany(self.mouse, self.word_group):
                 sprite = pygame.sprite.spritecollide(
-                    self.raton, self.grupo_palabras, False
+                    self.mouse, self.word_group, False
                 )
                 if pygame.mouse.get_pressed() == (True, False, False):
                     if sprite[0].definable == True:
                         self.abc.indexar(sprite[0].text)
-                        self.grupo_palabras.update(1)
+                        self.word_group.update(1)
                         sprite[0].selected = True
                         sprite[0].highlight()
-                        self.grupo_palabras.empty()
-                        self.grupo_banner.remove(self.caja_concepto)
-                        self.grupo_palabras.add(
+                        self.word_group.empty()
+                        self.banner_group.remove(self.caja_concepto)
+                        self.word_group.add(
                             self.abc.words, self.indices(sprite[0].text)
                         )
                     if sprite[0].definition == True:
-                        self.grupo_palabras.update(2)
+                        self.word_group.update(2)
                         sprite[0].selected = True
-                        self.grupo_banner.add(self.caja_concepto)
-                        self.grupo_palabras.remove(self.concepto.words)
-                        self.grupo_palabras.add(self.mostrar_concepto(sprite[0].code))
+                        self.banner_group.add(self.caja_concepto)
+                        self.word_group.remove(self.concepto.words)
+                        self.word_group.add(self.mostrar_concepto(sprite[0].code))
                         self.caja_concepto.resize(height=self.concepto.total_height)
 
-            if pygame.sprite.spritecollideany(self.raton, self.grupo_botones):
+            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
                 sprite = pygame.sprite.spritecollide(
-                    self.raton, self.grupo_botones, False
+                    self.mouse, self.button_group, False
                 )
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if sprite[0].id == "home":
-                        self.limpiar_grupos()
-                        self.parent.changeState(pantalla2.estado(self.parent))
-                    elif sprite[0].id == "volver":
-                        self.limpiar_grupos()
+                        self.clear_groups()
+                        self.parent.changeState(pantalla2.Screen(self.parent))
+                    elif sprite[0].id == "back":
+                        self.clear_groups()
                         self.parent.popState()
-        self.minimag(events)
+        self.handle_magnifier(events)
 
     def update(self):
-        """
-        Actualiza la posición del cursor, el magnificador de pantalla en caso de que este activado y los
-        tooltip de los botones.
-        """
-        self.raton.update()
-        self.obj_magno.magnificar(self.parent.screen)
-        self.grupo_botones.update(self.grupo_tooltip)
+        """Update cursor position, magnifier, and button tooltips."""
+        self.mouse.update()
+        self.magnifier.magnificar(self.parent.screen)
+        self.button_group.update(self.tooltip_group)
 
     def mostrar_concepto(self, palabra):
         """
-        Define el concepto que se mostrara en pantalla cuando cargue esta pantalla.
-        @return: Texto que conforma el concepto correspondiente.
+        Build a Text object for the given glossary term and return its word sprites.
+
+        @param palabra: Glossary term key used to look up the concept text.
+        @type palabra: str
+        @return: Word sprites for the concept definition.
         @rtype: list
         """
 
@@ -158,8 +159,13 @@ class estado(pantalla.Pantalla):
 
     def indices(self, valor, palabra_negrita=""):
         """
-        Determina las definiciones que se muestran cuando cargue esta pantalla.
-        @return: Lista de las definiciones correspondientes.
+        Return the list of glossary entry word-sprite groups for the given letter, marking one entry as selected.
+
+        @param valor: Uppercase letter used to select the index bucket.
+        @type valor: str
+        @param palabra_negrita: Term code that should be rendered as selected (bold); empty string for none.
+        @type palabra_negrita: str
+        @return: Word sprite lists for each matching glossary entry.
         @rtype: list
         """
         indices = {

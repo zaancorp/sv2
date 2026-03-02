@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+"""Content screen covering the parts of a plant (screen 4)."""
 
 import pygame
 
-from librerias import pantalla
-from librerias.image import Image
+from components import screen
+from components.image import Image
 
 from paginas import menucfg
 from paginas import pantalla2
@@ -25,18 +26,20 @@ banners = [
 
 buttons = [
     "home",
-    "volver",
+    "back",
     "config",
-    "sig",
+    "next",
 ]
 
 
-class estado(pantalla.Pantalla):
+class Screen(screen.Screen):
+    """Screen presenting the parts of a plant through sequenced animations and rich text."""
+
     def __init__(self, parent):
         """
-        Método inicializador de la clase.
+        Initialise the screen.
 
-        @param parent: Instancia del gestor de pantallas.
+        @param parent: Screen manager instance.
         @type parent: Manejador
         """
 
@@ -46,13 +49,13 @@ class estado(pantalla.Pantalla):
         self.load_animations(animations)
         self.load_banners(banners)
         self.load_buttons(buttons)
-        self.cargar_textos()
+        self.load_texts()
 
         # Add to the banners group
 
         self.caja_texto = Image(0, 332, self.backgrounds_path + "caja-texto.png")
 
-        self.grupo_update.add(
+        self.update_group.add(
             self.animation_4,
             self.animation_4_1,
             self.animation_4_2,
@@ -60,10 +63,8 @@ class estado(pantalla.Pantalla):
             self.animation_4_4,
         )
 
-    def cargar_textos(self):
-        """
-        Carga los textos utilizados en esta pantalla.
-        """
+    def load_texts(self):
+        """Load and build the text objects used on this screen."""
         texts = self.load_screen_texts(
             ["text_2", "text_3", "text_4", "text_5"], x=64, right_limit=960
         )
@@ -76,32 +77,29 @@ class estado(pantalla.Pantalla):
         self.resume()
 
     def resume(self):
-        """
-        Verifica si se realizaron cambios en la configuración. Carga los valores iniciales de esta pantalla.
-        """
+        """Reload buttons and texts if config changed, then initialise sprite groups and start the first animation step."""
         if self.parent.config.is_text_change_enabled():
             self.load_buttons(buttons)
-            self.cargar_textos()
+            self.load_texts()
             self.parent.config.set_text_change_enabled(False)
-        self.grupo_banner.add(self.banner_partes, self.banner_inf)
-        self.grupo_anim.add(self.animation_4)
-        self.grupo_botones.add(self.config, self.volver, self.sig, self.home)
+        self.banner_group.add(self.banner_partes, self.banner_inf)
+        self.anim_group.add(self.animation_4)
+        self.button_group.add(self.config, self.back, self.next, self.home)
         self.creado = True
-        self.final = False
-        self.tiempo = 0
+        self.elapsed_ms = 0
         self.animation_4.detener()
-        if self.anim_actual == 0:
-            self.anim_actual = 1
-        self.spserver.processtext(
+        if self.current_anim == 0:
+            self.current_anim = 1
+        self.speech_server.processtext(
             "Pantalla: Partes de una planta", self.parent.config.is_screen_reader_enabled()
         )
-        self.reproducir_animacion(self.anim_actual)
+        self.reproducir_animacion(self.current_anim)
 
     def handleEvents(self, events):
         """
-        Evalúa los eventos que se generan en esta pantalla.
+        Process input events for this screen.
 
-        @param events: Lista de los eventos.
+        @param events: Event list from the main loop.
         @type events: list
         """
         for event in events:
@@ -109,256 +107,254 @@ class estado(pantalla.Pantalla):
                 self.parent.quit()
 
             if event.type == pygame.KEYDOWN:
-                self.chequeo_botones(self.grupo_botones)
-                self.lista_final = self.lista_palabra + self.lista_botones
-                self.numero_elementos = len(self.lista_final)
+                self.collect_buttons(self.button_group)
+                self.nav_list = self.word_list + self.button_list
+                self.element_count = len(self.nav_list)
 
                 if event.key == pygame.K_RIGHT:
-                    self.deteccion_movimiento = True
-                    self.controlador_lector_evento_K_RIGHT()
+                    self.keyboard_nav_active = True
+                    self.nav_right()
 
                 elif event.key == pygame.K_LEFT:
-                    self.controlador_lector_evento_K_LEFT()
-                    self.deteccion_movimiento = True
+                    self.nav_left()
+                    self.keyboard_nav_active = True
 
-                elif self.deteccion_movimiento:
+                elif self.keyboard_nav_active:
                     if event.key == pygame.K_RETURN:
-                        if self.x.tipo_objeto == "boton":
-                            self.deteccion_movimiento = False
-                            if self.x.id == "sig":
-                                if self.anim_actual <= 7:
-                                    self.anim_actual += 1
-                                    self.reproducir_animacion(self.anim_actual)
+                        if self.x.obj_type == "button":
+                            self.keyboard_nav_active = False
+                            if self.x.id == "next":
+                                if self.current_anim <= 7:
+                                    self.current_anim += 1
+                                    self.reproducir_animacion(self.current_anim)
 
-                            elif self.x.id == "volver":
-                                self.anim_actual -= 1
-                                self.reproducir_animacion(self.anim_actual)
-                                if self.anim_actual == 1:
-                                    self.grupo_update.update()
-                                    self.limpiar_grupos()
+                            elif self.x.id == "back":
+                                self.current_anim -= 1
+                                self.reproducir_animacion(self.current_anim)
+                                if self.current_anim == 1:
+                                    self.update_group.update()
+                                    self.clear_groups()
                                     self.resume()
 
                             elif self.x.id == "config":
-                                self.limpiar_grupos()
+                                self.clear_groups()
                                 self.parent.pushState(
-                                    menucfg.estado(self.parent, self.previa)
+                                    menucfg.Screen(self.parent, self.is_overlay)
                                 )
 
                             elif self.x.id == "home":
-                                self.limpiar_grupos()
-                                self.parent.changeState(pantalla2.estado(self.parent))
+                                self.clear_groups()
+                                self.parent.changeState(pantalla2.Screen(self.parent))
 
-                        elif self.x.tipo_objeto == "palabra":
-                            self.deteccion_movimiento = False
-                            self.spserver.processtext(
+                        elif self.x.obj_type == "word":
+                            self.keyboard_nav_active = False
+                            self.speech_server.processtext(
                                 self.parent.text_loader.concept(self.x.codigo),
                                 self.parent.config.is_screen_reader_enabled(),
                             )
 
-            if pygame.sprite.spritecollideany(self.raton, self.grupo_palabras):
+            if pygame.sprite.spritecollideany(self.mouse, self.word_group):
                 sprite = pygame.sprite.spritecollide(
-                    self.raton, self.grupo_palabras, False
+                    self.mouse, self.word_group, False
                 )
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if sprite[0].tipo_objeto == "palabra":
+                    if sprite[0].obj_type == "word":
                         if sprite[0].interpretable == True:
-                            self.parent.interpretar(sprite[0].codigo)
+                            self.parent.show_concept(sprite[0].codigo)
 
-            if pygame.sprite.spritecollideany(self.raton, self.grupo_botones):
+            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
                 sprite = pygame.sprite.spritecollide(
-                    self.raton, self.grupo_botones, False
+                    self.mouse, self.button_group, False
                 )
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.spserver.stopserver()
+                    self.speech_server.stopserver()
                     if sprite[0].id == "home":
-                        self.limpiar_grupos()
-                        self.parent.changeState(pantalla2.estado(self.parent))
+                        self.clear_groups()
+                        self.parent.changeState(pantalla2.Screen(self.parent))
                     elif sprite[0].id == "config":
-                        self.limpiar_grupos()
-                        self.parent.pushState(menucfg.estado(self.parent, self.previa))
+                        self.clear_groups()
+                        self.parent.pushState(menucfg.Screen(self.parent, self.is_overlay))
                     elif sprite[0].id == "repe":
-                        self.grupo_update.update()
-                        self.limpiar_grupos()
+                        self.update_group.update()
+                        self.clear_groups()
                         self.resume()
-                    elif sprite[0].id == "sig":
-                        self.deteccion_movimiento = False
-                        if self.anim_actual <= 7:
-                            self.anim_actual += 1
-                            self.reproducir_animacion(self.anim_actual)
-                    elif sprite[0].id == "volver":
-                        self.deteccion_movimiento = False
-                        self.anim_actual -= 1
-                        self.reproducir_animacion(self.anim_actual)
-                        if self.anim_actual == 1:
-                            self.grupo_update.update()
-                            self.limpiar_grupos()
+                    elif sprite[0].id == "next":
+                        self.keyboard_nav_active = False
+                        if self.current_anim <= 7:
+                            self.current_anim += 1
+                            self.reproducir_animacion(self.current_anim)
+                    elif sprite[0].id == "back":
+                        self.keyboard_nav_active = False
+                        self.current_anim -= 1
+                        self.reproducir_animacion(self.current_anim)
+                        if self.current_anim == 1:
+                            self.update_group.update()
+                            self.clear_groups()
                             self.resume()
-        self.minimag(events)
+        self.handle_magnifier(events)
 
     def update(self):
-        """
-        Actualiza la posición del cursor, el magnificador de pantalla en caso de que este activado, los
-        tooltip de los botones y animaciones o textos correspondientes.
-        """
-        self.raton.update()
-        self.obj_magno.magnificar(self.parent.screen)
-        self.grupo_botones.update(self.grupo_tooltip)
-        if self.anim_actual == 1 and not self.parent.config.is_screen_reader_enabled():
-            if not self.tiempo < 1000:
-                self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto4_2.words)
+        """Update cursor position, magnifier, button tooltips, and trigger the first text display after the initial delay."""
+        self.mouse.update()
+        self.magnifier.magnificar(self.parent.screen)
+        self.button_group.update(self.tooltip_group)
+        if self.current_anim == 1 and not self.parent.config.is_screen_reader_enabled():
+            if not self.elapsed_ms < 1000:
+                self.text_bg_group.add(self.caja_texto)
+                self.word_group.add(self.texto4_2.words)
                 self.txt_actual = self.texto4_2.words
-                self.chequeo_palabra(self.txt_actual)
+                self.collect_words(self.txt_actual)
                 self.animation_4.continuar()
 
-        self.tiempo += self.reloj_anim.get_time()
+        self.elapsed_ms += self.frame_clock.get_time()
 
-    def reproducir_animacion(self, animacion):
+    def reproducir_animacion(self, animation_index):
         """
-        Gestiona la reproducción de animaciones, imágenes y texto en esta pantalla.
-        @param animacion: Indica la animación que debe reproducirse.
-        @type animacion: int
-        """
-        if animacion <= 0:
-            self.limpiar_grupos()
-            self.parent.changeState(pantalla3.estado(self.parent))
+        Advance the screen to the given animation step, updating sprite groups and TTS accordingly.
 
-        if animacion == 1:
-            self.elemento_actual = -1
-            self.grupo_anim.remove(self.animation_4_1)
-            self.grupo_palabras.empty()
+        @param animation_index: Index of the animation step to display.
+        @type animation_index: int
+        """
+        if animation_index <= 0:
+            self.clear_groups()
+            self.parent.changeState(pantalla3.Screen(self.parent))
+
+        if animation_index == 1:
+            self.focus_index = -1
+            self.anim_group.remove(self.animation_4_1)
+            self.word_group.empty()
 
             if self.parent.config.is_screen_reader_enabled():
-                if self.entrada_primera_vez:
-                    self.spserver.processtext2(
+                if self.first_entry:
+                    self.speech_server.processtext2(
                         self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
-                    self.entrada_primera_vez = False
+                    self.first_entry = False
                 else:
-                    self.spserver.processtext(
+                    self.speech_server.processtext(
                         self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
-                self.grupo_fondotexto.add(self.caja_texto)
-                self.grupo_palabras.add(self.texto4_2.words)
+                self.text_bg_group.add(self.caja_texto)
+                self.word_group.add(self.texto4_2.words)
                 self.txt_actual = self.texto4_2.words
-                self.chequeo_palabra(self.txt_actual)
+                self.collect_words(self.txt_actual)
                 self.animation_4.continuar()
 
         # Anim
-        if animacion == 2:
-            self.elemento_actual = -1
-            self.lista_palabra = []
-            self.grupo_palabras.empty()
-            self.grupo_fondotexto.empty()
+        if animation_index == 2:
+            self.focus_index = -1
+            self.word_list = []
+            self.word_group.empty()
+            self.text_bg_group.empty()
             self.animation_4.detener()
-            self.grupo_anim.add(self.animation_4_1)
+            self.anim_group.add(self.animation_4_1)
             self.animation_4_1.update()
             self.animation_4_1.stop = False
             self.animation_4_1.continuar()
-            self.spserver.processtext(
+            self.speech_server.processtext(
                 self.screen_text("anim_1"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
         # Explicacion
-        if animacion == 3:
-            self.elemento_actual = -1
-            self.grupo_anim.empty()
-            self.grupo_palabras.empty()
-            self.grupo_anim.add(self.animation_4)
+        if animation_index == 3:
+            self.focus_index = -1
+            self.anim_group.empty()
+            self.word_group.empty()
+            self.anim_group.add(self.animation_4)
             self.animation_4.continuar()
-            self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto4_3.words)
+            self.text_bg_group.add(self.caja_texto)
+            self.word_group.add(self.texto4_3.words)
             self.txt_actual = self.texto4_3.words
-            self.chequeo_palabra(self.txt_actual)
-            self.spserver.processtext(
+            self.collect_words(self.txt_actual)
+            self.speech_server.processtext(
                 self.screen_text("text_3"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
         # Anim
-        if animacion == 4:
-            self.elemento_actual = -1
-            self.lista_palabra = []
-            self.grupo_palabras.empty()
-            self.grupo_fondotexto.empty()
+        if animation_index == 4:
+            self.focus_index = -1
+            self.word_list = []
+            self.word_group.empty()
+            self.text_bg_group.empty()
             self.animation_4.detener()
-            self.grupo_anim.add(self.animation_4_2)
+            self.anim_group.add(self.animation_4_2)
             self.animation_4_2.update()
             self.animation_4_2.stop = False
             self.animation_4_2.continuar()
-            self.spserver.processtext(
+            self.speech_server.processtext(
                 self.screen_text("anim_2"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
         # Explicacion
-        if animacion == 5:
-            self.elemento_actual = -1
-            self.grupo_anim.empty()
-            self.grupo_palabras.empty()
-            self.grupo_anim.add(self.animation_4)
+        if animation_index == 5:
+            self.focus_index = -1
+            self.anim_group.empty()
+            self.word_group.empty()
+            self.anim_group.add(self.animation_4)
             self.animation_4.continuar()
-            self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_palabras.add(self.texto4_4.words)
+            self.text_bg_group.add(self.caja_texto)
+            self.word_group.add(self.texto4_4.words)
             self.txt_actual = self.texto4_4.words
-            self.chequeo_palabra(self.txt_actual)
-            self.spserver.processtext(
+            self.collect_words(self.txt_actual)
+            self.speech_server.processtext(
                 self.screen_text("text_4"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
         # Anim
-        if animacion == 6:
-            self.elemento_actual = -1
-            self.lista_palabra = []
-            self.grupo_palabras.empty()
-            self.grupo_fondotexto.empty()
+        if animation_index == 6:
+            self.focus_index = -1
+            self.word_list = []
+            self.word_group.empty()
+            self.text_bg_group.empty()
             self.animation_4.detener()
-            self.grupo_anim.add(self.animation_4_3)
+            self.anim_group.add(self.animation_4_3)
             self.animation_4_3.update()
             self.animation_4_3.stop = False
             self.animation_4_3.continuar()
-            self.spserver.processtext(
+            self.speech_server.processtext(
                 self.screen_text("anim_3"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
         # Explicacion
-        if animacion == 7:
-            self.elemento_actual = -1
-            self.grupo_anim.empty()
-            self.grupo_palabras.empty()
-            self.grupo_anim.add(self.animation_4)
+        if animation_index == 7:
+            self.focus_index = -1
+            self.anim_group.empty()
+            self.word_group.empty()
+            self.anim_group.add(self.animation_4)
             self.animation_4.continuar()
-            self.grupo_fondotexto.add(self.caja_texto)
-            self.grupo_botones.add(self.sig)
-            self.grupo_palabras.add(self.texto4_5.words)
+            self.text_bg_group.add(self.caja_texto)
+            self.button_group.add(self.next)
+            self.word_group.add(self.texto4_5.words)
             self.txt_actual = self.texto4_5.words
-            self.chequeo_palabra(self.txt_actual)
-            self.spserver.processtext(
+            self.collect_words(self.txt_actual)
+            self.speech_server.processtext(
                 self.screen_text("text_5"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
-        if animacion == 8:
-            self.elemento_actual = -1
-            self.lista_palabra = []
-            self.grupo_tooltip.empty()
-            self.grupo_palabras.empty()
-            self.grupo_fondotexto.empty()
+        if animation_index == 8:
+            self.focus_index = -1
+            self.word_list = []
+            self.tooltip_group.empty()
+            self.word_group.empty()
+            self.text_bg_group.empty()
             self.animation_4.detener()
-            self.grupo_anim.add(self.animation_4_4)
+            self.anim_group.add(self.animation_4_4)
             self.animation_4_4.update()
             self.animation_4_4.stop = False
             self.animation_4_4.continuar()
-            self.grupo_botones.remove(self.sig)
-            self.spserver.processtext(
+            self.button_group.remove(self.next)
+            self.speech_server.processtext(
                 self.screen_text("anim_4"),
                 self.parent.config.is_screen_reader_enabled(),
             )
 
-    def ir_glosario(self):
-        self.parent.pushState(pantalla10.estado(self.parent))
+    def go_to_glossary(self):
+        self.parent.pushState(pantalla10.Screen(self.parent))

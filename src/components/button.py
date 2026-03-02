@@ -15,9 +15,7 @@ TEXT_COLOR = (255, 255, 255)
 
 
 class Button(GameObject):
-    """
-    Esta clase permite crear y manipular botones animados a partir de una tira de imágenes.
-    """
+    """Animated sprite button built from a horizontal frame strip, with tooltip support."""
 
     def __init__(
         self,
@@ -33,26 +31,27 @@ class Button(GameObject):
         frame_speed=1,
     ):
         """
-        Método inicializador de la clase.
+        Initialise the button sprite.
 
-        @param x: Coordenada X en la que se comenzara a dibujar el botón.
+        @param x: X coordinate at which to draw the button.
         @type x: int
-        @param y : Coordenada Y en la que se comenzara a dibujar el botón.
+        @param y: Y coordinate at which to draw the button.
         @type y: int
-        @param id: Identificador único para cada instancia de esta clase.
+        @param id: Unique identifier for this button instance.
         @type id: str
-        @param tooltip: Nombre del texto de ayuda que aparece cuando se coloca el cursor sobre el botón.
+        @param tooltip: Tooltip text shown when the cursor hovers over the button; pass "none" to suppress.
         @type tooltip: str
-        @param filename: Ruta de la imagen que se desea utilizar como botón.
+        @param font_size: Font size used to render the tooltip text.
+        @type font_size: int
+        @param filename: Path to the sprite-sheet image.
         @type filename: str
-        @param frames: Numero de columnas que contiene la imagen.
+        @param frames: Number of frames (columns) in the sprite sheet.
         @type frames: int
-        @param colorkey: Define el color utilizado como transparencia, por defecto no es necesario.
+        @param colorkey: Colour treated as transparent; omit if not needed.
         @type colorkey: tuple
-        @param loop: Por defecto es False en todos los botones.
+        @param loop: If True the animation loops; defaults to False.
         @type loop: bool
-        @param frame_speed: Indica la velocidad a la que se cambian los fotogramas del botón animado, siendo 1 el
-        valor mas rápido.
+        @param frame_speed: Ticks per frame; 1 is the fastest.
         @type frame_speed: int
         """
 
@@ -60,7 +59,7 @@ class Button(GameObject):
         self.x = x
         self.y = y
         self.id = id
-        self.tipo_objeto = "boton"
+        self.obj_type = "button"
 
         # Boolean states
         self.loop = loop
@@ -70,12 +69,12 @@ class Button(GameObject):
         # Tooltip attributes
         my_font = SysFont("arial", font_size)
         self.tooltip = tooltip
-        self.texto = Sprite()
-        self.texto.image = my_font.render(
+        self.tooltip_sprite = Sprite()
+        self.tooltip_sprite.image = my_font.render(
             self.tooltip, True, (0, 0, 0), (230, 230, 130)
         )
-        self.texto.rect = Rect((0, 0, 0, 0))
-        self.grupo_tooltip = Group()
+        self.tooltip_sprite.rect = Rect((0, 0, 0, 0))
+        self.tooltip_group = Group()
 
         ss = SpriteSheet(filename)
         self.current_image = Surface((0, 0))
@@ -90,49 +89,38 @@ class Button(GameObject):
         if self.frame_speed == 1:
             self.current_image = self.images[0]
 
-    def update(self, grupo):
+    def update(self, group):
         """
-        Llama al método colision() para determinar si el cursor pasa sobre un botón.
-        De ser así muestra el mensaje de ayuda (tooltip) correspondiente. En caso contrario elimina el
-        mensaje de ayuda del grupo de sprites.
+        Show or hide the tooltip based on cursor position.
 
-        @param grupo: Grupo de sprites al que se agregara el mensaje de ayuda.
-        @type grupo: pygame.sprite.Group()
+        @param group: Sprite group to which the tooltip sprite is added or removed.
+        @type group: pygame.sprite.Group
         """
 
         if self.detect_collision():
             if not self.tooltip == "none":
-                grupo.add(self.texto)
+                group.add(self.tooltip_sprite)
         else:
-            grupo.remove(self.texto)
+            group.remove(self.tooltip_sprite)
 
     def play_animation(self):
-        """
-        Anima el botón.
-        """
+        """Start playing the button animation."""
 
         self.stop = False
 
     def stop_animation(self):
-        """
-        Detiene la animación del botón.
-        """
+        """Stop the button animation."""
 
         self.stop = True
 
     def replay_animation(self):
-        """
-        Repite la secuencia de una animación. A diferencia del método update(), este método se utiliza para
-        volver a reproducir animaciones que solo se reproducen una vez.
-        """
+        """Restart a non-looping animation from the first frame."""
 
         self.stop = False
         self.current_frame = 0
 
     def next(self):
-        """
-        Actualiza la imagen que se debe dibujar en pantalla cada vez que esta se actualiza.
-        """
+        """Advance the button animation by one tick, updating the displayed frame."""
 
         if self.current_frame >= len(self.images):
             if self.loop:
@@ -149,9 +137,9 @@ class Button(GameObject):
 
     def play_sound(self, canal):
         """
-        Reproduce el sonido predeterminado del botón.
+        Play the button's default sound if the cursor is over it.
 
-        @param canal: Canal a través del cual se reproduce el sonido del botón.
+        @param canal: Mixer channel used to play the sound.
         @type canal: pygame.mixer.Channel
         """
 
@@ -161,26 +149,25 @@ class Button(GameObject):
 
     def detect_collision(self):
         """
-        Determina si existe una colisión entre el cursor y rectángulo del botón.
+        Test whether the cursor is currently over the button.
 
-        @return: Devuelve True si el cursor se encuentra sobre el botón al momento de llamar a esta función.
-        De lo contrario devuelve False.
+        @return: True if the cursor is over the button, False otherwise.
         @rtype: bool
         """
 
         if self.rect.collidepoint(get_pos()):
             self.play_animation()
-            if get_pos()[0] >= (1024 - self.texto.image.get_width()):
-                x = 1024 - self.texto.image.get_width() - 10
+            if get_pos()[0] >= (1024 - self.tooltip_sprite.image.get_width()):
+                x = 1024 - self.tooltip_sprite.image.get_width() - 10
                 # The tooltip text is always rendered with a small offset
                 # hence the +10 and +20 values
-                self.texto.rect = (x + 10, get_pos()[1] + 20, 0, 0)
+                self.tooltip_sprite.rect = (x + 10, get_pos()[1] + 20, 0, 0)
             else:
-                self.texto.rect = (get_pos()[0] + 10, get_pos()[1] + 20, 0, 0)
+                self.tooltip_sprite.rect = (get_pos()[0] + 10, get_pos()[1] + 20, 0, 0)
             return True
         else:
             self.sonar = True
-            self.grupo_tooltip.empty()
+            self.tooltip_group.empty()
             self.stop_animation()
             self.current_frame = 0
             self.current_image = self.images[0]
@@ -193,80 +180,77 @@ class Button(GameObject):
 
 
 class TextButton(GameObject):
-    def __init__(self, identificador, parent, text, fondo=0, ancho=500):
-        """
-        Método inicializador de la clase.
+    """Text-labelled button with an optional background image."""
 
-        @param identificador: Variable usada para identificar al botón.
+    def __init__(self, identificador, parent, text, background=0, width=500):
+        """
+        Initialise the text button.
+
+        @param identificador: Unique identifier for this button.
         @type identificador: str
-        @param parent: Instancia del gestor de pantallas.
+        @param parent: Screen manager instance.
         @type parent: Manejador
-        @param text: Variable que indica el texto que tendrá el botón.
+        @param text: Label text displayed on the button.
         @type text: str
-        @param fondo: Indica si el fondo del botón sera con imagen o sin imagen (en desarrollo).
-        @type fondo: bool
-        @param ancho: Indica el ancho del botón. Es usado para cuadrar el texto centrado.
-        @type ancho: int
+        @param background: Background style; 0 for image background, 1 for plain text surface.
+        @type background: int
+        @param width: Button width in pixels, used to centre the text.
+        @type width: int
         """
 
         Sprite.__init__(self)
-        self.ancho = ancho
+        self.width = width
         self.parent = parent
         tipografia = match_font("FreeSans", False, False)
         font = Font(tipografia, parent.config.get_font_size())
         self.identificador = identificador
-        varios = "../imagenes/png/varios/"
+        misc_path = "../imagenes/png/varios/"
 
-        if fondo == 0:
+        if background == 0:
             texto1 = font.render(text, 1, TEXT_COLOR)
             textorect = texto1.get_rect()
             texto2 = font.render(text, 1, RED)
-            self.img_fondo = load(varios + "img-boton.png")
-            self.img_fondo2 = load(varios + "img-boton.png")
-            imgrect = self.img_fondo.get_rect()
+            self.img_bg = load(misc_path + "img-boton.png")
+            self.img_bg2 = load(misc_path + "img-boton.png")
+            imgrect = self.img_bg.get_rect()
             textorect.center = (
                 imgrect.center[0],
                 imgrect.center[1] + imgrect.center[1] / 3,
             )
-            self.img_fondo.blit(texto1, textorect)
-            self.img_fondo2.blit(texto2, textorect)
-            self.rect = self.img_fondo.get_rect()
-            self.image = self.img_fondo
+            self.img_bg.blit(texto1, textorect)
+            self.img_bg2.blit(texto2, textorect)
+            self.rect = self.img_bg.get_rect()
+            self.image = self.img_bg
 
-        if fondo == 1:
-            txt = Text(0, 0, text, parent.config.get_font_size(), "texto_act", self.ancho)
-            self.rect = Rect(0, 0, self.ancho, txt.ancho_final)
-            image_texto = Surface((self.ancho, txt.ancho_final))
+        if background == 1:
+            txt = Text(0, 0, text, parent.config.get_font_size(), "active_text", self.width)
+            self.rect = Rect(0, 0, self.width, txt.final_width)
+            image_texto = Surface((self.width, txt.final_width))
             image_texto.fill((255, 255, 255))
             image_texto.set_colorkey((255, 255, 255))
             for i in txt.words:
                 image_texto.blit(i.image, i.rect)
             self.image = image_texto
-            self.img_fondo = image_texto
-            self.img_fondo2 = image_texto
+            self.img_bg = image_texto
+            self.img_bg2 = image_texto
 
-    def cambiar_status(self, status):
-        """
-        Dibuja un efecto en los botones cambiando la imagen de fondo (descontinuado)
-        """
+    def set_hover_state(self, status):
+        """Toggle the button between its two background images."""
 
         if status:
-            self.image = self.img_fondo2
+            self.image = self.img_bg2
         else:
-            self.image = self.img_fondo
+            self.image = self.img_bg
 
 
 class RenderButton(OrderedUpdates):
-    """
-    Esta clase es una ligera modificación de la clase pygame.sprite.OrderedUpdates.
-    Permite cambiar el fotograma de la imagen cada cierto tiempo al actualizar la pantalla.
-    """
+    """Ordered sprite group that advances each Button member's frame on every draw call."""
 
     def draw(self, surface):
         """
-        Dibuja los miembros de un grupo de sprites sobre una superficie.
+        Draw all member buttons and advance their frames.
 
-        @param surface: Superficie sobre la que se dibujaran los sprites pertenecientes a este grupo.
+        @param surface: Surface to draw onto.
         @type surface: pygame.Surface
         """
 

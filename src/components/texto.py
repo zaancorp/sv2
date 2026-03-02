@@ -3,7 +3,7 @@
 import re
 import pygame
 
-from .palabra import palabra, font_manager
+from .words import Word, font_manager
 
 # ---------------------------------------------------------------------------
 # Layout constants for the 1024×572 display
@@ -51,8 +51,8 @@ class Text:
             if not token:
                 continue
             if i % 2 == 0:  # even index → word token
-                if token.lower() != "reproducción" or text_type == "texto_act":
-                    self.words.append(palabra(token, size, text_type))
+                if token.lower() != "reproducción" or text_type == "active_text":
+                    self.words.append(Word(token, size, text_type))
                     if not self.word_gaps:
                         self.word_gaps.append(0)   # no gap before the first word
                     else:

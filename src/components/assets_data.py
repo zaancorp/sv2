@@ -338,7 +338,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "sig": {
+    "next": {
         "coordinates": (560, 440),
         "tooltip": "Avanzar",
         "filename": "boton-avanzar.png",
@@ -347,7 +347,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "volver": {
+    "back": {
         "coordinates": (320, 445),
         "tooltip": "Regresar",
         "filename": "boton-regresar.png",
@@ -374,7 +374,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_sordo": {
+    "deaf-menu-btn": {
         "coordinates": (300, 440),
         "tooltip": "Discapacidad auditiva",
         "filename": "boton-sordo.png",
@@ -383,7 +383,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_visual": {
+    "visual-menu-btn": {
         "coordinates": (483, 430),
         "tooltip": "Discapacidad visual",
         "filename": "boton-visual.png",
@@ -392,7 +392,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "inicio": {
+    "intro": {
         "coordinates": (790, 440),
         "tooltip": "Inicio",
         "filename": "boton-inicio.png",
@@ -401,7 +401,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_config_gen": {
+    "general-menu-btn": {
         "coordinates": (640, 440),
         "tooltip": "Configuración general",
         "filename": "boton-config.png",
@@ -446,7 +446,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_or_ninos": {
+    "audience-kids-btn": {
         "coordinates": (300, 440),
         "tooltip": "Orientaciones a la niña, niño y adolescente",
         "filename": "boton-or-es.png",
@@ -455,7 +455,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_or_docentes": {
+    "audience-teachers-btn": {
         "coordinates": (500, 440),
         "tooltip": "Sugerencias pedagógicas",
         "filename": "boton-or-doc.png",
@@ -464,7 +464,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_or_padres": {
+    "audience-parents-btn": {
         "coordinates": (700, 440),
         "tooltip": "Orientaciones a la adulta y al adulto responsable",
         "filename": "boton-or-pa.png",
@@ -473,7 +473,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_or_padres": {
+    "audience-parents-btn": {
         "coordinates": (700, 440),
         "tooltip": "Orientaciones a la adulta y al adulto responsable",
         "filename": "boton-or-pa.png",
@@ -707,7 +707,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_nina": {
+    "gender-girl-btn": {
         "coordinates": (430, 200),
         "tooltip": "none",
         "filename": "cuadro.png",
@@ -716,7 +716,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_nino": {
+    "gender-boy-btn": {
         "coordinates": (540, 200),
         "tooltip": "none",
         "filename": "cuadro.png",
@@ -725,7 +725,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_nina_sel": {
+    "gender-girl-sel-btn": {
         "coordinates": (430, 200),
         "tooltip": "none",
         "filename": "cuadro-1.png",
@@ -734,7 +734,7 @@ buttons = {
         "loop": False,
         "frame_speed": 1,
     },
-    "boton_nino_sel": {
+    "gender-boy-sel-btn": {
         "coordinates": (540, 200),
         "tooltip": "none",
         "filename": "cuadro-1.png",

@@ -5,30 +5,26 @@ import sys
 import pygame
 import subprocess
 
-from librerias.singleton import Singleton
-from librerias.magnificador import Rendermag
-from librerias.configuration import Configuration
-from librerias.text_repository import (
+from components.singleton import Singleton
+from components.magnifier import Rendermag
+from components.configuration import Configuration
+from components.text_repository import (
     load_text_content as _load_text_content,
     invalidate_text_cache,
     content_path_for_language,
 )
-from librerias.text_loader import TextLoader
+from components.text_loader import TextLoader
 
 
-class Manejador(metaclass=Singleton):
-    """
-    Esta clase consiste en una implementación del patrón estrategia para python.
-    La instancia de esta clase funciona como un manejador de estados y permite hacer cambios entre pantallas
-    que comparten la misma estructura, atributos y métodos.
-    """
+class Manager(metaclass=Singleton):
+    """Screen-state machine that owns the display surface and drives the main loop."""
 
-    habilitar = False
+    magnifier_active = False
     DRAW_DEBUG_RECTANGLES = False
-    VOLVER_PANTALLA_PREVIA = False
+    RETURN_TO_PREV_SCREEN = False
     config = Configuration()
-    grupo_magnificador = Rendermag()
-    rutas_int = [
+    magnifier_group = Rendermag()
+    interpreter_paths = [
         "/opt/blender/blenderplayer",
         "blenderplayer",
         "/usr/bin/blenderplayer",
@@ -36,19 +32,18 @@ class Manejador(metaclass=Singleton):
 
     def __init__(self, titulo, size=(1024, 572), fullscreen=False):
         """
-        Método inicializador de la clase.
+        Initialise pygame, the display window, and text content.
 
-        @param titulo: Define el titulo que aparecera en la ventana de la aplicación.
+        @param titulo: Window caption.
         @type titulo: str
-        @param size: Indica la resolución de la ventana de la aplicación. Por defecto es (1024x572).
+        @param size: Window resolution in pixels.
         @type size: tuple
-        @param fullscreen: Si es True la aplicación se mostrara en pantalla completa, si es False en una ventana.
+        @param fullscreen: True to display in fullscreen mode; False for a window.
         @type fullscreen: bool
         """
         pygame.init()
-        self.primera_vez = True
-        self.animacion = 0
-        self.pantalla = 0
+        self.first_run = True
+        self.animation_index = 0
         self.states = []
         self.running = True
         self.screen = pygame.display.set_mode(size)
@@ -58,12 +53,9 @@ class Manejador(metaclass=Singleton):
         pygame.display.set_icon(icon)
 
     def cleanUp(self):
-        """
-        Limpia los elementos de las pantallas que esten cargadas, desconecta el servicio del sintetizador de voz
-        verifica si blenderplayer esta activo, de ser asi lo cierra y finalmente cierra la aplicación.
-        """
-        self.states[-1].spserver.stopserver()
-        self.states[-1].spserver.quitserver()
+        """Stop TTS, clean up all loaded screens, kill any running Blenderplayer process, and exit."""
+        self.states[-1].speech_server.stopserver()
+        self.states[-1].speech_server.quitserver()
         while len(self.states) > 0:
             state = self.states.pop()
             state.cleanUp()
@@ -74,9 +66,10 @@ class Manejador(metaclass=Singleton):
 
     def changeState(self, gameState):
         """
-        Limpia los elementos de la pantalla actual y carga una nueva pantalla.
-        @param gameState: Pantalla que se desea cargar.
-        @type gameState: estado
+        Replace the current screen with a new one.
+
+        @param gameState: Screen instance to load.
+        @type gameState: Screen
         """
         if len(self.states) > 0:
             state = self.states.pop()
@@ -87,9 +80,10 @@ class Manejador(metaclass=Singleton):
 
     def pushState(self, gameState):
         """
-        Carga los elementos de una nueva pantalla sin limpiar la pantalla actual.
-        @param gameState: Pantalla que se desea cargar.
-        @type gameState: estado
+        Overlay a new screen on top of the current one without cleaning it up.
+
+        @param gameState: Screen instance to push.
+        @type gameState: Screen
         """
         if len(self.states) > 0:
             self.states[-1].pause()
@@ -97,9 +91,7 @@ class Manejador(metaclass=Singleton):
         self.states[-1].start()
 
     def popState(self):
-        """
-        Limpia los elementos de la pantalla actual.
-        """
+        """Remove and clean up the top screen, then resume the previous one."""
         if len(self.states) > 0:
             state = self.states.pop()
             state.cleanUp()
@@ -108,37 +100,36 @@ class Manejador(metaclass=Singleton):
 
     def handleEvents(self, events):
         """
-        LLama al metodo handleEvents() de la pantalla actual y le envia los eventos que se estan generando.
-        @param events: Lista de eventos que se generan cada vez que la pantalla se acutaliza.
-        @type events: pygame.event.Event
+        Delegate event processing to the active screen.
+
+        @param events: Event list from the main loop.
+        @type events: list
         """
         self.states[-1].handleEvents(events)
 
     def update(self):
-        """
-        LLama al metodo update() de la pantalla actual.
-        """
+        """Delegate update logic to the active screen."""
         self.states[-1].update()
 
     def draw(self):
-        """
-        LLama al metodo draw() de la pantalla actual y mantiene la aplicación actualizandose a 30 imágenes
-        por segundo.
-        """
+        """Delegate drawing to the active screen, flip the display, and cap the frame rate at 30 fps."""
         self.states[-1].draw()
-        self.states[-1].reloj_anim.tick(30)
+        self.states[-1].frame_clock.tick(30)
         pygame.display.flip()
 
     def quit(self):
-        """
-        Indica que se debe cerrar la aplicación.
-        """
+        """Signal the main loop to stop."""
         self.running = False
 
-    def interpretar(self, codigo):
+    def show_concept(self, codigo):
         """
-        Dispatcher: lanza el intérprete virtual de lengua de señas (Blenderplayer) cuando la
-        accesibilidad auditiva está activada, o muestra el glosario en caso contrario.
+        Dispatch a concept code to the virtual sign-language interpreter or the glossary screen.
+
+        Launches Blenderplayer when auditory accessibility is enabled; otherwise navigates to
+        the glossary.
+
+        @param codigo: Vocabulary key identifying the concept to display.
+        @type codigo: str
         """
         if self.config.get_preference("disc_audi", False):
             self._launch_interpreter(codigo)
@@ -147,15 +138,19 @@ class Manejador(metaclass=Singleton):
 
     def _launch_interpreter(self, codigo):
         """
-        Lanza el subproceso Blenderplayer para interpretar el concepto dado.
-        Si Blenderplayer ya está en ejecución, no hace nada.
+        Launch the Blenderplayer subprocess to animate the given concept.
+
+        Does nothing if Blenderplayer is already running.
+
+        @param codigo: Vocabulary key to pass to the interpreter.
+        @type codigo: str
         """
         running = subprocess.call(["pgrep", "blenderplayer"])
         if running == 1:
             color = self.config.get_preference("color", 0)
             genero = self.config.get_preference("genero", "Hombre")
             velocidad = self.config.get_preference("velocidad", 0.5)
-            for ruta in self.rutas_int:
+            for ruta in self.interpreter_paths:
                 try:
                     subprocess.Popen(
                         [
@@ -185,29 +180,33 @@ class Manejador(metaclass=Singleton):
 
     def _show_glossary(self, codigo):
         """
-        Navega a la pantalla del glosario y muestra la definición del concepto dado.
+        Navigate the active screen to the glossary and display the given concept's definition.
+
+        @param codigo: Vocabulary key identifying the concept to look up.
+        @type codigo: str
         """
         self.config.set_preference("definicion", codigo)
-        self.states[-1].portada_glosario = False
-        self.states[-1].limpiar_grupos()
-        self.states[-1].ir_glosario()
+        self.states[-1].at_glossary_cover = False
+        self.states[-1].clear_groups()
+        self.states[-1].go_to_glossary()
 
     def load_text_content(self):
+        """Load all user-facing text from the active language's JSON file and populate the glossary on the Word class."""
         # Load all user-facing text content from the language-specific JSON.
         lang = self.config.get_language()
         path = content_path_for_language(lang)
         self.text_content = _load_text_content(path)
         self.text_loader = TextLoader(self.text_content)
 
-        # Inject glossary vocabulary into the palabra class so screens never
+        # Inject glossary vocabulary into the Word class so screens never
         # need to hard-code it.  The import is local to avoid a circular import
-        # (palabra → pantalla → manejador).
-        from librerias.palabra import palabra as Palabra
+        # (Word/palabra → pantalla → manejador).
+        from components.words import Word
         glossary = self.text_content.get("glossary", {})
-        Palabra.ENTRIES   = glossary.get("entries", {})
-        Palabra.DEFINITIONS = glossary.get("definitions", {})
-        Palabra.INDICES     = glossary.get("indices", [])
-        Palabra.INTERCALATED = glossary.get("intercalated", [])
+        Word.ENTRIES   = glossary.get("entries", {})
+        Word.DEFINITIONS = glossary.get("definitions", {})
+        Word.INDICES     = glossary.get("indices", [])
+        Word.INTERCALATED = glossary.get("intercalated", [])
 
     def reload_text_content(self):
         """Invalidate the LRU cache and reload text for the active language."""

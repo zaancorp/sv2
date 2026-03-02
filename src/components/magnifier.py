@@ -3,16 +3,11 @@
 import pygame
 
 
-class magnificador(pygame.sprite.Sprite):
-    """
-    Esta clase implementa un magnificador de pantalla que puede amplificar, disminuir y cambiar
-    su ubicación en la pantalla.
-    """
+class Magnifier(pygame.sprite.Sprite):
+    """Screen magnifier sprite that zooms a region of the display around the cursor."""
 
     def __init__(self):
-        """
-        Método inicializador de la clase.
-        """
+        """Initialise the magnifier with default zoom level and a 256×256 pixel viewport."""
         pygame.sprite.Sprite.__init__(self)
         self.escala = 1
         self.zoom = 1
@@ -24,14 +19,12 @@ class magnificador(pygame.sprite.Sprite):
         self.sup_final = pygame.Surface
         self.rect = pygame.Rect((0, 232), (self.w, self.h))
 
-    def magnificar(self, ventana):
+    def magnificar(self, surface):
         """
-        Ejecuta una secuencia de pasos para mostrar una región ampliada de la pantalla.
-        Primero obtiene la posición del cursor en la pantalla, verifica el valor de la escala y el zoom,
-        seguidamente calcula los limites y por ultimo muestra la superficie del magnificador.
+        Capture and scale the screen region around the cursor into the magnifier surface.
 
-        @param ventana: Superficie de la pantalla que se desea amplificar o disminuir.
-        @type ventana: pygame.Surface
+        @param surface: Full display surface to sample from.
+        @type surface: pygame.Surface
         """
         x, y = pygame.mouse.get_pos()
         if self.escala >= 3 and self.zoom >= 4:
@@ -52,7 +45,7 @@ class magnificador(pygame.sprite.Sprite):
             if y <= self.h / (2 * self.zoom):
                 y = self.h / (2 * self.zoom)
             self.ampliador.blit(
-                ventana,
+                surface,
                 (0, 0),
                 (
                     (x - (self.w / (2 * self.zoom))),
@@ -74,7 +67,7 @@ class magnificador(pygame.sprite.Sprite):
             if y <= self.h / (2 * self.zoom):
                 y = self.h / (2 * self.zoom)
             self.ampliador.blit(
-                ventana,
+                surface,
                 (0, 0),
                 (
                     (x - (self.w / (2 * self.zoom))),
@@ -99,7 +92,7 @@ class magnificador(pygame.sprite.Sprite):
             if y <= self.h / (2 * self.zoom):
                 y = self.h / (2 * self.zoom)
             self.ampliador.blit(
-                ventana,
+                surface,
                 (0, 0),
                 (
                     (x - (self.w / (2 * self.zoom))),
@@ -115,35 +108,27 @@ class magnificador(pygame.sprite.Sprite):
             )
         self.image = self.sup_final
 
-    def aumentar(self):
-        """
-        Aumenta el zoom del magnificador.
-        """
+    def zoom_in(self):
+        """Increase the magnifier zoom level by one step."""
         self.escala = self.escala + 1
         self.zoom = (2**self.escala) / 2
 
-    def disminuir(self):
-        """
-        Disminuye el zoom del magnificador.
-        """
+    def zoom_out(self):
+        """Decrease the magnifier zoom level by one step."""
         self.escala = self.escala - 1
         self.zoom = self.zoom / 2
 
 
 class Rendermag(pygame.sprite.Group):
-    """
-    Esta clase es una ligera modificación de la clase pygame.sprite.Group.
-    Dibuja el magnificador sobre la pantalla.
-    """
+    """Sprite group that draws the magnifier and overlays a black rectangle when it is being repositioned."""
 
     def draw(self, surface, mov):
         """
-        Dibuja los miembros de un grupo de sprites sobre una superficie.
+        Draw the magnifier sprites onto the surface.
 
-        @param surface: Superficie sobre la que se dibujara el magnificador.
+        @param surface: Surface to draw onto.
         @type surface: pygame.Surface
-        @param mov: Determina si el magnificador esta en movimiento. Si es True, dibuja un rectángulo
-        negro sobre el magnificador, lo cual indica que esta cambiando de posición.
+        @param mov: If True, fill the magnifier rect with black to indicate it is being moved.
         @type mov: bool
         """
         sprites = self.sprites()

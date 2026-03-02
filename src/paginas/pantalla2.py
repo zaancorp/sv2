@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+"""Main resource menu screen for the sv2 educational app."""
 
 import pygame
 
-from librerias import pantalla
-from librerias.popups import PopUp
+from components import screen
+from components.popups import PopUp
 
 from paginas import menucfg
 from paginas import pantalla3
@@ -28,12 +29,14 @@ buttons = [
 images = ["f1"]
 
 
-class estado(pantalla.Pantalla):
+class Screen(screen.Screen):
+    """Screen that presents the top-level navigation menu for all content sections."""
+
     def __init__(self, parent):
         """
-        Método inicializador de la clase.
+        Initialise the main resource menu screen.
 
-        @param parent: Instancia del gestor de pantallas.
+        @param parent: Screen manager instance.
         @type parent: Manejador
         """
 
@@ -46,34 +49,32 @@ class estado(pantalla.Pantalla):
 
         self.load_banners(banners)
         self.load_buttons(buttons)
-        self.cargar_textos()
+        self.load_texts()
 
     # def show_instructions(self):
     #     """
     #     Muestra las instrucciones de uso de la pantalla actual.
     #     """
     #     if not self.popup_ins.activo:
-    #         self.popup_ins.agregar_grupo()
-    #         self.spserver.processtext(
+    #         self.popup_ins.add_to_group()
+    #         self.speech_server.processtext(
     #             self.parent.text_content["popups"][self.name]["reader_1"],
     #             self.parent.config.is_screen_reader_enabled(),
     #         )
 
     #     else:
-    #         self.popup_ins.eliminar_grupo()
-    #         self.spserver.stopserver()
+    #         self.popup_ins.remove_from_group()
+    #         self.speech_server.stopserver()
 
-    def cargar_textos(self):
-        """
-        Carga los textos utilizados en esta pantalla.
-        """
+    def load_texts(self):
+        """Load text objects used on this screen."""
         pass
         # self.popup_ins = PopUp(
         #     self.parent,
         #     self.parent.text_content["popups"][self.name]["text_1"],
         #     "",
         #     self.dic_img,
-        #     self.grupo_popup,
+        #     self.popup_group,
         #     2,
         #     512,
         #     265,
@@ -84,26 +85,23 @@ class estado(pantalla.Pantalla):
         self.resume()
 
     def resume(self):
-        """
-        Verifica si es la primera vez que se muestra esta pantalla. Carga los objetos correspondientes
-        según el caso.
-        """
-        self.parent.primera_vez = False
+        """Reload buttons and texts if config changed, then populate sprite groups."""
+        self.parent.first_run = False
         if self.parent.config.get_preference("texto_cambio", True):
             self.load_buttons(buttons)
-            self.cargar_textos()
+            self.load_texts()
             self.parent.config.set_preference("texto_cambio", False)
 
         if self.parent.config.has_visited_screen("p2"):
             self.parent.config.mark_screen_visited("p2")
             # self.show_instructions()
         else:
-            self.spserver.processtext(
+            self.speech_server.processtext(
                 "Menú del Recurso", self.parent.config.is_screen_reader_enabled()
             )
 
-        self.grupo_banner.add(self.banner_inf)
-        self.grupo_botones.add(
+        self.banner_group.add(self.banner_inf)
+        self.button_group.add(
             self.plantas,
             self.repro,
             self.agri,
@@ -116,9 +114,9 @@ class estado(pantalla.Pantalla):
 
     def handleEvents(self, events):
         """
-        Evalúa los eventos que se generan en esta pantalla.
+        Process input events for this screen.
 
-        @param events: Lista de los eventos.
+        @param events: Event list from the main loop.
         @type events: list
         """
         for event in events:
@@ -132,91 +130,88 @@ class estado(pantalla.Pantalla):
 
             # if event.type == pygame.KEYDOWN and not self.popup_ins.activo:
             if event.type == pygame.KEYDOWN:
-                self.chequeo_botones(self.grupo_botones)
-                self.numero_elementos = len(self.lista_botones)
-                self.lista_final = self.lista_botones
+                self.collect_buttons(self.button_group)
+                self.element_count = len(self.button_list)
+                self.nav_list = self.button_list
 
                 if event.key == pygame.K_RIGHT:
-                    self.controlador_lector_evento_K_RIGHT()
-                    self.deteccion_movimiento = True
+                    self.nav_right()
+                    self.keyboard_nav_active = True
 
                 elif event.key == pygame.K_LEFT:
-                    self.controlador_lector_evento_K_LEFT()
+                    self.nav_left()
 
-                elif self.deteccion_movimiento:
+                elif self.keyboard_nav_active:
                     if event.key == pygame.K_RETURN:
-                        if self.x.tipo_objeto == "boton":
+                        if self.x.obj_type == "button":
 
                             if self.x.id == "plantas":
-                                self.limpiar_grupos()
-                                self.parent.changeState(pantalla3.estado(self.parent))
+                                self.clear_groups()
+                                self.parent.changeState(pantalla3.Screen(self.parent))
 
                             elif self.x.id == "agri":
-                                self.limpiar_grupos()
-                                self.parent.changeState(pantalla8.estado(self.parent))
+                                self.clear_groups()
+                                self.parent.changeState(pantalla8.Screen(self.parent))
 
                             elif self.x.id == "act1":
-                                self.limpiar_grupos()
-                                self.parent.pushState(actividad1.estado(self.parent))
+                                self.clear_groups()
+                                self.parent.pushState(actividad1.Screen(self.parent))
 
                             elif self.x.id == "act2":
-                                self.limpiar_grupos()
+                                self.clear_groups()
                                 self.parent.pushState(actividad2.actividad(self.parent))
 
                             elif self.x.id == "repro":
-                                self.limpiar_grupos()
-                                self.parent.changeState(pantalla5.estado(self.parent))
+                                self.clear_groups()
+                                self.parent.changeState(pantalla5.Screen(self.parent))
 
                             elif self.x.id == "config":
-                                self.limpiar_grupos()
+                                self.clear_groups()
                                 self.parent.pushState(
-                                    menucfg.estado(self.parent, self.previa)
+                                    menucfg.Screen(self.parent, self.is_overlay)
                                 )
 
                             elif self.x.id == "orientacion":
-                                self.limpiar_grupos()
-                                self.parent.pushState(pantalla11.estado(self.parent))
+                                self.clear_groups()
+                                self.parent.pushState(pantalla11.Screen(self.parent))
 
             # if (
-            #     pygame.sprite.spritecollideany(self.raton, self.grupo_botones)
+            #     pygame.sprite.spritecollideany(self.mouse, self.button_group)
             #     and not self.popup_ins.activo
             # ):
             if (
-                pygame.sprite.spritecollideany(self.raton, self.grupo_botones)
+                pygame.sprite.spritecollideany(self.mouse, self.button_group)
             ):
                 sprite = pygame.sprite.spritecollide(
-                    self.raton, self.grupo_botones, False
+                    self.mouse, self.button_group, False
                 )
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.spserver.stopserver()
+                    self.speech_server.stopserver()
                     if sprite[0].id == "orientacion":
-                        self.limpiar_grupos()
-                        self.parent.pushState(pantalla11.estado(self.parent))
+                        self.clear_groups()
+                        self.parent.pushState(pantalla11.Screen(self.parent))
                     elif sprite[0].id == "plantas":
-                        self.limpiar_grupos()
-                        self.parent.changeState(pantalla3.estado(self.parent))
+                        self.clear_groups()
+                        self.parent.changeState(pantalla3.Screen(self.parent))
                     elif sprite[0].id == "repro":
-                        self.limpiar_grupos()
-                        self.parent.changeState(pantalla5.estado(self.parent))
+                        self.clear_groups()
+                        self.parent.changeState(pantalla5.Screen(self.parent))
                     elif sprite[0].id == "agri":
-                        self.limpiar_grupos()
-                        self.parent.changeState(pantalla8.estado(self.parent))
+                        self.clear_groups()
+                        self.parent.changeState(pantalla8.Screen(self.parent))
                     elif sprite[0].id == "config":
-                        self.limpiar_grupos()
-                        self.parent.pushState(menucfg.estado(self.parent, self.previa))
+                        self.clear_groups()
+                        self.parent.pushState(menucfg.Screen(self.parent, self.is_overlay))
                     elif sprite[0].id == "act1":
-                        self.limpiar_grupos()
-                        self.parent.pushState(actividad1.estado(self.parent))
+                        self.clear_groups()
+                        self.parent.pushState(actividad1.Screen(self.parent))
                     elif sprite[0].id == "act2":
-                        self.limpiar_grupos()
+                        self.clear_groups()
                         self.parent.pushState(actividad2.actividad(self.parent))
-        self.minimag(events)
+        self.handle_magnifier(events)
 
     def update(self):
-        """
-        Actualiza la posición del cursor, el magnificador de pantalla en caso de que este activado y los
-        tooltip de los botones.
-        """
-        self.raton.update()
-        self.obj_magno.magnificar(self.parent.screen)
-        self.grupo_botones.update(self.grupo_tooltip)
+        """Update cursor position, magnifier, and button tooltips."""
+        self.mouse.update()
+        self.magnifier.magnificar(self.parent.screen)
+        self.button_group.update(self.tooltip_group)

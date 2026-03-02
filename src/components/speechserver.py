@@ -1,44 +1,39 @@
 #!/usr/bin/env python
+"""Stub TTS interface intended to wrap a speech-dispatcher back-end (currently disabled)."""
 
 # import speechd
 import subprocess
 
-from manejador import Manejador as parent
+from manejador import Manager as parent
 
 
 class Speechserver:
-    """
-    Esta clase implementa una sencilla interfaz para acceder al sintetizador de voz "Espeak".
-    """
+    """Stub interface for the eSpeak / speech-dispatcher TTS back-end (all calls are currently no-ops)."""
 
     def __init__(self):
-        """
-        Método inicializador de la clase.
-        """
+        """Initialise the speech server (no-op; back-end is disabled)."""
         # self.parent = parent
         # self.dic_vel = {"baja": 0, "media": 25, "rapida": 50}
         # self.speaker = speechd.Speaker('SERVERSPEECH')
         # self.speaker.set_punctuation(speechd.PunctuationMode.NONE)
         # self.speaker.set_language("es")
-        # self.actualizar_servidor()
+        # self.update_server()
         # self.hablando = False
         # self.ultima_lectura = ""
         pass
 
-    def actualizar_servidor(self):
-        """
-        Consulta el valor de la velocidad del sintetizador.
-        """
+    def update_server(self):
+        """Sync the TTS speech rate from user configuration (no-op; back-end is disabled)."""
         # self.speaker.set_rate(self.dic_vel[self.parent.config.synvel])
         pass
 
     def processtext2(self, texto, lector_activo):
         """
-        Enviá información al sintetizador de voz para que este la procese y permite encolar las peticiones.
+        Send text to the TTS engine, allowing requests to queue (no-op; back-end is disabled).
 
-        @param texto: El texto que se desea enviar al sintetizador.
+        @param texto: Text to be spoken.
         @type texto: str
-        @param lector_activo: Indica si el sintetizador de voz esta activado.
+        @param lector_activo: True if the screen reader is enabled.
         @type lector_activo: bool
         """
         # if lector_activo:
@@ -47,16 +42,14 @@ class Speechserver:
 
     def processtext(self, texto, lector_activo, continuar=True):
         """
-        Enviá información al sintetizador de voz para que este la procese. No permite encolar peticiones.
+        Send text to the TTS engine, interrupting any ongoing speech (no-op; back-end is disabled).
 
-        @param texto: El texto que se desea enviar al sintetizador.
+        @param texto: Text to be spoken.
         @type texto: str
-        @param lector_activo: Indica si el sintetizador de voz esta activado.
+        @param lector_activo: True if the screen reader is enabled.
         @type lector_activo: bool
-        @param continuar: Se supone que debe permitir encolar peticiones.
+        @param continuar: Reserved for future queue-control behaviour.
         @type continuar: bool
-        @bug: Aún no se ha logrado implementar un método único que permita activar y desactivar
-        las peticiones en cola.
         """
         # self.ultima_lectura = texto
         # if lector_activo:
@@ -68,22 +61,19 @@ class Speechserver:
         pass
 
     def stopserver(self):
-        """
-        Detiene el sintetizador de voz.
-        """
+        """Stop the TTS engine's current utterance (no-op; back-end is disabled)."""
         # self.speaker.stop()
         # self.hablando = False
         pass
 
     def repetir(self):
+        """Repeat the last spoken text (no-op; back-end is disabled)."""
         # self.stopserver()
         # self.speaker.speak(self.data)
         pass
 
     def quitserver(self):
-        """
-        Cierra la conexión con el sintetizador de voz.
-        """
+        """Close the TTS connection and stop the speech-dispatcher process (no-op; back-end is disabled)."""
         # self.speaker.close()
         # subprocess.call(['pkill', '-9', 'speech-dispatcher'])
         pass

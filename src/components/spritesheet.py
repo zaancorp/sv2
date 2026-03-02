@@ -62,7 +62,7 @@ class SpriteSheet:
 
         Multi-row usage (Animation)::
 
-            sheet.load_strip(rect, col, rows=fil, row=fila_pos, colorkey=ck)
+            sheet.load_strip(rect, col, rows=fil, row=frame_row, colorkey=ck)
 
         @param rect:        Source rect for the *first* frame — (x, y, w, h).
         @type  rect:        tuple | pygame.Rect
