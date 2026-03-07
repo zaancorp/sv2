@@ -7,29 +7,31 @@ Educational accessibility app built with Python + Pygame, targeting plant biolog
 ```
 src/
   inicio.py              # Entry point — main() loop
-  manejador.py           # State machine (Manejador class)
-  librerias/             # Shared modules / library classes
+  manejador.py           # State machine (Manager class)
+  components/            # Shared modules / library classes
     configuration.py     # User preferences (loads/saves user_config.json)
     text_repository.py   # Loads paginas/text/content.json (LRU-cached)
     text_loader.py       # TextLoader — nested key accessor for text content
-    pantalla.py          # Base class for all screens (Pantalla)
+    screen.py            # Base class for all screens (Screen)
     texto.py             # Text rendering
-    imagen.py / image.py # Image sprite
+    image.py             # Image sprite
     button.py            # Button sprite
     animations.py        # Animation helpers
-    magnificador.py      # Screen magnifier
-    speechserver.py      # TTS / screen reader server
+    magnifier.py         # Screen magnifier
+    speechserver.py      # TTS / screen reader server (currently stubbed)
     singleton.py         # Singleton metaclass
+    words.py             # Word sprite + TextType enum + FontManager
     ...
   paginas/               # Screen modules
     menucfg.py           # Accessibility config menu (first screen loaded)
     menuauditivo.py      # Audio disability menu
     menuvisual.py        # Visual disability menu
+    menugeneral.py       # General settings menu (language, etc.)
     pantalla2.py ...     # Content screens (plants unit)
     actividad1.py ...    # Activities
-    playground.py        # Dev playground (uncommented in inicio.py to use)
+    playground.py        # Dev playground (uncomment in inicio.py to use)
     text/
-      content.json       # All user-facing Spanish text (concepts, screen content, popups, ui)
+      content.json       # All user-facing text (concepts, screen content, popups, ui)
   user_config.json       # Runtime user preferences (gitignored in practice)
 ```
 
@@ -47,12 +49,12 @@ Window: 1024×572 px, 30 fps. Pass `fullscreen=True` in `Manejador.__init__` to 
 
 ## Architecture
 
-**Screen state machine** (`Manejador`):
-- `changeState(estado)` — replaces current screen (cleans up old one)
-- `pushState(estado)` — overlays a new screen (pauses current)
+**Screen state machine** (`Manager` in `manejador.py`):
+- `changeState(state)` — replaces current screen (cleans up old one)
+- `pushState(state)` — overlays a new screen (pauses current)
 - `popState()` — removes top screen and resumes previous
-- Each screen is a subclass of `pantalla.Pantalla` with `start()`, `resume()`, `pause()`, `cleanUp()`, `handleEvents()`, `update()`, `draw()`
-- `Manejador` is a Singleton
+- Each screen is a subclass of `screen.Screen` with `start()`, `resume()`, `pause()`, `cleanUp()`, `handleEvents()`, `update()`, `draw()`
+- `Manager` is a Singleton
 
 **Text content** (`content.json`):
 - Single source of truth for all Spanish UI text
@@ -70,24 +72,30 @@ Window: 1024×572 px, 30 fps. Pass `fullscreen=True` in `Manejador.__init__` to 
 
 ## Key conventions
 
-- All screen classes are named `estado` and live in `paginas/`
+- All screen classes are named `Screen` and live in `paginas/`
 - Assets (images, icons, sounds) are referenced relative to `src/` (e.g., `./iconos/`, `./backgrounds/`, `./banners/`)
-- UI text is **always** in Spanish and lives in `content.json` — never hardcode strings in screen files
+- UI text lives in `content.json` — never hardcode strings in screen files
 - New text must be added to `content.json` under the appropriate key before referencing it in code
 - Access text through `self.parent.text_loader` (not raw `text_content` dict) — it has safe key traversal and clear error messages
-- `Manejador.DRAW_DEBUG_RECTANGLES = True` enables visual debug overlays
+- `Manager.DRAW_DEBUG_RECTANGLES = True` enables visual debug overlays
 
 ## Known issues / design notes
 
-- **Singleton is broken**: `Manejador` declares `__metaclass__ = Singleton` (Python 2 syntax — silently ignored in Python 3). Only one instance should ever be created; this is enforced by convention, not code.
-- **Pantalla sprite groups are class-level**: all groups (`grupo_anim`, `grupo_botones`, etc.) are shared across all screen instances. Works because only one screen is normally active at once, but fragile when using `pushState`.
-- **Two text-access styles coexist**: older screens use raw `self.parent.text_content["content"][screen][key]`, newer ones use `text_loader`. Prefer `text_loader`.
-- **Dead config keys**: `user_config.json` contains unused `texto_cambio` and `visit` keys left over from earlier versions.
-- **`Button.parent` is the `Manejador` class, not an instance**: `button.py` imports `Manejador as parent` and assigns it to `self.parent`. Works only because `config` is a class-level attribute on `Manejador`.
+- **`actividad1.py` sprite groups are class-level** (SV2-023): all groups in the activity screen (`button_group`, `anim_group`, etc.) are shared across instances. Fragile when the screen is pushed onto the stack. All other screens use instance-level groups.
+- **TTS is non-functional** (SV2-028): every method in `Speechserver` is a no-op stub. The screen-reader accessibility feature is silently inert.
+
+## Issue tracking
+
+Issues are tracked as `SV2-NNN` identifiers:
+- **Open issues** live in `ANALYSIS.md` — one section per issue.
+- **Resolved issues** live in `CHANGELOG.md` — one entry per issue, in reverse chronological order.
+
+When an issue is fixed, move its section from `ANALYSIS.md` to `CHANGELOG.md` and assign it the next SV2-NNN number in sequence. Do not leave resolved issues in `ANALYSIS.md`.
 
 ## See also
 
-- `ANALYSIS.md` — in-depth architectural analysis with anti-patterns and improvement roadmap
+- `ANALYSIS.md` — open issues only
+- `CHANGELOG.md` — resolved issues and architectural improvements
 
 ## Dependencies
 

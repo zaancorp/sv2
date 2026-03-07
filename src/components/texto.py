@@ -93,6 +93,8 @@ class Text:
         return line_count
 
     def _layout_words(self):
+        if not self.words:
+            return 0, 0
         x = self.left_limit
         y = (
             self.y
@@ -123,6 +125,8 @@ class Text:
         return max_width, total_height + word.rect.height
 
     def _estimate_total_height(self):
+        if not self.words:
+            return 0
         return self.words[0].rect.height * self._estimate_line_count()
 
     def indexar(self, letter):

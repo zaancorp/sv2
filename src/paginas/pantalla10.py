@@ -40,7 +40,8 @@ class Screen(screen.Screen):
         self.load_texts()
         self.load_buttons(buttons)
 
-        inicial = self.parent.config.get_preference("definicion", "")[0].upper()
+        _def = self.parent.config.get_preference("definicion", "")
+        inicial = _def[0].upper() if _def else ""
         self.abc.indexar(inicial)
         self.word_group.add(
             self.abc.words,

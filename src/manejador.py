@@ -173,7 +173,7 @@ class Manager(metaclass=Singleton):
                         ["wmctrl", "-a", "interprete", "-b", "add,above"]
                     )
                     break
-                except:
+                except OSError:
                     print("No se ha podido cargar el interprete virtual.")
         else:
             print("Blenderplayer ya se encuentra en ejecucion")

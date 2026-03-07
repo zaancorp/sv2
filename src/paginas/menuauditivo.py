@@ -405,7 +405,7 @@ class Screen(screen.Screen):
                             self.parent.config.get_font_size()
                             != self.parent.config.get_preference("t_fuente", 18)
                         ):
-                            self.parent.set_text_change_enabled(True)
+                            self.parent.config.set_text_change_enabled(True)
                         self.parent.config.flush()
                         self.clear_groups()
                         if self.parent.first_run:

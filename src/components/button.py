@@ -143,7 +143,7 @@ class Button(GameObject):
         @type canal: pygame.mixer.Channel
         """
 
-        if self.detect_collision() and canal.get_busy and self.sonar:
+        if self.detect_collision() and canal.get_busy() and self.sonar:
             self.sonar = False
             # canal.play(self.sonido)
 
@@ -224,8 +224,8 @@ class TextButton(GameObject):
 
         if background == 1:
             txt = Text(0, 0, text, parent.config.get_font_size(), "active_text", self.width)
-            self.rect = Rect(0, 0, self.width, txt.final_width)
-            image_texto = Surface((self.width, txt.final_width))
+            self.rect = Rect(0, 0, self.width, txt.total_height)
+            image_texto = Surface((self.width, txt.total_height))
             image_texto.fill((255, 255, 255))
             image_texto.set_colorkey((255, 255, 255))
             for i in txt.words:

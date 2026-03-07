@@ -85,7 +85,7 @@ class TextBox(pygame.sprite.Sprite):
             self.rect = img.get_rect()
         self.rect.move_ip(x, y)
         self.chars = []
-        self.text = str
+        self.text = ""
         self.clock = pygame.time.Clock()
         self.text_sprite = pygame.sprite.Sprite()
         self.width = self.rect.width

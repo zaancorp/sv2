@@ -13,6 +13,19 @@ class TextType(Enum):
     CONCEPT = 7
     TEXT_BOX = 8
 
+
+# Maps legacy string names (still used by Text/InlineText callers) to enum members.
+_TEXT_TYPE_NAMES: dict = {
+    "normal": TextType.NORMAL,
+    "active_text": TextType.ACTIVE,
+    "intercalado": TextType.INTERCALATED,
+    "instruccion": TextType.INSTRUCTION,
+    "indice": TextType.INDEX,
+    "definicion": TextType.DEFINITION,
+    "concepto": TextType.CONCEPT,
+    "textbox": TextType.TEXT_BOX,
+}
+
 class FontManager:
     """Cache of pygame Font objects keyed by (size, bold, underline)."""
 
@@ -65,15 +78,20 @@ class Word(pygame.sprite.Sprite):
         @type text: str
         @param size: Base font size in points.
         @type size: int
-        @param text_type: Rendering role; must be a valid TextType int value.
-        @type text_type: int
+        @param text_type: Rendering role; accepts a TextType member, its integer value, or a string name from _TEXT_TYPE_NAMES.
+        @type text_type: TextType | int | str
         @param font_manager: Font cache used to obtain the correct typeface.
         @type font_manager: FontManager
         """
         super().__init__()
         self.text = text
         self.size = size
-        self.text_type = TextType(text_type)
+        if isinstance(text_type, str):
+            self.text_type = _TEXT_TYPE_NAMES.get(text_type, TextType.NORMAL)
+        elif isinstance(text_type, TextType):
+            self.text_type = text_type
+        else:
+            self.text_type = TextType(text_type)
         self.font_manager = font_manager
         self.selected = False
         self.definable = False

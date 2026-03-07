@@ -4,8 +4,6 @@
 # import speechd
 import subprocess
 
-from manejador import Manager as parent
-
 
 class Speechserver:
     """Stub interface for the eSpeak / speech-dispatcher TTS back-end (all calls are currently no-ops)."""

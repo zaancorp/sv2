@@ -87,15 +87,13 @@ class Screen(screen.Screen):
     def resume(self):
         """Reload buttons and texts if config changed, then populate sprite groups."""
         self.parent.first_run = False
-        if self.parent.config.get_preference("texto_cambio", True):
+        if self.parent.config.is_text_change_enabled():
             self.load_buttons(buttons)
             self.load_texts()
-            self.parent.config.set_preference("texto_cambio", False)
+            self.parent.config.set_text_change_enabled(False)
 
-        if self.parent.config.has_visited_screen("p2"):
+        if not self.parent.config.has_visited_screen("p2"):
             self.parent.config.mark_screen_visited("p2")
-            # self.show_instructions()
-        else:
             self.speech_server.processtext(
                 "Menú del Recurso", self.parent.config.is_screen_reader_enabled()
             )
