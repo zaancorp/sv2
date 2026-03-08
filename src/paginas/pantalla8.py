@@ -6,8 +6,6 @@ import pygame
 from components import screen
 from components.image import Image
 
-from paginas import menucfg
-from paginas import pantalla2
 from paginas import pantalla9
 from paginas import pantalla10
 
@@ -58,6 +56,19 @@ class Screen(screen.Screen):
         self.load_buttons(buttons)
         self.load_texts()
 
+        self.animation_states = {
+            1: (self.animation_8, self.texto8_2, "text_2"),
+            2: (self.animation_8, self.texto8_3, "text_3"),
+            3: (self.animation_8, self.texto8_4, "text_4"),
+        }
+
+        self.button_actions = {
+            "home":   self.go_home,
+            "config": self.go_config,
+            "back":   self.go_back,
+            "next":   self.go_next,
+        }
+
         # These two are used by the tractor animation in the background
         self.elapsed_ms = 0
         self.tractor = -2
@@ -91,6 +102,15 @@ class Screen(screen.Screen):
         )
         self.reproducir_animacion(self.current_anim)
 
+    def go_back(self):
+        self.current_anim -= 1
+        self.reproducir_animacion(self.current_anim)
+
+    def go_next(self):
+        if self.current_anim <= 11:
+            self.current_anim += 1
+            self.reproducir_animacion(self.current_anim)
+
     def handleEvents(self, events):
         """
         Process input events for this screen.
@@ -102,75 +122,33 @@ class Screen(screen.Screen):
             if event.type == pygame.QUIT:
                 self.parent.quit()
 
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    self.nav_right()
                     self.keyboard_nav_active = True
-
+                    self.nav_right()
                 elif event.key == pygame.K_LEFT:
                     self.nav_left()
+                elif self.keyboard_nav_active and event.key == pygame.K_RETURN:
+                    self.keyboard_nav_active = False
+                    if self.x.obj_type == "button":
+                        self.button_actions.get(self.x.id, lambda: None)()
+                    elif self.x.obj_type == "word":
+                        self.speech_server.processtext(
+                            self.parent.text_loader.concept(self.x.codigo),
+                            self.parent.config.is_screen_reader_enabled(),
+                        )
 
-                elif self.keyboard_nav_active:
-                    if event.key == pygame.K_RETURN:
-                        if self.x.obj_type == "button":
-                            if self.x.id == "config":
-                                self.clear_groups()
-                                self.parent.pushState(
-                                    menucfg.Screen(self.parent, self.is_overlay)
-                                )
-                                self.keyboard_nav_active = False
-
-                            elif self.x.id == "next":
-                                if self.current_anim <= 11:
-                                    self.current_anim += 1
-                                    self.reproducir_animacion(self.current_anim)
-                                self.keyboard_nav_active = False
-
-                            elif self.x.id == "back":
-                                if self.current_anim > 0:
-                                    self.current_anim -= 1
-                                    self.reproducir_animacion(self.current_anim)
-                                    if self.current_anim <= 0:
-                                        self.current_anim = 0
-                                    self.keyboard_nav_active = False
-
-                            elif self.x.id == "home":
-                                self.clear_groups()
-                                self.parent.changeState(pantalla2.Screen(self.parent))
-                                self.keyboard_nav_active = False
-
-                        elif self.x.obj_type == "word":
-                            self.speech_server.processtext(
-                                self.parent.text_loader.concept(self.x.codigo),
-                                self.parent.config.is_screen_reader_enabled(),
-                            )
-
-            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
-                sprite = pygame.sprite.spritecollide(
-                    self.mouse, self.button_group, False
-                )
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.sprite.spritecollideany(self.mouse, self.button_group):
+                    sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
                     self.speech_server.stopserver()
-                    if sprite[0].id == "home":
-                        self.clear_groups()
-                        self.parent.changeState(pantalla2.Screen(self.parent))
-                    elif sprite[0].id == "config":
-                        self.clear_groups()
-                        self.parent.pushState(menucfg.Screen(self.parent, self.is_overlay))
-                    elif sprite[0].id == "next":
-                        self.repeticion = True
-                        self.keyboard_nav_active = False
-                        if self.current_anim <= 11:
-                            self.current_anim += 1
-                            self.reproducir_animacion(self.current_anim)
-                    elif sprite[0].id == "back":
-                        self.keyboard_nav_active = False
-                        if self.current_anim > 0:
-                            self.current_anim -= 1
-                            self.reproducir_animacion(self.current_anim)
-                    elif sprite[0].id == "repe":
+                    if sprite[0].id == "repe":
                         self.clear_groups()
                         self.resume()
+                    else:
+                        self.button_actions.get(sprite[0].id, lambda: None)()
+
+        self._rebuild_nav()
         self.handle_magnifier(events)
 
     def update(self):
@@ -211,61 +189,33 @@ class Screen(screen.Screen):
         @param animation_index: Index of the animation step to display.
         @type animation_index: int
         """
-        if animation_index == 1:
-            self.focus_index = -1
-            self.text_bg_group.empty()
-            self.tooltip_group.empty()
-            self.button_group.remove(self.back)
-            self.word_group.empty()
-            if self.parent.config.is_screen_reader_enabled():
-                if self.first_entry:
+        if animation_index <= 0:
+            self.go_home()
+            return
+
+        if animation_index >= 4:
+            self.clear_groups()
+            self.parent.changeState(pantalla9.Screen(self.parent))
+            return
+
+        if animation_index in self.animation_states:
+            animation_obj, text_obj, text_key = self.animation_states[animation_index]
+            self.setup_animation(animation_obj, text_obj, text_key)
+
+            # Per-step specials
+            if animation_index == 1:
+                self.tooltip_group.empty()
+                self.button_group.remove(self.back)
+                if self.parent.config.is_screen_reader_enabled() and self.first_entry:
                     self.speech_server.processtext2(
                         self.screen_text("text_2"),
                         self.parent.config.is_screen_reader_enabled(),
                     )
                     self.first_entry = False
-                else:
-                    self.speech_server.processtext(
-                        self.screen_text("text_2"),
-                        self.parent.config.is_screen_reader_enabled(),
-                    )
-                self.text_bg_group.add(self.caja_texto)
-                self.word_group.add(self.texto8_2.words)
-                self.txt_actual = self.texto8_2.words
-                self.collect_words(self.txt_actual)
-
-        elif animation_index == 2:
-            self.first_entry = False
-            self.focus_index = -1
-            self.word_group.empty()
-            self.button_group.empty()
-            self.button_group.add(self.config, self.back, self.next, self.home)
-            self.text_bg_group.add(self.caja_texto)
-            self.word_group.add(self.texto8_3.words)
-            self.txt_actual = self.texto8_3.words
-            self.collect_words(self.txt_actual)
-            self.speech_server.processtext(
-                self.screen_text("text_3"),
-                self.parent.config.is_screen_reader_enabled(),
-            )
-
-        elif animation_index == 3:
-            self.focus_index = -1
-            self.word_group.empty()
-            self.button_group.empty()
-            self.button_group.add(self.config, self.back, self.next, self.home)
-            self.text_bg_group.add(self.caja_texto)
-            self.word_group.add(self.texto8_4.words)
-            self.txt_actual = self.texto8_4.words
-            self.collect_words(self.txt_actual)
-            self.speech_server.processtext(
-                self.screen_text("text_4"),
-                self.parent.config.is_screen_reader_enabled(),
-            )
-
-        elif animation_index == 4:
-            self.clear_groups()
-            self.parent.changeState(pantalla9.Screen(self.parent))
+            elif animation_index in (2, 3):
+                self.first_entry = False
+                self.button_group.empty()
+                self.button_group.add(self.config, self.back, self.next, self.home)
 
         self.collect_buttons(self.button_group)
         self.nav_list = self.word_list + self.button_list

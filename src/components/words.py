@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import re
+
 import pygame
 from enum import Enum
 
@@ -174,3 +176,100 @@ class Word(pygame.sprite.Sprite):
         @rtype: str
         """
         return word.strip(".,()¿?¡!")
+
+
+def _tokenize(text, size, text_type, space_px=6):
+    """
+    Split *text* into Word sprites, skipping the 'reproducción' token in non-active-text modes.
+
+    Uses ``re.split(r'(\\s+)', text.strip())`` so every token (including the last word of a
+    line that does not end with a space) is captured.  The alternating split result gives
+    word tokens at even indices and whitespace runs at odd indices; the whitespace run
+    immediately before each word is used to scale the gap between words, allowing
+    multi-space alignment strings like ``"Sí            No"`` to render with proportional spacing.
+
+    @param text: Text string to tokenize.
+    @type text: str
+    @param size: Font size passed to each Word.
+    @type size: int
+    @param text_type: Text type passed to each Word (string name, int value, or TextType member).
+    @param space_px: Pixel width of a single space character; used to scale inter-word gaps.
+    @type space_px: int
+    @return: Tuple of ``(words, word_gaps)`` where ``word_gaps[i]`` is the pixel gap to
+             insert before ``words[i]`` (0 for the first word).
+    @rtype: tuple[list[Word], list[int]]
+    """
+    words: list = []
+    word_gaps: list = []
+    tokens = re.split(r"(\s+)", text.strip())
+    for i, token in enumerate(tokens):
+        if not token:
+            continue
+        if i % 2 == 0:  # even index → word token; odd index → whitespace run
+            if token.lower() == "reproducción" and text_type != "active_text":
+                continue
+            words.append(Word(token, size, text_type))
+            if not word_gaps:
+                word_gaps.append(0)  # no gap before the first word
+            else:
+                spaces_tok = tokens[i - 1] if i >= 1 else ""
+                n = len(spaces_tok)
+                # Single space → use space_px minimum; longer runs → scale up.
+                word_gaps.append(max(space_px, n * space_px))
+    return words, word_gaps
+
+
+class TextLayout:
+    """Mixin providing the shared word-wrap-and-position utility.
+
+    Subclasses must ensure ``self.left_limit`` and ``self.right_limit`` are set
+    before calling ``_wrap_and_position``.
+
+    ``Text`` uses ``_wrap_and_position`` directly in ``_layout_words``.
+    ``InlineText`` inherits the mixin but keeps its own positioning loop because
+    its requirements differ: justified inter-word spacing (per-line ``medidas``),
+    vertical centring of words within uniform line heights, and ``|`` hard-break
+    tokens.  ``_wrap_and_position`` remains available to ``InlineText`` as the
+    algorithm converges in the future.
+    """
+
+    def _wrap_and_position(self, words, gaps, start_x, start_y):
+        """Place word sprites left-to-right, wrapping at ``self.right_limit``.
+
+        ``gaps[i]`` is the pixel gap to insert *before* word *i*; it is always
+        forced to 0 at the start of a new line.  Directly sets
+        ``word.rect.topleft`` for every word.
+
+        @param words: Ordered sequence of Word sprites to lay out.
+        @type words: list[Word]
+        @param gaps: Per-word gap in pixels (same length as *words*; gaps[0] is ignored).
+        @type gaps: list[int]
+        @param start_x: Left edge of the first line (pixels).
+        @type start_x: int | float
+        @param start_y: Top edge of the first line (pixels).
+        @type start_y: int | float
+        @return: ``(max_width, total_height)`` of the laid-out block.
+        @rtype: tuple[int | float, int | float]
+        """
+        if not words:
+            return 0, 0
+        x = start_x
+        y = start_y
+        max_width = 0
+        total_height = 0
+        at_line_start = True
+
+        for idx, word in enumerate(words):
+            gap = 0 if at_line_start else gaps[idx]
+            if not at_line_start and x + gap + word.rect.width > self.right_limit:
+                x = self.left_limit
+                y += word.rect.height
+                total_height += word.rect.height
+                gap = 0
+            x += gap
+            word.rect.topleft = (x, y)
+            x += word.rect.width
+            at_line_start = False
+            max_width = max(max_width, x - self.left_limit)
+
+        return max_width, total_height + words[-1].rect.height

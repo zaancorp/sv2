@@ -212,3 +212,24 @@ class Manager(metaclass=Singleton):
         """Invalidate the LRU cache and reload text for the active language."""
         invalidate_text_cache()
         self.load_text_content()
+
+    def finish_config(self, screen):
+        """
+        Navigate away from a config screen after its preferences have been saved.
+
+        Clears the screen's sprite groups, then either transitions to the first
+        content screen (first run) or returns to the previous screen (return visit).
+        The local import of ``pantalla2`` avoids the circular import that would
+        arise from a module-level import in ``manejador.py``.
+
+        @param screen: The config screen that just finished saving.
+        @type screen: screen.Screen
+        """
+        from paginas import pantalla2  # local import — avoids circular dependency
+        screen.clear_groups()
+        if self.first_run:
+            self.changeState(pantalla2.Screen(self))
+        else:
+            if screen.is_overlay:
+                self.RETURN_TO_PREV_SCREEN = True
+            self.popState()

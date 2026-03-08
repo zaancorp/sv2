@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-import re
 import pygame
 
-from .words import Word, font_manager
+from .words import Word, font_manager, _tokenize, TextLayout
 
 # ---------------------------------------------------------------------------
 # Layout constants for the 1024×572 display
@@ -27,7 +26,7 @@ _LAYOUT_3PLUS = (32,  992)
 _TEXT_AREA_VCENTER = 382
 
 
-class Text:
+class Text(TextLayout):
     def __init__(self, x, y, text, size, text_type, right_limit, custom=True):
         self.x = x
         self.y = y
@@ -43,25 +42,7 @@ class Text:
         _font = font_manager.get_font(size)
         _space_px = max(1, _font.size(" ")[0])
 
-        # Split preserving whitespace groups so that multi-space option-label
-        # strings (e.g. "Sí            No") produce proportionally larger gaps.
-        # re.split(r'(\s+)', s) returns alternating [word, spaces, word, …].
-        tokens = re.split(r"(\s+)", text.strip())
-        for i, token in enumerate(tokens):
-            if not token:
-                continue
-            if i % 2 == 0:  # even index → word token
-                if token.lower() != "reproducción" or text_type == "active_text":
-                    self.words.append(Word(token, size, text_type))
-                    if not self.word_gaps:
-                        self.word_gaps.append(0)   # no gap before the first word
-                    else:
-                        # The spaces token immediately before this word is at i-1.
-                        spaces_tok = tokens[i - 1] if i >= 1 else ""
-                        n = len(spaces_tok)
-                        # Single space → use self.space minimum; more → scale up.
-                        self.word_gaps.append(max(self.space, n * _space_px))
-            # Odd indices are whitespace tokens — consumed via tokens[i-1] above.
+        self.words, self.word_gaps = _tokenize(text, size, text_type, _space_px)
 
         self.left_limit, self.right_limit = self._calculate_limits(custom, right_limit)
         self.total_width, self.total_height = self._layout_words()
@@ -95,34 +76,12 @@ class Text:
     def _layout_words(self):
         if not self.words:
             return 0, 0
-        x = self.left_limit
         y = (
             self.y
             if (self.text_type == "instruccion" or self.custom)
             else _TEXT_AREA_VCENTER - (self._estimate_total_height() / 2)
         )
-        max_width = 0
-        total_height = 0
-        at_line_start = True
-
-        for idx, word in enumerate(self.words):
-            # Gap before this word: 0 at the start of each line, word_gaps[idx] otherwise.
-            gap = 0 if at_line_start else self.word_gaps[idx]
-
-            # Wrap to next line if (gap + word) would overflow the right margin.
-            if not at_line_start and x + gap + word.rect.width > self.right_limit:
-                x = self.left_limit
-                y += word.rect.height
-                total_height += word.rect.height
-                gap = 0
-
-            x += gap
-            word.rect.topleft = (x, y)
-            x += word.rect.width
-            at_line_start = False
-            max_width = max(max_width, x - self.left_limit)
-
-        return max_width, total_height + word.rect.height
+        return self._wrap_and_position(self.words, self.word_gaps, self.left_limit, y)
 
     def _estimate_total_height(self):
         if not self.words:

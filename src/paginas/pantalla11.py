@@ -22,6 +22,29 @@ buttons = [
     "puerta",
 ]
 
+# Maps each audience button ID to the text keys, TTS keys, banner attribute name,
+# and the trailing TTS sentence used after reading all three texts.
+_AUDIENCES = {
+    "audience-kids-btn": {
+        "text_keys": ["text_5_1", "text_5_2", "text_5_3"],
+        "speech_keys": ["text_5_1l", "text_5_2l", "text_5_3l"],
+        "banner": "banner_or_es",
+        "speech_suffix": "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
+    },
+    "audience-teachers-btn": {
+        "text_keys": ["text_6_1", "text_6_2", "text_6_3"],
+        "speech_keys": ["text_6_1l", "text_6_2l", "text_6_3l"],
+        "banner": "banner_or_doc",
+        "speech_suffix": "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
+    },
+    "audience-parents-btn": {
+        "text_keys": ["text_7_1", "text_7_2", "text_7_3"],
+        "speech_keys": ["text_7_1l", "text_7_2l", "text_7_3l"],
+        "banner": "banner_or_pa",
+        "speech_suffix": "Fin de contenido, regresa al menú. ",
+    },
+}
+
 
 class Screen(screen.Screen):
     """Screen presenting usage orientations and suggestions for students, teachers, and parents."""
@@ -56,6 +79,13 @@ class Screen(screen.Screen):
             self.puerta,
         )
 
+        self.button_actions = {
+            "puerta":                self._go_back,
+            "audience-kids-btn":     lambda: self._show_audience("audience-kids-btn"),
+            "audience-teachers-btn": lambda: self._show_audience("audience-teachers-btn"),
+            "audience-parents-btn":  lambda: self._show_audience("audience-parents-btn"),
+        }
+
     def load_texts(self):
         """Build text objects for the instruction label and all three audience sections."""
         self.speech_server.processtext(
@@ -63,85 +93,47 @@ class Screen(screen.Screen):
             "Pulsa sobre cada botón para que puedas explorar las orientaciones y sugerencias. ",
             self.parent.config.is_screen_reader_enabled(),
         )
-        self.texto11 = Text(
-            400,
-            200,
-            self.screen_text("text_1"),
-            self.parent.config.get_font_size(),
-            "instruccion",
-            800,
-        )
-        self.texto11_5_1 = Text(
-            300,
-            130,
-            self.screen_text("text_5_1"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_5_2 = Text(
-            300,
-            self.texto11_5_1.y + self.texto11_5_1.final_width + 10,
-            self.screen_text("text_5_2"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_5_3 = Text(
-            300,
-            self.texto11_5_2.y + self.texto11_5_2.final_width + 10,
-            self.screen_text("text_5_3"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_6_1 = Text(
-            300,
-            130,
-            self.screen_text("text_6_1"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_6_2 = Text(
-            300,
-            self.texto11_6_1.y + self.texto11_6_1.final_width + 10,
-            self.screen_text("text_6_2"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_6_3 = Text(
-            300,
-            self.texto11_6_2.y + self.texto11_6_2.final_width + 10,
-            self.screen_text("text_6_3"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_7_1 = Text(
-            300,
-            130,
-            self.screen_text("text_7_1"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_7_2 = Text(
-            300,
-            self.texto11_7_1.y + self.texto11_7_1.final_width + 10,
-            self.screen_text("text_7_2"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
-        )
-        self.texto11_7_3 = Text(
-            300,
-            self.texto11_7_2.y + self.texto11_7_2.final_width + 10,
-            self.screen_text("text_7_3"),
-            self.parent.config.get_font_size(),
-            1,
-            900,
+        font_size = self.parent.config.get_font_size()
+        self.texto11 = Text(400, 200, self.screen_text("text_1"), font_size, "instruccion", 800)
+
+        # Build three Text objects per audience group, chaining y positions.
+        # Results stored as self._audience_texts[btn_id] = [Text, Text, Text].
+        self._audience_texts = {}
+        for btn_id, cfg in _AUDIENCES.items():
+            texts = []
+            y = 130
+            for key in cfg["text_keys"]:
+                t = Text(300, y, self.screen_text(key), font_size, 1, 900)
+                texts.append(t)
+                y = t.y + t.final_width + 10
+            self._audience_texts[btn_id] = texts
+
+    def _go_back(self):
+        """Close this overlay and return to the previous screen."""
+        self.clear_groups()
+        self.parent.popState()
+
+    def _show_audience(self, button_id):
+        """
+        Display the texts and banner for one audience group.
+
+        Empties the current word and banner groups, adds the three Text objects
+        for *button_id*, resizes the content box, shows the matching banner, and
+        triggers the TTS read-out if the screen reader is active.
+
+        @param button_id: One of the keys in ``_AUDIENCES``.
+        @type button_id: str
+        """
+        cfg = _AUDIENCES[button_id]
+        texts = self._audience_texts[button_id]
+        self.word_group.empty()
+        self.banner_group.empty()
+        self.word_group.add(*(t.words for t in texts))
+        self.caja_or.resize(height=sum(t.final_width for t in texts) + 30)
+        self.banner_group.add(getattr(self, cfg["banner"]), self.caja_or, self.banner_inf)
+        self.speech_server.processtext(
+            "".join(self.screen_text(k) for k in cfg["speech_keys"]) + cfg["speech_suffix"],
+            self.parent.config.is_screen_reader_enabled(),
         )
 
     def handleEvents(self, events):
@@ -155,171 +147,24 @@ class Screen(screen.Screen):
             if event.type == pygame.QUIT:
                 self.parent.quit()
 
-            if event.type == pygame.KEYDOWN:
-
-                self.collect_buttons(self.button_group)
-                self.nav_list = self.button_list
-                self.element_count = len(self.nav_list)
-
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.clear_groups()
-                    self.parent.popState()
+                    self._go_back()
                 elif event.key == pygame.K_LEFT:
+                    self.keyboard_nav_active = True
                     self.nav_left()
-
                 elif event.key == pygame.K_RIGHT:
+                    self.keyboard_nav_active = True
                     self.nav_right()
-
-                elif event.key == pygame.K_RETURN:
-                    self.focus_index = -1
+                elif self.keyboard_nav_active and event.key == pygame.K_RETURN:
+                    self.keyboard_nav_active = False
                     if self.x.obj_type == "button":
-                        if self.x.id == "or-ninos":
-                            self.word_group.empty()
-                            self.banner_group.empty()
-                            self.word_group.add(
-                                self.texto11_5_1.words,
-                                self.texto11_5_2.words,
-                                self.texto11_5_3.words,
-                            )
-                            self.caja_or.resize(
-                                height=self.texto11_5_1.final_width
-                                + self.texto11_5_2.final_width
-                                + self.texto11_5_3.final_width
-                                + 30
-                            )
-                            self.banner_group.add(
-                                self.banner_or_es, self.caja_or, self.banner_inf
-                            )
-                            self.speech_server.processtext(
-                                self.screen_text("text_5_1l")
-                                + self.screen_text("text_5_2l")
-                                + self.screen_text("text_5_3l")
-                                + "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
-                                self.parent.config.is_screen_reader_enabled(),
-                            )
+                        self.button_actions.get(self.x.id, lambda: None)()
 
-                        elif self.x.id == "or-docentes":
-                            self.word_group.empty()
-                            self.banner_group.empty()
-                            self.word_group.add(
-                                self.texto11_6_1.words,
-                                self.texto11_6_2.words,
-                                self.texto11_6_3.words,
-                            )
-                            self.caja_or.resize(
-                                height=self.texto11_6_1.final_width
-                                + self.texto11_6_2.final_width
-                                + self.texto11_6_3.final_width
-                                + 30
-                            )
-                            self.banner_group.add(
-                                self.banner_or_doc, self.caja_or, self.banner_inf
-                            )
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.sprite.spritecollideany(self.mouse, self.button_group):
+                    sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
+                    self.button_actions.get(sprite[0].id, lambda: None)()
 
-                            self.speech_server.processtext(
-                                self.screen_text("text_6_1l")
-                                + self.screen_text("text_6_2l")
-                                + self.screen_text("text_6_3l")
-                                + "Ahora, utiliza las teclas de dirección y explora la siguiente orientación o sugerencia. ",
-                                self.parent.config.is_screen_reader_enabled(),
-                            )
-
-                        elif self.x.id == "or-padres":
-                            self.word_group.empty()
-                            self.banner_group.empty()
-                            self.word_group.add(
-                                self.texto11_7_1.words,
-                                self.texto11_7_2.words,
-                                self.texto11_7_3.words,
-                            )
-                            self.caja_or.resize(
-                                height=self.texto11_7_1.final_width
-                                + self.texto11_7_2.final_width
-                                + self.texto11_7_3.final_width
-                                + 30
-                            )
-                            self.banner_group.add(
-                                self.banner_or_pa, self.caja_or, self.banner_inf
-                            )
-
-                            self.speech_server.processtext(
-                                self.screen_text("text_7_1l")
-                                + self.screen_text("text_7_2l")
-                                + self.screen_text("text_7_3l")
-                                + "Fin de contenido, regresa al menú. ",
-                                self.parent.config.is_screen_reader_enabled(),
-                            )
-
-                        elif self.x.id == "puerta":
-                            self.clear_groups()
-                            self.parent.popState()
-
-            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
-                sprite = pygame.sprite.spritecollide(
-                    self.mouse, self.button_group, False
-                )
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if sprite[0].id == "puerta":
-                        self.clear_groups()
-                        self.parent.popState()
-
-                    elif sprite[0].id == "audience-kids-btn":
-                        self.word_group.empty()
-                        self.banner_group.empty()
-                        self.word_group.add(
-                            self.texto11_5_1.words,
-                            self.texto11_5_2.words,
-                            self.texto11_5_3.words,
-                        )
-                        self.caja_or.resize(
-                            height=self.texto11_5_1.final_width
-                            + self.texto11_5_2.final_width
-                            + self.texto11_5_3.final_width
-                            + 30
-                        )
-                        self.banner_group.add(
-                            self.banner_or_es, self.caja_or, self.banner_inf
-                        )
-
-                    elif sprite[0].id == "audience-teachers-btn":
-                        self.word_group.empty()
-                        self.banner_group.empty()
-                        self.word_group.add(
-                            self.texto11_6_1.words,
-                            self.texto11_6_2.words,
-                            self.texto11_6_3.words,
-                        )
-                        self.caja_or.resize(
-                            height=self.texto11_6_1.final_width
-                            + self.texto11_6_2.final_width
-                            + self.texto11_6_3.final_width
-                            + 30
-                        )
-                        self.banner_group.add(
-                            self.banner_or_doc, self.caja_or, self.banner_inf
-                        )
-
-                    elif sprite[0].id == "audience-parents-btn":
-                        self.word_group.empty()
-                        self.banner_group.empty()
-                        self.word_group.add(
-                            self.texto11_7_1.words,
-                            self.texto11_7_2.words,
-                            self.texto11_7_3.words,
-                        )
-                        self.caja_or.resize(
-                            height=self.texto11_7_1.final_width
-                            + self.texto11_7_2.final_width
-                            + self.texto11_7_3.final_width
-                            + 30
-                        )
-                        self.banner_group.add(
-                            self.banner_or_pa, self.caja_or, self.banner_inf
-                        )
+        self._rebuild_nav()
         self.handle_magnifier(events)
-
-    def update(self):
-        """Update cursor position, magnifier, and button tooltips."""
-        self.mouse.update()
-        self.magnifier.magnificar(self.parent.screen)
-        self.button_group.update(self.tooltip_group)

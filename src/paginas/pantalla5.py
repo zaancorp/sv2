@@ -6,8 +6,6 @@ import pygame
 from components import screen
 from components.image import Image
 
-from paginas import menucfg
-from paginas import pantalla2
 from paginas import pantalla6
 from paginas import pantalla10
 
@@ -77,10 +75,10 @@ class Screen(screen.Screen):
         }
 
         self.button_actions = {
-            self.home: self.go_home,
-            self.config: self.go_config,
-            self.back: self.go_back,
-            self.next: self.go_next,
+            "home":   self.go_home,
+            "config": self.go_config,
+            "back":   self.go_back,
+            "next":   self.go_next,
         }
 
     def load_texts(self):
@@ -118,44 +116,6 @@ class Screen(screen.Screen):
         self.reproducir_animacion(self.current_anim)
         self.first_entry = True
 
-    def handle_quit(self, event):
-        if event.type == pygame.QUIT:
-            self.parent.quit()
-
-    def handle_keydown(self, event):
-        if event.key == pygame.K_ESCAPE:
-            self.parent.quit()
-        elif event.key in (pygame.K_LEFT, pygame.K_UP):
-            self.focus_index = (self.focus_index - 1) % self.element_count
-        elif event.key in (pygame.K_RIGHT, pygame.K_DOWN):
-            self.focus_index = (self.focus_index + 1) % self.element_count
-        elif event.key == pygame.K_RETURN:
-            self.handle_selection()
-
-    def handle_mousebuttondown(self, event):
-        if event.button == 1:
-            for sprite in self.word_group:
-                if sprite.rect.collidepoint(event.pos):
-                    self.go_to_glossary()
-                    return
-            for sprite in self.button_group:
-                if sprite.rect.collidepoint(event.pos):
-                    self.button_actions.get(sprite, lambda: None)()
-                    return
-
-    def handle_selection(self):
-        if self.focus_index < len(self.word_list):
-            self.go_to_glossary()
-        else:
-            button = self.button_list[self.focus_index - len(self.word_list)]
-            self.button_actions.get(button, lambda: None)()
-
-    def go_home(self):
-        self.parent.changeState(pantalla2.Screen(self.parent))
-
-    def go_config(self):
-        self.parent.pushState(menucfg.Screen(self.parent))
-
     def go_back(self):
         self.current_anim -= 1
         self.reproducir_animacion(self.current_anim)
@@ -165,18 +125,45 @@ class Screen(screen.Screen):
         self.reproducir_animacion(self.current_anim)
 
     def handleEvents(self, events):
+        """
+        Process input events for this screen.
+
+        @param events: Event list from the main loop.
+        @type events: list
+        """
         for event in events:
-            self.handle_quit(event)
+            if event.type == pygame.QUIT:
+                self.parent.quit()
 
-            if event.type == pygame.KEYDOWN:
-                self.handle_keydown(event)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.handle_mousebuttondown(event)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.keyboard_nav_active = True
+                    self.nav_right()
+                elif event.key == pygame.K_LEFT:
+                    self.keyboard_nav_active = True
+                    self.nav_left()
+                elif self.keyboard_nav_active and event.key == pygame.K_RETURN:
+                    self.keyboard_nav_active = False
+                    if self.x.obj_type == "button":
+                        self.button_actions.get(self.x.id, lambda: None)()
+                    elif self.x.obj_type == "word":
+                        self.speech_server.processtext(
+                            self.parent.text_loader.concept(self.x.codigo),
+                            self.parent.config.is_screen_reader_enabled(),
+                        )
 
-        self.collect_buttons(self.button_group)
-        self.collect_words(self.txt_actual)
-        self.nav_list = self.word_list + self.button_list
-        self.element_count = len(self.nav_list)
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.sprite.spritecollideany(self.mouse, self.word_group):
+                    sprite = pygame.sprite.spritecollide(self.mouse, self.word_group, False)
+                    if sprite[0].interpretable:
+                        self.parent.show_concept(sprite[0].codigo)
+                elif pygame.sprite.spritecollideany(self.mouse, self.button_group):
+                    sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
+                    self.speech_server.stopserver()
+                    self.button_actions.get(sprite[0].id, lambda: None)()
+
+        self._rebuild_nav()
+        self.handle_magnifier(events)
 
     def update(self):
         """Update cursor position, magnifier, button tooltips, and trigger the first text display after the initial delay."""
@@ -191,27 +178,6 @@ class Screen(screen.Screen):
                 self.collect_words(self.txt_actual)
                 self.animation_5.continuar()
         self.elapsed_ms += self.frame_clock.get_time()
-
-    def setup_animation(self, animation_obj, text_obj, text_key):
-        self.focus_index = -1
-        self.word_list = []
-        self.anim_group.empty()
-        self.anim_group.add(animation_obj)
-        self.text_bg_group.empty()
-        self.word_group.empty()
-        
-        if text_obj:
-            self.text_bg_group.add(self.caja_texto)
-            self.word_group.add(text_obj.words)
-            self.txt_actual = text_obj.words
-            self.collect_words(self.txt_actual)
-        
-        animation_obj.continuar()
-        
-        self.speech_server.processtext(
-            self.screen_text(text_key),
-            self.parent.config.is_screen_reader_enabled(),
-        )
 
     def reproducir_animacion(self, animation_index):
         if 1 <= animation_index <= 9:

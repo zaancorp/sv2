@@ -29,7 +29,7 @@ class Screen(object):
     magnifier = Magnifier()
 
     # Immutable path constants.
-    pops = "./imagenes/png/popups/"
+    popups_path = "./imagenes/png/popups/"
     animations_path = "./imagenes/png/animations/"
     backgrounds_path = "./imagenes/png/backgrounds/"
     banners_path = "./imagenes/png/banners/"
@@ -364,6 +364,52 @@ class Screen(object):
         self.mask_list = []
         [self.mask_list.append(mask) for mask in grupomask]
 
+    def setup_animation(self, animation_obj, text_obj, text_key):
+        """
+        Swap the active animation and (optionally) the text panel, then announce via TTS.
+
+        Empties the anim, text-background, and word groups; adds *animation_obj*;
+        if *text_obj* is given, also shows the text-box panel and its words; then
+        calls ``continuar()`` on the animation and sends *text_key* to the speech server.
+
+        After this call, callers that need a background animation or per-step button
+        changes should apply those modifications directly to the sprite groups.
+
+        @param animation_obj: Animation sprite to make active.
+        @type animation_obj: Animation
+        @param text_obj: Text layout object whose words are shown, or None for animation-only steps.
+        @type text_obj: Text | None
+        @param text_key: Key passed to ``screen_text()`` for the TTS announcement.
+        @type text_key: str
+        """
+        self.focus_index = -1
+        self.word_list = []
+        self.anim_group.empty()
+        self.anim_group.add(animation_obj)
+        self.text_bg_group.empty()
+        self.word_group.empty()
+        if text_obj:
+            self.text_bg_group.add(self.caja_texto)
+            self.word_group.add(text_obj.words)
+            self.txt_actual = text_obj.words
+            self.collect_words(self.txt_actual)
+        animation_obj.continuar()
+        self.speech_server.processtext(
+            self.screen_text(text_key),
+            self.parent.config.is_screen_reader_enabled(),
+        )
+
+    def _rebuild_nav(self):
+        """
+        Rebuild the keyboard-navigation list from the current button and word groups.
+
+        Call once per frame at the end of ``handleEvents`` instead of repeating the
+        three-line sequence inside every ``KEYDOWN`` branch.
+        """
+        self.collect_buttons(self.button_group)
+        self.nav_list = self.word_list + self.button_list
+        self.element_count = len(self.nav_list)
+
     def _announce_current(self):
         """
         Announce the current keyboard-navigation element via TTS.
@@ -396,6 +442,18 @@ class Screen(object):
             self.x = self.nav_list[self.focus_index]
             self._announce_current()
 
+    def go_home(self):
+        """Clear all sprite groups and navigate to the main resource menu."""
+        from paginas import pantalla2  # local import — avoids circular dependency
+        self.clear_groups()
+        self.parent.changeState(pantalla2.Screen(self.parent))
+
+    def go_config(self):
+        """Clear all sprite groups and push the accessibility config menu over this screen."""
+        from paginas import menucfg  # local import — avoids circular dependency
+        self.clear_groups()
+        self.parent.pushState(menucfg.Screen(self.parent, self.is_overlay))
+
     def start(self):
         """Load screen assets and add sprites to groups."""
         pass
@@ -411,3 +469,9 @@ class Screen(object):
     def resume(self):
         """Resume screen activity when the screen on top is popped."""
         pass
+
+    def update(self):
+        """Update cursor position, magnifier, and button tooltips."""
+        self.mouse.update()
+        self.magnifier.magnificar(self.parent.screen)
+        self.button_group.update(self.tooltip_group)

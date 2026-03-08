@@ -86,3 +86,25 @@ All instances share the same group objects. If the activity screen is ever pushe
 ### SV2-028 — `Speechserver` is entirely stubbed — TTS is non-functional
 
 Every method in `Speechserver` (`processtext`, `processtext2`, `stopserver`, `repetir`, `quitserver`) has a body of `pass`. No text is ever synthesised or spoken. The screen-reader feature advertised as a first-class accessibility capability (see point 6 in "What works well") is silently inert. This is not a crash risk but it means the accessibility promise is currently unmet.
+
+### SV2-049 — Dead methods and dead button checks across content screens
+
+**`go_to_glossary()` is defined but never called** in six screens: `pantalla3`, `pantalla4`, `pantalla5`, `pantalla6`, `pantalla8`, `pantalla9`. Each defines:
+
+```python
+def go_to_glossary(self):
+    self.parent.pushState(pantalla10.Screen(self.parent))
+```
+
+No code path calls this method. If glossary access from content screens is not planned, the methods and their `from paginas import pantalla10` imports should be removed. If it is planned, the buttons and event-handler wiring need to be added.
+
+**`"repe"` button ID is checked but the button does not exist** in three screens: `pantalla3` (line 139), `pantalla4` (line 173), `pantalla8` (line 158). Each has:
+
+```python
+if sprite[0].id == "repe":
+    self.clear_groups()
+    self.resume()
+```
+
+The string `"repe"` does not appear in any of these screens' `buttons` list, and is not in `assets_data.py`, so this branch is permanently unreachable. It is dead code left over from an earlier design and should be removed.
+

@@ -10,8 +10,6 @@ from components.background import Background
 from components.pixelperfect import *
 from components.objmask import object_mask
 
-from paginas import menucfg
-from paginas import pantalla2
 from paginas import pantalla8
 from paginas import pantalla10
 
@@ -24,6 +22,29 @@ buttons = [
     "home",
     "back",
     "config",
+]
+
+# Absolute position of the zulia region; every other region is offset from it.
+_ZULIA_X, _ZULIA_Y = 13, 140
+
+# One entry per agricultural region, in the order they are layered in map_group:
+#   (region_id, attr_name, dx_from_zulia, dy_from_zulia, img_base, text_prefix, num_paragraphs)
+#
+# • region_id  — string label used by object_mask and as the dispatch key
+# • attr_name  — set on self so resume() and old call-sites still work (self.zulia, etc.)
+# • img_base   — stem of the -des.png / -act.png image pair
+# • text_prefix — first part of content.json keys: "text_N_1", "text_N_2", …
+# • num_paragraphs — how many text_N_K paragraph entries exist for this region
+_REGION_SPECS = [
+    ("región zuliana",      "zulia",    0,    0,  "zulia",    "text_6",   3),
+    ("región occidental",   "occ",     55,   -6,  "occ",      "text_5",   3),
+    ("región central",      "central", 115,  37,  "central",  "text_3",   3),
+    ("región insular",      "insu",    149,  -6,  "insular",  "text_10",  4),
+    ("región capital",      "capital", 152,  32,  "capital",  "text_2",   4),
+    ("región nor oriental", "ori",     195,  29,  "ori",      "text_8",   3),
+    ("región los andes",    "andes",    23,  48,  "andes",    "text_7",   3),
+    ("región los llanos",   "llanos",   26,  47,  "llanos",   "text_4",   3),
+    ("región guayana",      "guayana", 140,  48,  "guayana",  "text_9",   3),
 ]
 
 
@@ -44,70 +65,23 @@ class Screen(screen.Screen):
         self.fondo_texto = False
 
         self.mouse = object_mask("Cursor", 850, 512, self.misc_path + "puntero.png")
-        # Para mantener las piezas del mapa bien ubicadas no se deben modificar los valores x e y de las regiones, solo de zulia.
-        self.zulia = object_mask(
-            "región zuliana",
-            13,
-            140,
-            self.misc_path + "zulia-des.png",
-            self.misc_path + "zulia-act.png",
-        )
-        self.occ = object_mask(
-            "región occidental",
-            self.zulia.rect.left + 55,
-            self.zulia.rect.top - 6,
-            self.misc_path + "occ-des.png",
-            self.misc_path + "occ-act.png",
-        )
-        self.central = object_mask(
-            "región central",
-            self.zulia.rect.left + 115,
-            self.zulia.rect.top + 37,
-            self.misc_path + "central-des.png",
-            self.misc_path + "central-act.png",
-        )
-        self.capital = object_mask(
-            "región capital",
-            self.zulia.rect.left + 152,
-            self.zulia.rect.top + 32,
-            self.misc_path + "capital-des.png",
-            self.misc_path + "capital-act.png",
-        )
-        self.ori = object_mask(
-            "región nor oriental",
-            self.zulia.rect.left + 195,
-            self.zulia.rect.top + 29,
-            self.misc_path + "ori-des.png",
-            self.misc_path + "ori-act.png",
-        )
-        self.andes = object_mask(
-            "región los andes",
-            self.zulia.rect.left + 23,
-            self.zulia.rect.top + 48,
-            self.misc_path + "andes-des.png",
-            self.misc_path + "andes-act.png",
-        )
-        self.llanos = object_mask(
-            "región los llanos",
-            self.zulia.rect.left + 26,
-            self.zulia.rect.top + 47,
-            self.misc_path + "llanos-des.png",
-            self.misc_path + "llanos-act.png",
-        )
-        self.guayana = object_mask(
-            "región guayana",
-            self.zulia.rect.left + 140,
-            self.zulia.rect.top + 48,
-            self.misc_path + "guayana-des.png",
-            self.misc_path + "guayana-act.png",
-        )
-        self.insu = object_mask(
-            "región insular",
-            self.zulia.rect.left + 149,
-            self.zulia.rect.top - 6,
-            self.misc_path + "insular-des.png",
-            self.misc_path + "insular-act.png",
-        )
+
+        # Build all nine region masks from _REGION_SPECS.
+        self.regions = {}         # region_id -> object_mask
+        self.region_list = []     # ordered list used for map_group.add (preserves z-order)
+        self._text_prefix = {}    # region_id -> text_prefix (for TTS key lookup)
+        for region_id, attr, dx, dy, img_base, text_prefix, _count in _REGION_SPECS:
+            mask = object_mask(
+                region_id,
+                _ZULIA_X + dx,
+                _ZULIA_Y + dy,
+                self.misc_path + f"{img_base}-des.png",
+                self.misc_path + f"{img_base}-act.png",
+            )
+            self.regions[region_id] = mask
+            setattr(self, attr, mask)   # e.g. self.zulia, self.capital, …
+            self.region_list.append(mask)
+            self._text_prefix[region_id] = text_prefix
 
         self.limites1 = pygame.image.load(self.misc_path + "limitemar.png").convert_alpha()
         self.limites2 = pygame.image.load(
@@ -121,249 +95,25 @@ class Screen(screen.Screen):
         self.load_banners(banners)
         self.load_buttons(buttons)
         self.load_texts()
-        self.bg = background(573, 377)
+        self.bg = Background(573, 377)
+
+        self.button_actions = {
+            "home":   self.go_home,
+            "config": self.go_config,
+            "back":   self.go_back,
+        }
 
     def load_texts(self):
         """Load and build the text objects for all map regions and the introductory popup."""
-        self.texto9_2_1 = Text(
-            490,
-            60,
-            self.screen_text("text_2_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_2_2 = Text(
-            490,
-            self.texto9_2_1.y + self.texto9_2_1.total_width + 10,
-            self.screen_text("text_2_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_2_3 = Text(
-            490,
-            self.texto9_2_2.y + self.texto9_2_2.total_width + 10,
-            self.screen_text("text_2_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_2_4 = Text(
-            490,
-            self.texto9_2_3.y + self.texto9_2_3.total_width + 10,
-            self.screen_text("text_2_4"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-
-        self.texto9_3_1 = Text(
-            490,
-            60,
-            self.screen_text("text_3_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_3_2 = Text(
-            490,
-            self.texto9_3_1.y + self.texto9_3_1.total_width + 10,
-            self.screen_text("text_3_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_3_3 = Text(
-            490,
-            self.texto9_3_2.y + self.texto9_3_2.total_width + 10,
-            self.screen_text("text_3_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-
-        self.texto9_4_1 = Text(
-            490,
-            60,
-            self.screen_text("text_4_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_4_2 = Text(
-            490,
-            self.texto9_4_1.y + self.texto9_4_1.total_width + 10,
-            self.screen_text("text_4_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_4_3 = Text(
-            490,
-            self.texto9_4_2.y + self.texto9_4_2.total_width + 10,
-            self.screen_text("text_4_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-
-        self.texto9_5_1 = Text(
-            490,
-            60,
-            self.screen_text("text_5_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_5_2 = Text(
-            490,
-            self.texto9_5_1.y + self.texto9_5_1.total_width + 10,
-            self.screen_text("text_5_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_5_3 = Text(
-            490,
-            self.texto9_5_2.y + self.texto9_5_2.total_width + 10,
-            self.screen_text("text_5_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_6_1 = Text(
-            490,
-            60,
-            self.screen_text("text_6_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_6_2 = Text(
-            490,
-            self.texto9_6_1.y + self.texto9_6_1.total_width + 10,
-            self.screen_text("text_6_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_6_3 = Text(
-            490,
-            self.texto9_6_2.y + self.texto9_6_2.total_width + 10,
-            self.screen_text("text_6_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-
-        self.texto9_7_1 = Text(
-            490,
-            60,
-            self.screen_text("text_7_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_7_2 = Text(
-            490,
-            self.texto9_7_1.y + self.texto9_7_1.total_width + 10,
-            self.screen_text("text_7_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_7_3 = Text(
-            490,
-            self.texto9_7_2.y + self.texto9_7_2.total_width + 10,
-            self.screen_text("text_7_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-
-        self.texto9_8_1 = Text(
-            490,
-            60,
-            self.screen_text("text_8_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_8_2 = Text(
-            490,
-            self.texto9_8_1.y + self.texto9_8_1.total_width + 10,
-            self.screen_text("text_8_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_8_3 = Text(
-            490,
-            self.texto9_8_2.y + self.texto9_8_2.total_width + 10,
-            self.screen_text("text_8_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-
-        self.texto9_9_1 = Text(
-            490,
-            60,
-            self.screen_text("text_9_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_9_2 = Text(
-            490,
-            self.texto9_9_1.y + self.texto9_9_1.total_width + 10,
-            self.screen_text("text_9_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_9_3 = Text(
-            490,
-            self.texto9_9_2.y + self.texto9_9_2.total_width + 10,
-            self.screen_text("text_9_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-
-        self.texto9_10_1 = Text(
-            490,
-            60,
-            self.screen_text("text_10_1"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_10_2 = Text(
-            490,
-            self.texto9_10_1.y + self.texto9_10_1.total_width + 10,
-            self.screen_text("text_10_2"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_10_3 = Text(
-            490,
-            self.texto9_10_2.y + self.texto9_10_2.total_width + 10,
-            self.screen_text("text_10_3"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
-        self.texto9_10_4 = Text(
-            490,
-            self.texto9_10_3.y + self.texto9_10_3.total_width + 10,
-            self.screen_text("text_10_4"),
-            self.parent.config.get_font_size(),
-            1,
-            1000,
-        )
+        font_size = self.parent.config.get_font_size()
+        self.region_texts = {}  # region_id -> [Text, Text, …]
+        for region_id, _attr, _dx, _dy, _img_base, text_prefix, count in _REGION_SPECS:
+            texts = []
+            for i in range(1, count + 1):
+                key = f"{text_prefix}_{i}"
+                y = 60 if i == 1 else texts[-1].y + texts[-1].total_width + 10
+                texts.append(Text(490, y, self.screen_text(key), font_size, 1, 1000))
+            self.region_texts[region_id] = texts
 
         self.popup_ins1 = PopUp(
             self.parent,
@@ -388,34 +138,50 @@ class Screen(screen.Screen):
             self.load_texts()
             self.parent.config.set_text_change_enabled(False)
         self.popup_ins1.add_to_group()
-        self.capital.apagar()
-        self.ori.apagar()
-        self.zulia.apagar()
-        self.occ.apagar()
-        self.andes.apagar()
-        self.llanos.apagar()
-        self.central.apagar()
-        self.guayana.apagar()
+        for mask in self.regions.values():
+            mask.apagar()
         self.banner_group.add(self.banner_siembra, self.banner_inf)
         self.button_group.add(self.config, self.back, self.home)
-        self.map_group.add(
-            self.zulia,
-            self.occ,
-            self.central,
-            self.insu,
-            self.capital,
-            self.ori,
-            self.andes,
-            self.llanos,
-            self.guayana,
-        )
-        self.speech_server.processtext(
-            "Pantalla: La Agricultura en Venezuela: ", self.parent.config.is_screen_reader_enabled()
-        )
+        self.map_group.add(*self.region_list)
         self.speech_server.processtext(
             self.parent.text_loader.popup("screen_9", "reader_1"),
             self.parent.config.is_screen_reader_enabled(),
         )
+
+    def _show_region(self, region_id):
+        """Highlight the given region and display its text paragraphs.
+
+        Turns off every other region mask, turns on this one, and populates
+        ``word_group`` with the region's text sprites. Does not send TTS —
+        callers that need TTS should call ``_announce_region`` separately.
+
+        @param region_id: ID string of the region to display.
+        @type region_id: str
+        """
+        for rid, mask in self.regions.items():
+            if rid != region_id:
+                mask.apagar()
+        self.regions[region_id].iluminar()
+        texts = self.region_texts[region_id]
+        self.word_group.empty()
+        for t in texts:
+            self.word_group.add(t.words)
+
+    def _announce_region(self, region_id):
+        """Send TTS for the given region's text paragraphs.
+
+        @param region_id: ID string of the region to announce.
+        @type region_id: str
+        """
+        texts = self.region_texts[region_id]
+        prefix = self._text_prefix[region_id]
+        tts = self.screen_text(f"{prefix}_1l") + "".join(t.texto for t in texts[1:])
+        self.speech_server.processtext(tts, self.parent.config.is_screen_reader_enabled())
+
+    def go_back(self):
+        self.clear_groups()
+        self.parent.animation_index = 3
+        self.parent.changeState(pantalla8.Screen(self.parent, 3))
 
     def handleEvents(self, events):
         """
@@ -428,455 +194,51 @@ class Screen(screen.Screen):
             if event.type == pygame.QUIT:
                 self.parent.quit()
 
-            if event.type == pygame.KEYDOWN:
-                self.collect_masks(self.map_group)
-                self.collect_buttons(self.button_group)
-                self.nav_list = (
-                    self.word_list + self.mask_list + self.button_list
-                )
-                self.element_count = len(self.nav_list)
-
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     self.fondo_texto = False
                     self.word_group.empty()
                     self.keyboard_nav_active = True
                     self.nav_right()
-
                 elif event.key == pygame.K_LEFT:
                     self.fondo_texto = False
                     self.word_group.empty()
                     self.nav_left()
+                elif self.keyboard_nav_active and event.key == pygame.K_RETURN:
+                    if self.x.obj_type == "map":
+                        self.fondo_texto = True
+                        self._show_region(self.x.id)
+                        self._announce_region(self.x.id)
+                    elif self.x.obj_type == "button":
+                        self.keyboard_nav_active = False
+                        self.button_actions.get(self.x.id, lambda: None)()
 
-                if self.keyboard_nav_active:
-                    if event.key == pygame.K_RETURN:
-                        if self.x.obj_type == "map":
-                            self.fondo_texto = True
-
-                            if self.x.id == "región capital":
-                                self.word_group.empty()
-                                self.central.apagar()
-                                self.llanos.apagar()
-                                self.zulia.apagar()
-                                self.ori.apagar()
-                                self.occ.apagar()
-                                self.andes.apagar()
-                                self.llanos.apagar()
-                                self.capital.iluminar()
-                                self.insu.apagar()
-                                self.word_group.add(
-                                    self.texto9_2_1.words,
-                                    self.texto9_2_2.words,
-                                    self.texto9_2_3.words,
-                                    self.texto9_2_4.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_2_1l")
-                                    + self.texto9_2_2.texto
-                                    + self.texto9_2_3.texto
-                                    + self.texto9_2_4.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            elif self.x.id == "región central":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.llanos.apagar()
-                                self.zulia.apagar()
-                                self.ori.apagar()
-                                self.occ.apagar()
-                                self.andes.apagar()
-                                self.llanos.apagar()
-                                self.central.iluminar()
-                                self.insu.apagar()
-                                self.word_group.add(
-                                    self.texto9_3_1.words,
-                                    self.texto9_3_2.words,
-                                    self.texto9_3_3.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_3_1l")
-                                    + self.texto9_3_2.texto
-                                    + self.texto9_3_3.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            if self.x.id == "región los llanos":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.central.apagar()
-                                self.ori.apagar()
-                                self.zulia.apagar()
-                                self.occ.apagar()
-                                self.andes.apagar()
-                                self.llanos.iluminar()
-                                self.insu.apagar()
-                                self.word_group.add(
-                                    self.texto9_4_1.words,
-                                    self.texto9_4_2.words,
-                                    self.texto9_4_3.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_4_1l")
-                                    + self.texto9_4_2.texto
-                                    + self.texto9_4_3.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            if self.x.id == "región occidental":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.llanos.apagar()
-                                self.central.apagar()
-                                self.ori.apagar()
-                                self.zulia.apagar()
-                                self.andes.apagar()
-                                self.occ.iluminar()
-                                self.llanos.apagar()
-                                self.guayana.apagar()
-                                self.insu.apagar()
-                                self.word_group.add(
-                                    self.texto9_5_1.words,
-                                    self.texto9_5_2.words,
-                                    self.texto9_5_3.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_5_1l")
-                                    + self.texto9_5_2.texto
-                                    + self.texto9_5_3.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            if self.x.id == "región zuliana":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.llanos.apagar()
-                                self.central.apagar()
-                                self.ori.apagar()
-                                self.zulia.iluminar()
-                                self.occ.apagar()
-                                self.andes.apagar()
-                                self.llanos.apagar()
-                                self.guayana.apagar()
-                                self.insu.apagar()
-                                self.word_group.add(
-                                    self.texto9_6_1.words,
-                                    self.texto9_6_2.words,
-                                    self.texto9_6_3.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_6_1l")
-                                    + self.texto9_6_2.texto
-                                    + self.texto9_6_3.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            if self.x.id == "región los andes":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.llanos.apagar()
-                                self.central.apagar()
-                                self.zulia.apagar()
-                                self.ori.apagar()
-                                self.occ.apagar()
-                                self.andes.iluminar()
-                                self.llanos.apagar()
-                                self.guayana.apagar()
-                                self.insu.apagar()
-                                self.word_group.add(
-                                    self.texto9_7_1.words,
-                                    self.texto9_7_2.words,
-                                    self.texto9_7_3.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_7_1l")
-                                    + self.texto9_7_2.texto
-                                    + self.texto9_7_3.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            if self.x.id == "región nor oriental":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.llanos.apagar()
-                                self.central.apagar()
-                                self.ori.iluminar()
-                                self.zulia.apagar()
-                                self.occ.apagar()
-                                self.andes.apagar()
-                                self.guayana.apagar()
-                                self.insu.apagar()
-                                self.word_group.add(
-                                    self.texto9_8_1.words,
-                                    self.texto9_8_2.words,
-                                    self.texto9_8_3.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_8_1l")
-                                    + self.texto9_8_2.texto
-                                    + self.texto9_8_3.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            if self.x.id == "región guayana":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.llanos.apagar()
-                                self.central.apagar()
-                                self.ori.apagar()
-                                self.occ.apagar()
-                                self.zulia.apagar()
-                                self.andes.apagar()
-                                self.llanos.apagar()
-                                self.insu.apagar()
-                                self.guayana.iluminar()
-                                self.word_group.add(
-                                    self.texto9_9_1.words,
-                                    self.texto9_9_2.words,
-                                    self.texto9_9_3.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_9_1l")
-                                    + self.texto9_9_2.texto
-                                    + self.texto9_9_3.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                            if self.x.id == "región insular":
-                                self.word_group.empty()
-                                self.capital.apagar()
-                                self.llanos.apagar()
-                                self.central.apagar()
-                                self.ori.apagar()
-                                self.occ.apagar()
-                                self.zulia.apagar()
-                                self.andes.apagar()
-                                self.llanos.apagar()
-                                self.guayana.apagar()
-                                self.insu.iluminar()
-                                self.word_group.add(
-                                    self.texto9_10_1.words,
-                                    self.texto9_10_2.words,
-                                    self.texto9_10_3.words,
-                                    self.texto9_10_4.words,
-                                )
-                                self.speech_server.processtext(
-                                    self.screen_text("text_10_1l")
-                                    + self.texto9_10_2.texto
-                                    + self.texto9_10_3.texto
-                                    + self.texto9_10_4.texto,
-                                    self.parent.config.is_screen_reader_enabled(),
-                                )
-
-                        elif self.x.obj_type == "button":
-                            if self.x.id == "back":
-                                self.clear_groups()
-                                self.parent.animation_index = 3
-                                self.parent.changeState(
-                                    pantalla8.Screen(self.parent, 3)
-                                )
-
-                            elif self.x.id == "config":
-                                self.clear_groups()
-                                self.parent.pushState(
-                                    menucfg.Screen(self.parent, self.is_overlay)
-                                )
-
-                            elif self.x.id == "home":
-                                self.clear_groups()
-                                self.parent.changeState(pantalla2.Screen(self.parent))
-
-            lista = spritecollide_pp(self.mouse, self.map_group)
-            if not lista == []:
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                lista = spritecollide_pp(self.mouse, self.map_group)
+                if lista:
                     self.keyboard_nav_active = False
                     self.fondo_texto = True
-                    if lista[0].id == "región capital":
-                        self.central.apagar()
-                        self.llanos.apagar()
-                        self.ori.apagar()
-                        self.occ.apagar()
-                        self.zulia.apagar()
-                        self.andes.apagar()
-                        self.llanos.apagar()
-                        self.capital.iluminar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_2_1.words,
-                            self.texto9_2_2.words,
-                            self.texto9_2_3.words,
-                            self.texto9_2_4.words,
-                        )
+                    self._show_region(lista[0].id)
+                    self._announce_region(lista[0].id)
+                elif pygame.sprite.spritecollideany(self.mouse, self.button_group):
+                    sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
+                    self.button_actions.get(sprite[0].id, lambda: None)()
 
-                    if lista[0].id == "región central":
-                        self.capital.apagar()
-                        self.llanos.apagar()
-                        self.ori.apagar()
-                        self.occ.apagar()
-                        self.zulia.apagar()
-                        self.andes.apagar()
-                        self.llanos.apagar()
-                        self.central.iluminar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_3_1.words,
-                            self.texto9_3_2.words,
-                            self.texto9_3_3.words,
-                        )
-
-                    if lista[0].id == "región los llanos":
-                        self.capital.apagar()
-                        self.central.apagar()
-                        self.llanos.iluminar()
-                        self.zulia.apagar()
-                        self.ori.apagar()
-                        self.occ.apagar()
-                        self.andes.apagar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_4_1.words,
-                            self.texto9_4_2.words,
-                            self.texto9_4_3.words,
-                        )
-
-                    if lista[0].id == "región occidental":
-                        self.capital.apagar()
-                        self.llanos.apagar()
-                        self.ori.apagar()
-                        self.central.apagar()
-                        self.zulia.apagar()
-                        self.occ.iluminar()
-                        self.llanos.apagar()
-                        self.guayana.apagar()
-                        self.andes.apagar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_5_1.words,
-                            self.texto9_5_2.words,
-                            self.texto9_5_3.words,
-                        )
-
-                    if lista[0].id == "región zuliana":
-                        self.capital.apagar()
-                        self.llanos.apagar()
-                        self.central.apagar()
-                        self.ori.apagar()
-                        self.zulia.iluminar()
-                        self.occ.apagar()
-                        self.andes.apagar()
-                        self.llanos.apagar()
-                        self.guayana.apagar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_6_1.words,
-                            self.texto9_6_2.words,
-                            self.texto9_6_3.words,
-                        )
-
-                    if lista[0].id == "región los andes":
-                        self.capital.apagar()
-                        self.llanos.apagar()
-                        self.central.apagar()
-                        self.guayana.apagar()
-                        self.zulia.apagar()
-                        self.ori.apagar()
-                        self.occ.apagar()
-                        self.andes.iluminar()
-                        self.llanos.apagar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_7_1.words,
-                            self.texto9_7_2.words,
-                            self.texto9_7_3.words,
-                        )
-
-                    if lista[0].id == "región nor oriental":
-                        self.capital.apagar()
-                        self.central.apagar()
-                        self.ori.iluminar()
-                        self.llanos.apagar()
-                        self.guayana.apagar()
-                        self.zulia.apagar()
-                        self.occ.apagar()
-                        self.andes.apagar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_8_1.words,
-                            self.texto9_8_2.words,
-                            self.texto9_8_3.words,
-                        )
-
-                    if lista[0].id == "región guayana":
-                        self.capital.apagar()
-                        self.llanos.apagar()
-                        self.central.apagar()
-                        self.ori.apagar()
-                        self.zulia.apagar()
-                        self.occ.apagar()
-                        self.andes.apagar()
-                        self.guayana.iluminar()
-                        self.insu.apagar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_9_1.words,
-                            self.texto9_9_2.words,
-                            self.texto9_9_3.words,
-                        )
-
-                    if lista[0].id == "región insular":
-                        self.capital.apagar()
-                        self.llanos.apagar()
-                        self.central.apagar()
-                        self.ori.apagar()
-                        self.zulia.apagar()
-                        self.occ.apagar()
-                        self.andes.apagar()
-                        self.guayana.apagar()
-                        self.insu.iluminar()
-                        self.word_group.empty()
-                        self.word_group.add(
-                            self.texto9_10_1.words,
-                            self.texto9_10_2.words,
-                            self.texto9_10_3.words,
-                            self.texto9_10_4.words,
-                        )
-
-            elif not self.keyboard_nav_active:
+        # When mouse is not hovering any region and keyboard nav is inactive,
+        # clear the text panel (mirrors the original per-event clear).
+        if not self.keyboard_nav_active:
+            lista = spritecollide_pp(self.mouse, self.map_group)
+            if not lista:
                 self.fondo_texto = False
-                self.capital.apagar()
-                self.central.apagar()
-                self.guayana.apagar()
-                self.andes.apagar()
-                self.zulia.apagar()
-                self.occ.apagar()
-                self.ori.apagar()
-                self.llanos.apagar()
+                for mask in self.regions.values():
+                    mask.apagar()
                 self.word_group.empty()
                 self.text_bg_group.empty()
 
-            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
-                sprite = pygame.sprite.spritecollide(
-                    self.mouse, self.button_group, False
-                )
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if sprite[0].id == "back":
-                        self.clear_groups()
-                        self.parent.animation_index = 3
-                        self.parent.changeState(pantalla8.Screen(self.parent, 3))
-
-                    elif sprite[0].id == "config":
-                        self.clear_groups()
-                        self.parent.pushState(menucfg.Screen(self.parent, self.is_overlay))
-
-                    elif sprite[0].id == "home":
-                        self.clear_groups()
-                        self.parent.changeState(pantalla2.Screen(self.parent))
+        self.collect_masks(self.map_group)
+        self.collect_buttons(self.button_group)
+        self.nav_list = self.word_list + self.mask_list + self.button_list
+        self.element_count = len(self.nav_list)
         self.handle_magnifier(events)
 
     def update(self):

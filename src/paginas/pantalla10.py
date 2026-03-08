@@ -7,8 +7,6 @@ from components import screen
 from components.texto import Text
 from components.image import Image
 
-from paginas import pantalla2
-
 
 banners = [
     "banner-inf",
@@ -49,7 +47,6 @@ class Screen(screen.Screen):
             self.mostrar_concepto(self.parent.config.get_preference("definicion", "")),
         )
         self.caja_concepto.resize(height=self.concepto.total_height)
-        self.word_group.add(self.abc.words)
         self.banner_group.add(self.banner_glo, self.caja_concepto, self.banner_inf)
         self.button_group.add(self.back, self.home)
 
@@ -91,16 +88,13 @@ class Screen(screen.Screen):
             if event.type == pygame.QUIT:
                 self.parent.quit()
 
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.clear_groups()
-                    self.parent.changeState(pantalla2.Screen(self.parent))
+                    self.go_home()
 
-            if pygame.sprite.spritecollideany(self.mouse, self.word_group):
-                sprite = pygame.sprite.spritecollide(
-                    self.mouse, self.word_group, False
-                )
-                if pygame.mouse.get_pressed() == (True, False, False):
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if pygame.sprite.spritecollideany(self.mouse, self.word_group):
+                    sprite = pygame.sprite.spritecollide(self.mouse, self.word_group, False)
                     if sprite[0].definable == True:
                         self.abc.indexar(sprite[0].text)
                         self.word_group.update(1)
@@ -111,32 +105,21 @@ class Screen(screen.Screen):
                         self.word_group.add(
                             self.abc.words, self.indices(sprite[0].text)
                         )
-                    if sprite[0].definition == True:
+                    elif sprite[0].definition == True:
                         self.word_group.update(2)
                         sprite[0].selected = True
                         self.banner_group.add(self.caja_concepto)
                         self.word_group.remove(self.concepto.words)
                         self.word_group.add(self.mostrar_concepto(sprite[0].code))
                         self.caja_concepto.resize(height=self.concepto.total_height)
-
-            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
-                sprite = pygame.sprite.spritecollide(
-                    self.mouse, self.button_group, False
-                )
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                elif pygame.sprite.spritecollideany(self.mouse, self.button_group):
+                    sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
                     if sprite[0].id == "home":
-                        self.clear_groups()
-                        self.parent.changeState(pantalla2.Screen(self.parent))
+                        self.go_home()
                     elif sprite[0].id == "back":
                         self.clear_groups()
                         self.parent.popState()
         self.handle_magnifier(events)
-
-    def update(self):
-        """Update cursor position, magnifier, and button tooltips."""
-        self.mouse.update()
-        self.magnifier.magnificar(self.parent.screen)
-        self.button_group.update(self.tooltip_group)
 
     def mostrar_concepto(self, palabra):
         """

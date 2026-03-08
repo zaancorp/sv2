@@ -4,7 +4,6 @@ import pygame
 
 from components import screen
 from components.texto import Text
-from paginas import pantalla2
 
 banners = [
     "banner-inf",
@@ -22,6 +21,8 @@ buttons = [
 
 
 class Screen(screen.Screen):
+    """General settings configuration screen for selecting the interface language."""
+
     def __init__(self, parent, is_overlay=False):
         """
         Initialiser for the general settings screen.
@@ -33,7 +34,6 @@ class Screen(screen.Screen):
         @type is_overlay: bool
         """
         self.name = "screen_gen"
-        self.parent = parent
         # Calls Pantalla.__init__, which creates all per-screen sprite groups,
         # loads the background registered under "screen_gen", and resets navigation state.
         super().__init__(parent, self.name)
@@ -43,37 +43,35 @@ class Screen(screen.Screen):
             False,
         )
 
-        # --- Question label ---
-        self.q1_label = Text(
-            310,
-            70,
-            self.parent.text_loader.ui("config_screens", "general", "q1_language"),
-            20,
-            1,
-            700,
-        )
-        # --- Option text label (sits below the toggle buttons) ---
-        self.q1_options = Text(
-            370,
-            150,
-            self.parent.text_loader.ui("config_screens", "general", "opt_languages"),
-            20,
-            1,
-            700,
-        )
-        # --- Save hint ---
-        self.save_hint_label = Text(
-            200,
-            400,
-            self.parent.text_loader.ui("config_screens", "general", "save_hint"),
-            20,
-            1,
-            800,
-        )
+        self.q1_label        = self._label(310, 70,  "q1_language")
+        self.q1_options      = self._label(370, 150, "opt_languages")
+        self.save_hint_label = self._label(200, 400, "save_hint",  right=800)
 
         self.load_banners(banners)
         self.load_buttons(buttons)
         self._load_preferences()
+        self.button_actions = {
+            "puerta":  lambda: (self.clear_groups(), self.parent.popState()),
+            "lang_es": lambda: self._select_language("es"),
+            "lang_hu": lambda: self._select_language("hu"),
+            "guardar": self._save_and_exit,
+        }
+
+    def _label(self, x, y, key, right=700):
+        """Create a config-screen Text label with standard size=20, text_type=1."""
+        return Text(x, y, self.parent.text_loader.ui("config_screens", "general", key), 20, 1, right)
+
+    def _select_language(self, lang):
+        """Select the interface language; swaps all four lang buttons."""
+        lang_map = {
+            "es": (self.lang_es_sel, self.lang_hu),
+            "hu": (self.lang_es,     self.lang_hu_sel),
+        }
+        self.button_group.remove(
+            self.lang_es, self.lang_es_sel, self.lang_hu, self.lang_hu_sel
+        )
+        self.button_group.add(*lang_map[lang])
+        self.parent.config.set_language(lang)
 
     def _load_preferences(self):
         """Populate sprite groups to reflect the currently saved language preference."""
@@ -89,6 +87,13 @@ class Screen(screen.Screen):
 
         self.word_group.add(self.save_hint_label.words)
 
+    def _save_and_exit(self):
+        """Persist the current preferences and return to the previous or main screen."""
+        self.parent.config.set_preference("cache", True)
+        self.parent.config.flush()
+        self.parent.reload_text_content()
+        self.parent.finish_config(self)
+
     def handleEvents(self, events):
         """
         Evaluate events generated on this screen.
@@ -99,54 +104,14 @@ class Screen(screen.Screen):
         for event in events:
             if event.type == pygame.QUIT:
                 self.parent.quit()
-
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.clear_groups()
                     if self.is_overlay:
                         self.parent.RETURN_TO_PREV_SCREEN = True
                     self.parent.popState()
-
-            if pygame.sprite.spritecollideany(self.mouse, self.button_group):
-                sprite = pygame.sprite.spritecollide(
-                    self.mouse, self.button_group, False
-                )
+            elif pygame.sprite.spritecollideany(self.mouse, self.button_group):
+                sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-
-                    if sprite[0].id == "puerta":
-                        self.clear_groups()
-                        self.parent.popState()
-
-                    elif sprite[0].id == "lang_es":
-                        # Switch selection: ES selected, HU unselected
-                        self.button_group.remove(self.lang_es, self.lang_hu_sel)
-                        self.button_group.add(self.lang_es_sel, self.lang_hu)
-                        self.parent.config.set_language("es")
-
-                    elif sprite[0].id == "lang_hu":
-                        # Switch selection: HU selected, ES unselected
-                        self.button_group.remove(self.lang_es_sel, self.lang_hu)
-                        self.button_group.add(self.lang_es, self.lang_hu_sel)
-                        self.parent.config.set_language("hu")
-
-                    elif sprite[0].id == "guardar":
-                        self.parent.config.set_preference("cache", True)
-                        self.parent.config.flush()
-                        self.parent.reload_text_content()
-                        self.clear_groups()
-                        if self.parent.first_run:
-                            self.parent.changeState(pantalla2.Screen(self.parent))
-                        else:
-                            if self.is_overlay:
-                                self.parent.RETURN_TO_PREV_SCREEN = True
-                            self.parent.popState()
-
+                    self.button_actions.get(sprite[0].id, lambda: None)()
         self.handle_magnifier(events)
-
-    def update(self):
-        """
-        Update the cursor position, screen magnifier, and button tooltips.
-        """
-        self.mouse.update()
-        self.magnifier.magnificar(self.parent.screen)
-        self.button_group.update(self.tooltip_group)
