@@ -94,45 +94,43 @@ class Screen(screen.Screen):
                 self.load_buttons(buttons)
                 self.banner_group.add(self.banner_inf)
                 self.button_group.add(self.deaf_menu_btn, self.visual_menu_btn, self.general_menu_btn, self.intro)
-                # self.popup_ins = PopUp(
-                #     self.parent,
-                #     # TODO: If the parent is already being passed we can grab the
-                #     # text from the parent's dict, we would only need to pass the
-                #     # screen name and maybe the "popups" key
-                #     self.parent.text_content["popups"][self.name]["text_1"],
-                #     "",
-                #     self.dic_img,
-                #     self.popup_group,
-                #     2,
-                #     512,
-                #     290,
-                #     100,
-                # )
-
-                # self.popup_ins.add_to_group()
-                # self.speech_server.processtext(
-                #     self.parent.text_content["popups"][self.name]["reader_1"], True
-                # )
+                if self.parent.config.is_show_popups_enabled():
+                    self.popup_ins = PopUp(
+                        self.parent,
+                        self.parent.text_loader.popup(self.name, "text_1"),
+                        "",
+                        self.dic_img,
+                        self.popup_group,
+                        2,
+                        512,
+                        290,
+                        100,
+                    )
+                    self.popup_ins.add_to_group()
+                    self.speech_server.processtext(
+                        self.parent.text_loader.popup(self.name, "reader_1"), True
+                    )
             else:
                 self.background = self.fondo_simple
                 if self.parent.config.is_text_change_enabled():
                     self.load_buttons(buttons)
                     self.parent.config.set_text_change_enabled(False)
-                # self.popup_ins = PopUp(
-                #     self.parent,
-                #     self.parent.text_content["popups"][self.name]["text_2"],
-                #     "",
-                #     self.dic_img,
-                #     self.popup_group,
-                #     2,
-                #     512,
-                #     270,
-                #     100,
-                # )
-                # self.popup_ins.add_to_group()
-                # self.speech_server.processtext(
-                #     self.parent.text_content["popups"][self.name]["reader_2"], True
-                # )
+                if self.parent.config.is_show_popups_enabled():
+                    self.popup_ins = PopUp(
+                        self.parent,
+                        self.parent.text_loader.popup(self.name, "text_2"),
+                        "",
+                        self.dic_img,
+                        self.popup_group,
+                        2,
+                        512,
+                        270,
+                        100,
+                    )
+                    self.popup_ins.add_to_group()
+                    self.speech_server.processtext(
+                        self.parent.text_loader.popup(self.name, "reader_2"), True
+                    )
                 self.banner_group.add(self.banner_config, self.banner_inf)
                 self.button_group.add(self.deaf_menu_btn, self.visual_menu_btn, self.general_menu_btn, self.puerta)
 

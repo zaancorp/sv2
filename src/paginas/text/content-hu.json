@@ -201,6 +201,8 @@
         "title_reader": "Általános beállítások.",
         "q1_language": "1.- Válaszd ki az alkalmazás nyelvét. ",
         "opt_languages": "Spanyol                    Magyar ",
+        "q2_popups": "2.- Kezdeti felugró ablakok megjelenítése. ",
+        "opt_popups": "Igen                         Nem ",
         "save_hint": "Kattints a mentés gombra a beállítások elmentéséhez. "
       }
     }

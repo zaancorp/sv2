@@ -4,6 +4,21 @@ Improvements applied so far, in reverse chronological order.
 
 ---
 
+### ✅ SV2-054 — Restore intro popups behind a user-configurable toggle *(2026-03)*
+
+**Files changed:** `components/configuration.py`, `components/assets_data.py`, `paginas/text/content-es.json`, `paginas/text/content-hu.json`, `paginas/menugeneral.py`, `paginas/menucfg.py`, `paginas/pantalla2.py`
+
+The intro-popup code in `menucfg` and `pantalla2` had been commented out for two reasons: the API calls used the old `text_content["popups"]` dict access (superseded by `text_loader.popup()`), and the popups appeared on every visit with no way to disable them.
+
+- **`configuration.py`** — Added `"show_popups": True` to `get_default_config()`; new typed accessors `is_show_popups_enabled()` and `set_show_popups_enabled(value)`.
+- **`assets_data.py`** — Added four button entries (`popups_si`, `popups_si_sel`, `popups_no`, `popups_no_sel`) following the same pattern as the `lang_es`/`lang_hu` toggle pair.
+- **`content-es.json` / `content-hu.json`** — Added `"q2_popups"` and `"opt_popups"` keys under `"ui" → "config_screens" → "general"`.
+- **`menugeneral.py`** — Added the popup toggle as question 2 in the General Settings screen: new `q2_label` / `q2_options` labels, `_select_popups()` helper (mirrors `_select_language()`), updated `_load_preferences()` to show the correct selected/unselected buttons, and wired `"popups_si"`/`"popups_no"` into `button_actions`.
+- **`menucfg.py`** — Restored both popup blocks: updated API from `text_content[…]` to `text_loader.popup()`; wrapped each block in `if self.parent.config.is_show_popups_enabled()` so the popup is silently skipped when the user has disabled it.
+- **`pantalla2.py`** — Restored `load_texts()` popup creation and `show_instructions()` toggle method; added `K_F1` handler in `handleEvents` so the popup can be toggled at any time; popup is shown initially only when `is_show_popups_enabled()` is `True`; added `popup_group.empty()` before reload on language change to avoid orphaned sprites.
+
+---
+
 ### ✅ SV2-053 — Assorted small dead code and minor bugs across content screens *(2026-03)*
 
 **Files changed:** `paginas/pantalla2.py`, `paginas/pantalla3.py`, `paginas/pantalla4.py`, `paginas/pantalla6.py`, `paginas/pantalla9.py`, `paginas/pantalla10.py`

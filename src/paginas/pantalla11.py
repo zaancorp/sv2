@@ -105,7 +105,7 @@ class Screen(screen.Screen):
             for key in cfg["text_keys"]:
                 t = Text(300, y, self.screen_text(key), font_size, 1, 900)
                 texts.append(t)
-                y = t.y + t.final_width + 10
+                y = t.y + t.total_width + 10
             self._audience_texts[btn_id] = texts
 
     def _go_back(self):
@@ -129,7 +129,7 @@ class Screen(screen.Screen):
         self.word_group.empty()
         self.banner_group.empty()
         self.word_group.add(*(t.words for t in texts))
-        self.caja_or.resize(height=sum(t.final_width for t in texts) + 30)
+        self.caja_or.resize(height=sum(t.total_width for t in texts) + 30)
         self.banner_group.add(getattr(self, cfg["banner"]), self.caja_or, self.banner_inf)
         self.speech_server.processtext(
             "".join(self.screen_text(k) for k in cfg["speech_keys"]) + cfg["speech_suffix"],

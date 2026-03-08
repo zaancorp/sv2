@@ -17,5 +17,6 @@
     "visited_screens": {
         "p2": true
     },
-    "language": "hu"
+    "language": "es",
+    "show_popups": false
 }

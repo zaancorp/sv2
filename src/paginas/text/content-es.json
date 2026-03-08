@@ -201,6 +201,8 @@
         "title_reader": "Configuración general.",
         "q1_language": "1.- Selecciona el idioma de la aplicación. ",
         "opt_languages": "Español                    Magyar ",
+        "q2_popups": "2.- Mostrar ventanas emergentes al inicio. ",
+        "opt_popups": "Sí                           No ",
         "save_hint": "Pulsa sobre el botón guardar para salvar tu configuración. "
       }
     }

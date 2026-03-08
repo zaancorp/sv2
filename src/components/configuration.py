@@ -54,6 +54,7 @@ class Configuration:
             "synvel": "baja",
             "definicion": "",
             "language": "es",
+            "show_popups": True,
             "visited_screens": {},
         }
 
@@ -147,3 +148,11 @@ class Configuration:
         """Sets the active UI language. Accepted values: 'es', 'hu'."""
         if lang in ("es", "hu"):
             self.set_preference("language", lang)
+
+    def is_show_popups_enabled(self):
+        """Returns True if intro popup overlays should be shown (default True)."""
+        return self.get_preference("show_popups", True)
+
+    def set_show_popups_enabled(self, value):
+        """Set whether intro popup overlays are shown."""
+        self.set_preference("show_popups", bool(value))

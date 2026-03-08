@@ -59,35 +59,33 @@ class Screen(screen.Screen):
             "orientacion": self.go_orientacion,
         }
 
-    # def show_instructions(self):
-    #     """
-    #     Muestra las instrucciones de uso de la pantalla actual.
-    #     """
-    #     if not self.popup_ins.activo:
-    #         self.popup_ins.add_to_group()
-    #         self.speech_server.processtext(
-    #             self.parent.text_content["popups"][self.name]["reader_1"],
-    #             self.parent.config.is_screen_reader_enabled(),
-    #         )
-
-    #     else:
-    #         self.popup_ins.remove_from_group()
-    #         self.speech_server.stopserver()
+    def show_instructions(self):
+        """Toggle the navigation-instructions popup on/off (F1)."""
+        if not self.popup_ins.activo:
+            self.popup_ins.add_to_group()
+            self.speech_server.processtext(
+                self.parent.text_loader.popup(self.name, "reader_1"),
+                self.parent.config.is_screen_reader_enabled(),
+            )
+        else:
+            self.popup_ins.remove_from_group()
+            self.speech_server.stopserver()
 
     def load_texts(self):
         """Load text objects used on this screen."""
-        pass
-        # self.popup_ins = PopUp(
-        #     self.parent,
-        #     self.parent.text_content["popups"][self.name]["text_1"],
-        #     "",
-        #     self.dic_img,
-        #     self.popup_group,
-        #     2,
-        #     512,
-        #     265,
-        #     100,
-        # )
+        self.popup_ins = PopUp(
+            self.parent,
+            self.parent.text_loader.popup(self.name, "text_1"),
+            "",
+            self.dic_img,
+            self.popup_group,
+            2,
+            512,
+            265,
+            100,
+        )
+        if self.parent.config.is_show_popups_enabled():
+            self.popup_ins.add_to_group()
 
     def start(self):
         self.resume()
@@ -97,6 +95,7 @@ class Screen(screen.Screen):
         self.parent.first_run = False
         if self.parent.config.is_text_change_enabled():
             self.load_buttons(buttons)
+            self.popup_group.empty()
             self.load_texts()
             self.parent.config.set_text_change_enabled(False)
 
@@ -158,7 +157,9 @@ class Screen(screen.Screen):
                 self.parent.quit()
 
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_F1:
+                    self.show_instructions()
+                elif event.key == pygame.K_RIGHT:
                     self.keyboard_nav_active = True
                     self.nav_right()
                 elif event.key == pygame.K_LEFT:

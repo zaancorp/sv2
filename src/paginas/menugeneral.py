@@ -17,6 +17,10 @@ buttons = [
     "lang_es_sel",
     "lang_hu",
     "lang_hu_sel",
+    "popups_si",
+    "popups_si_sel",
+    "popups_no",
+    "popups_no_sel",
 ]
 
 
@@ -45,16 +49,20 @@ class Screen(screen.Screen):
 
         self.q1_label        = self._label(310, 70,  "q1_language")
         self.q1_options      = self._label(370, 150, "opt_languages")
-        self.save_hint_label = self._label(200, 400, "save_hint",  right=800)
+        self.q2_label        = self._label(310, 220, "q2_popups")
+        self.q2_options      = self._label(370, 300, "opt_popups")
+        self.save_hint_label = self._label(200, 380, "save_hint",  right=800)
 
         self.load_banners(banners)
         self.load_buttons(buttons)
         self._load_preferences()
         self.button_actions = {
-            "puerta":  lambda: (self.clear_groups(), self.parent.popState()),
-            "lang_es": lambda: self._select_language("es"),
-            "lang_hu": lambda: self._select_language("hu"),
-            "guardar": self._save_and_exit,
+            "puerta":       lambda: (self.clear_groups(), self.parent.popState()),
+            "lang_es":      lambda: self._select_language("es"),
+            "lang_hu":      lambda: self._select_language("hu"),
+            "popups_si":    lambda: self._select_popups(True),
+            "popups_no":    lambda: self._select_popups(False),
+            "guardar":      self._save_and_exit,
         }
 
     def _label(self, x, y, key, right=700):
@@ -73,18 +81,37 @@ class Screen(screen.Screen):
         self.button_group.add(*lang_map[lang])
         self.parent.config.set_language(lang)
 
+    def _select_popups(self, enabled):
+        """Toggle the show-popups preference; swaps the four popups buttons."""
+        popups_map = {
+            True:  (self.popups_si_sel, self.popups_no),
+            False: (self.popups_si,     self.popups_no_sel),
+        }
+        self.button_group.remove(
+            self.popups_si, self.popups_si_sel, self.popups_no, self.popups_no_sel
+        )
+        self.button_group.add(*popups_map[enabled])
+        self.parent.config.set_show_popups_enabled(enabled)
+
     def _load_preferences(self):
-        """Populate sprite groups to reflect the currently saved language preference."""
+        """Populate sprite groups to reflect the currently saved preferences."""
         self.word_group.add(self.q1_label.words, self.q1_options.words)
+        self.word_group.add(self.q2_label.words, self.q2_options.words)
         self.banner_group.add(self.banner_acc_visual, self.banner_inf)
         self.button_group.add(self.puerta)
 
         if self.parent.config.get_language() == "hu":
-            self.button_group.add(self.lang_es, self.lang_hu_sel, self.guardar)
+            self.button_group.add(self.lang_es, self.lang_hu_sel)
         else:
             # Default: Spanish selected
-            self.button_group.add(self.lang_es_sel, self.lang_hu, self.guardar)
+            self.button_group.add(self.lang_es_sel, self.lang_hu)
 
+        if self.parent.config.is_show_popups_enabled():
+            self.button_group.add(self.popups_si_sel, self.popups_no)
+        else:
+            self.button_group.add(self.popups_si, self.popups_no_sel)
+
+        self.button_group.add(self.guardar)
         self.word_group.add(self.save_hint_label.words)
 
     def _save_and_exit(self):

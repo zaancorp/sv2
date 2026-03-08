@@ -70,7 +70,8 @@ class Screen(screen.Screen):
         self.regions = {}         # region_id -> object_mask
         self.region_list = []     # ordered list used for map_group.add (preserves z-order)
         self._text_prefix = {}    # region_id -> text_prefix (for TTS key lookup)
-        for region_id, attr, dx, dy, img_base, text_prefix, _count in _REGION_SPECS:
+        self._text_count  = {}    # region_id -> number of text paragraphs
+        for region_id, attr, dx, dy, img_base, text_prefix, count in _REGION_SPECS:
             mask = object_mask(
                 region_id,
                 _ZULIA_X + dx,
@@ -82,6 +83,7 @@ class Screen(screen.Screen):
             setattr(self, attr, mask)   # e.g. self.zulia, self.capital, …
             self.region_list.append(mask)
             self._text_prefix[region_id] = text_prefix
+            self._text_count[region_id]  = count
 
         self.limites1 = pygame.image.load(self.misc_path + "limitemar.png").convert_alpha()
         self.limites2 = pygame.image.load(
@@ -170,12 +172,17 @@ class Screen(screen.Screen):
     def _announce_region(self, region_id):
         """Send TTS for the given region's text paragraphs.
 
+        The first paragraph uses a dedicated TTS key (suffix ``_1l``); subsequent
+        paragraphs are read from the same content keys used for display text.
+
         @param region_id: ID string of the region to announce.
         @type region_id: str
         """
-        texts = self.region_texts[region_id]
         prefix = self._text_prefix[region_id]
-        tts = self.screen_text(f"{prefix}_1l") + "".join(t.texto for t in texts[1:])
+        count  = self._text_count[region_id]
+        tts = self.screen_text(f"{prefix}_1l")
+        for i in range(2, count + 1):
+            tts += self.screen_text(f"{prefix}_{i}")
         self.speech_server.processtext(tts, self.parent.config.is_screen_reader_enabled())
 
     def go_back(self):
