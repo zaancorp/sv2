@@ -141,8 +141,13 @@ class Animation(pygame.sprite.Sprite):
                 self.f = self.frames
 
 
-class RenderAnim(pygame.sprite.Group):
-    """Sprite group that advances each Animation member's frame on every draw call."""
+class _RenderFramed:
+    """Mixin that adds a frame-advancing draw() loop to any pygame sprite group.
+
+    Blits each member's ``.image`` at ``.rect`` and calls ``.next()`` to advance the frame.
+    Concrete subclasses must also inherit from a pygame sprite group (e.g. Group,
+    OrderedUpdates) which supplies ``.sprites()`` and ``.spritedict``.
+    """
 
     def draw(self, surface):
         """
@@ -156,3 +161,7 @@ class RenderAnim(pygame.sprite.Group):
         for spr in sprites:
             self.spritedict[spr] = surface_blit(spr.image, spr.rect)
             spr.next()
+
+
+class RenderAnim(_RenderFramed, pygame.sprite.Group):
+    """Sprite group that advances each Animation member's frame on every draw call."""

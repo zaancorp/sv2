@@ -24,9 +24,11 @@ class GameObject(Sprite):
         @type name: str
         """
         Sprite.__init__(self)
+        self.name = name
         self.x = x
         self.y = y
         self.image = load(imagen).convert_alpha()
+        self._original = self.image.copy()
         self.rect = Rect(
             self.x, self.y, self.image.get_width(), self.image.get_height()
         )
@@ -107,13 +109,5 @@ class PropObject(GameObject):
         @param name: Prop name; must be a key in the `aumentos` dict.
         @type name: str
         """
-
-        Sprite.__init__(self)
-        self.name = name
-        self.x = x
-        self.y = y
-        self.image = load(imagen).convert_alpha()
-        self.rect = Rect(
-            self.x, self.y, self.image.get_width(), self.image.get_height()
-        )
+        super().__init__(x, y, imagen, name)
         self.aumento = self.aumentos[name]

@@ -21,49 +21,12 @@ class TextBox(pygame.sprite.Sprite):
         @param screen: Surface on which the box is displayed.
         @type screen: pygame.Surface
         @param size: Size preset for the box: "low", "medium", or "high".
+            Currently all presets load the same image asset.
         @type size: str
         """
-        self.eventlist = [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            0,
-            "q",
-            "w",
-            "e",
-            "r",
-            "t",
-            "y",
-            "u",
-            "i",
-            "o",
-            "p",
-            "a",
-            "s",
-            "d",
-            "f",
-            "g",
-            "h",
-            "j",
-            "k",
-            "l",
-            "z",
-            "x",
-            "c",
-            "v",
-            "b",
-            "n",
-            "m",
-        ]
         self.time = pygame.time.Clock()
         self.time.tick(30)
-        self.x = 0
+        self._blink_elapsed = 0   # timer used by blink_cursor(); separate from positional coords
         self.cursor_char = " "
         self.keyboard_active = False
         self.screen = screen
@@ -71,18 +34,11 @@ class TextBox(pygame.sprite.Sprite):
         self.active = True
         self.rect = pygame.rect
         self.height = 0
-        if size == "high":
-            img = pygame.image.load("../imagenes/png/varios/cuadro-texto.png")
-            self.width = img.get_rect().width
-            self.rect = img.get_rect()
-        if size == "medium":
-            img = pygame.image.load("../imagenes/png/varios/cuadro-texto.png")
-            self.width = img.get_rect().width
-            self.rect = img.get_rect()
-        if size == "low":
-            img = pygame.image.load("../imagenes/png/varios/cuadro-texto.png")
-            self.width = img.get_rect().width
-            self.rect = img.get_rect()
+
+        img = pygame.image.load("./imagenes/png/varios/cuadro-texto.png")
+        self.width = img.get_rect().width
+        self.rect = img.get_rect()
+
         self.rect.move_ip(x, y)
         self.chars = []
         self.text = ""
@@ -97,7 +53,8 @@ class TextBox(pygame.sprite.Sprite):
         """
         Append or remove a character based on the key code received.
 
-        @param key_input: Key code or control string ("+1" for space, "-1" for backspace, or a pygame key integer).
+        @param key_input: Key code or control string ("+1" for space, "-1" for backspace,
+            or a pygame key integer for printable characters).
         @type key_input: int or str
         """
         if key_input == "+1":
@@ -105,32 +62,12 @@ class TextBox(pygame.sprite.Sprite):
         elif key_input == "-1":
             if len(self.chars) >= 1:
                 self.chars.pop()
-        elif key_input == 48:
-            self.chars.append("0")
-        elif key_input == 49:
-            self.chars.append("1")
-        elif key_input == 50:
-            self.chars.append("2")
-        elif key_input == 51:
-            self.chars.append("3")
-        elif key_input == 52:
-            self.chars.append("4")
-        elif key_input == 53:
-            self.chars.append("5")
-        elif key_input == 54:
-            self.chars.append("6")
-        elif key_input == 55:
-            self.chars.append("7")
-        elif key_input == 56:
-            self.chars.append("8")
-        elif key_input == 57:
-            self.chars.append("9")
+        elif isinstance(key_input, int) and 48 <= key_input <= 57:
+            self.chars.append(chr(key_input))
 
     def render(self):
         """Render the current input text into the box sprite, scrolling if the text overflows."""
-        chars_str = ""
-        for i in self.chars:
-            chars_str += i
+        chars_str = "".join(self.chars)
         self.text = chars_str
         chars_str += self.cursor_char
         x = Word(chars_str, 20, "textbox")
@@ -176,13 +113,13 @@ class TextBox(pygame.sprite.Sprite):
     def blink_cursor(self):
         """Blink the cursor character '|' in the text box every 600 milliseconds."""
         if self.keyboard_active:
-            self.x += self.time.get_time()
-            if self.x in range(0, 400):
+            self._blink_elapsed += self.time.get_time()
+            if self._blink_elapsed in range(0, 400):
                 self.cursor_char = "|"
             else:
                 self.cursor_char = " "
-            if self.x > 600:
-                self.x = 0
+            if self._blink_elapsed > 600:
+                self._blink_elapsed = 0
             self.render()
         else:
             self.cursor_char = " "
@@ -205,14 +142,13 @@ class TextBox(pygame.sprite.Sprite):
                 return True
 
     def reset(self):
+        """Clear the current input."""
         self.chars = []
         self.text = ""
 
     def check_answer(self):
-        if self.expected_answer.lower() == self.text:
-            return True
-        else:
-            return False
+        """Return True if the current input matches the expected answer (case-insensitive)."""
+        return self.expected_answer.lower() == self.text
 
     def has_min_length(self):
         """
@@ -221,10 +157,7 @@ class TextBox(pygame.sprite.Sprite):
         @return: True if the input contains two or more characters, False otherwise.
         @rtype: bool
         """
-        if len(self.chars) >= 2:
-            return True
-        else:
-            return False
+        return len(self.chars) >= 2
 
     def is_empty(self):
         """
@@ -233,10 +166,7 @@ class TextBox(pygame.sprite.Sprite):
         @return: True if the input is empty, False otherwise.
         @rtype: bool
         """
-        if len(self.chars) < 1:
-            return True
-        else:
-            return False
+        return len(self.chars) < 1
 
     def get_text(self):
         """
@@ -248,22 +178,5 @@ class TextBox(pygame.sprite.Sprite):
         return self.text
 
     def add_to_group(self, grupo):
+        """Add the text sprite to the given sprite group."""
         grupo.add(self.text_sprite)
-
-    def set_x(self, x):
-        """
-        Set the X position of the text box.
-
-        @param x: New X coordinate.
-        @type x: int
-        """
-        self.x = x
-
-    def set_y(self, y):
-        """
-        Set the Y position of the text box.
-
-        @param y: New Y coordinate.
-        @type y: int
-        """
-        self.y = y

@@ -118,7 +118,12 @@ class Word(pygame.sprite.Sprite):
         bold = self.text_type in [TextType.INDEX, TextType.INSTRUCTION] or (self.text_type == TextType.DEFINITION and self.selected)
         underline = self.text_type == TextType.NORMAL and self.clean_text in self.ENTRIES
 
-        font = self.font_manager.get_font(self.size, bold, underline)
+        effective_size = (
+            self.size + 6
+            if self.text_type == TextType.INDEX and self.selected
+            else self.size
+        )
+        font = self.font_manager.get_font(effective_size, bold, underline)
 
         if self.text_type == TextType.INDEX:
             color = (122, 140, 31) if self.clean_text in self.INDICES else (60, 36, 21)
@@ -126,7 +131,10 @@ class Word(pygame.sprite.Sprite):
             color = (0, 0, 0) if self.text_type in [TextType.NORMAL, TextType.ACTIVE, TextType.INTERCALATED, TextType.INSTRUCTION] else (60, 36, 21)
 
         self.image = font.render(self.text, True, color)
-        self.rect = self.image.get_rect()
+        new_rect = self.image.get_rect()
+        if hasattr(self, "rect"):
+            new_rect.topleft = self.rect.topleft
+        self.rect = new_rect
 
         self.update_flags()
 
@@ -137,17 +145,15 @@ class Word(pygame.sprite.Sprite):
         self.definition = self.text_type == TextType.DEFINITION and self.clean_text in self.DEFINITIONS
 
     def highlight(self):
-        """Enlarge and bold this word if it is an INDEX type and not already selected."""
+        """Select and enlarge this word if it is an INDEX type and not already selected."""
         if self.text_type == TextType.INDEX and not self.selected:
             self.selected = True
-            self.size += 6
             self.render()
 
     def restore(self):
-        """Revert to normal size and weight if this word is an INDEX type and currently selected."""
+        """Deselect and shrink this word if it is an INDEX type and currently selected."""
         if self.text_type == TextType.INDEX and self.selected:
             self.selected = False
-            self.size -= 6
             self.render()
 
     def update(self, update_type):
@@ -180,7 +186,7 @@ class Word(pygame.sprite.Sprite):
 
 def _tokenize(text, size, text_type, space_px=6):
     """
-    Split *text* into Word sprites, skipping the 'reproducción' token in non-active-text modes.
+    Split *text* into Word sprites.
 
     Uses ``re.split(r'(\\s+)', text.strip())`` so every token (including the last word of a
     line that does not end with a space) is captured.  The alternating split result gives
@@ -206,8 +212,6 @@ def _tokenize(text, size, text_type, space_px=6):
         if not token:
             continue
         if i % 2 == 0:  # even index → word token; odd index → whitespace run
-            if token.lower() == "reproducción" and text_type != "active_text":
-                continue
             words.append(Word(token, size, text_type))
             if not word_gaps:
                 word_gaps.append(0)  # no gap before the first word

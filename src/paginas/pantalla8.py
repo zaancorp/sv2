@@ -7,7 +7,6 @@ from components import screen
 from components.image import Image
 
 from paginas import pantalla9
-from paginas import pantalla10
 
 animations = [
     "animation-8",
@@ -134,7 +133,7 @@ class Screen(screen.Screen):
                         self.button_actions.get(self.x.id, lambda: None)()
                     elif self.x.obj_type == "word":
                         self.speech_server.processtext(
-                            self.parent.text_loader.concept(self.x.codigo),
+                            self.parent.text_loader.concept(self.x.code),
                             self.parent.config.is_screen_reader_enabled(),
                         )
 
@@ -142,11 +141,7 @@ class Screen(screen.Screen):
                 if pygame.sprite.spritecollideany(self.mouse, self.button_group):
                     sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
                     self.speech_server.stopserver()
-                    if sprite[0].id == "repe":
-                        self.clear_groups()
-                        self.resume()
-                    else:
-                        self.button_actions.get(sprite[0].id, lambda: None)()
+                    self.button_actions.get(sprite[0].id, lambda: None)()
 
         self._rebuild_nav()
         self.handle_magnifier(events)
@@ -221,5 +216,4 @@ class Screen(screen.Screen):
         self.nav_list = self.word_list + self.button_list
         self.element_count = len(self.nav_list)
 
-    def go_to_glossary(self):
-        self.parent.pushState(pantalla10.Screen(self.parent))
+

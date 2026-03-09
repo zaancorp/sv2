@@ -15,6 +15,8 @@ from .textoci import InlineText
 from .background import Background
 from .button import TextButton
 
+_POPUP_BG = "./imagenes/png/varios/cuadropop-up.png"
+
 
 class PopUp(Sprite):
     """Modal popup sprite supporting three layout types: image+button (0), list menu (1), and inline image (2)."""
@@ -57,163 +59,167 @@ class PopUp(Sprite):
         Sprite.__init__(self)
         self.parent = parent
         self.sprite = Sprite()
-        misc_path = "./imagenes/png/varios/"
-        self.text_content = Surface
+        self.text_content = None
         self.layout_type = layout_type
         self.arreglo_botones = []
         self.group = group
         self.click = -1
-        self.activo = 0
+        self.activo = False
         self.extra_width = 0
 
+        # Load the shared background image once; all layout types start from the same PNG.
+        bg = load(_POPUP_BG).convert_alpha()
+        self.img_bg = bg
+        self.sprite.image = bg
+        self.sprite.rect = bg.get_rect()
+
         if layout_type == 0:
-            self.img_bg = load(misc_path + "cuadropop-up.png").convert_alpha()
-            self.sprite.image = load(misc_path + "cuadropop-up.png").convert_alpha()
-            self.sprite.rect = self.sprite.image.get_rect()
-            x = 30
-            y = 30
-            self.text_content = Text(
-                x,
-                y,
-                texto1[0],
-                parent.config.get_font_size(),
-                "active_text",
-                (self.sprite.rect.width * 2 / 3),
-            )
-            self.text_area = Rect(
-                x, y, self.sprite.rect.w * 2 / 3, self.text_content.total_height
-            )
-            self.images_area = Rect(
-                (self.sprite.rect.w * 2 / 3) + 80,
-                y,
-                self.sprite.rect.w / 3,
-                self.text_content.total_height,
-            )
-            self.parent = parent
-            self.action_btn = TextButton(0, self.parent, btn_label)
-            self.action_btn.relocate(
-                self.sprite.rect.width / 2,
-                self.text_area.h + x * 2 + self.action_btn.rect.h / 2,
-            )
-            self.btn_rect = Rect(
-                self.action_btn.rect.x,
-                self.action_btn.rect.y,
-                self.action_btn.rect.width,
-                self.action_btn.rect.height,
-            )
-            self.sprite.image = Background(
-                self.sprite.rect.w, self.action_btn.rect.y + self.action_btn.rect.h + x, 5
-            ).return_imagen()
-            self.side_image = Sprite()
+            self._init_layout_0(texto1, btn_label, images, px, py)
+        elif layout_type == 1:
+            self._init_layout_1(texto1, extra_width, px, py)
+        elif layout_type == 2:
+            self._init_layout_2(texto1, images, extra_width, px, py)
 
-            if type(images) != Surface:
-                self.side_image2 = Sprite()
-                self.side_image.image = images[0]
-                self.side_image.rect = self.side_image.image.get_rect()
-                self.side_image.rect.center = (
-                    self.sprite.rect.w * 2 / 3 + (self.sprite.rect.w / 3) / 2,
-                    self.images_area.h / 2 + self.btn_rect.h / 2,
+    def _init_layout_0(self, texto1, btn_label, images, px, py):
+        """Set up a text + side-image + dismiss-button popup."""
+        x = 30
+        y = 30
+        self.text_content = Text(
+            x,
+            y,
+            texto1[0],
+            self.parent.config.get_font_size(),
+            "active_text",
+            (self.sprite.rect.width * 2 / 3),
+        )
+        self.text_area = Rect(
+            x, y, self.sprite.rect.w * 2 / 3, self.text_content.total_height
+        )
+        self.images_area = Rect(
+            (self.sprite.rect.w * 2 / 3) + 80,
+            y,
+            self.sprite.rect.w / 3,
+            self.text_content.total_height,
+        )
+        self.action_btn = TextButton(0, self.parent, btn_label)
+        self.action_btn.relocate(
+            self.sprite.rect.width / 2,
+            self.text_area.h + x * 2 + self.action_btn.rect.h / 2,
+        )
+        self.btn_rect = Rect(
+            self.action_btn.rect.x,
+            self.action_btn.rect.y,
+            self.action_btn.rect.width,
+            self.action_btn.rect.height,
+        )
+        self.sprite.image = Background(
+            self.sprite.rect.w, self.action_btn.rect.y + self.action_btn.rect.h + x, 5
+        ).return_imagen()
+        self.side_image = Sprite()
+
+        if not isinstance(images, Surface):
+            self.side_image2 = Sprite()
+            self.side_image.image = images[0]
+            self.side_image.rect = self.side_image.image.get_rect()
+            self.side_image.rect.center = (
+                self.sprite.rect.w * 2 / 3 + (self.sprite.rect.w / 3) / 2,
+                self.images_area.h / 2 + self.btn_rect.h / 2,
+            )
+            self.side_image2.image = images[1]
+            self.side_image2.rect = self.side_image.image.get_rect()
+            self.side_image2.rect.left = x
+            self.side_image2.rect.y = self.text_area.h + 40
+            self.sprite.image.blit(self.side_image2.image, self.side_image2.rect)
+        else:
+            self.side_image.image = images
+            self.side_image.rect = self.side_image.image.get_rect()
+            self.side_image.rect.center = (
+                self.sprite.rect.w * 2 / 3 + (self.sprite.rect.w / 3) / 2,
+                self.images_area.h / 2 + self.btn_rect.h / 2,
+            )
+        if self.side_image.rect.y < 5:
+            self.side_image.rect.y = 6
+        for i in self.text_content.words:
+            self.sprite.image.blit(i.image, i.rect)
+        self.sprite.image.blit(self.action_btn.image, self.action_btn.rect)
+        self.sprite.image.blit(self.side_image.image, self.side_image.rect)
+        self.sprite.rect.center = (px, py)
+        self.btn_rect.center = (
+            self.sprite.rect.x + self.sprite.rect.width / 2,
+            self.sprite.rect.y + self.text_area.h + x * 2 + self.action_btn.rect.h / 2,
+        )
+
+    def _init_layout_1(self, texto1, extra_width, px, py):
+        """Set up a text + scrollable button-list popup."""
+        x = 15
+        y = 15
+        o = 0
+        spacing = 30
+        tabulacion = 30
+        self.sprite.rect.w += extra_width
+        for i in texto1:
+            if o == 0:
+                self.text_content = Text(
+                    x,
+                    y,
+                    i,
+                    self.parent.config.get_font_size(),
+                    "active_text",
+                    (self.sprite.rect.width) - x,
                 )
-                self.side_image2.image = images[1]
-                self.side_image2.rect = self.side_image.image.get_rect()
-                self.side_image2.rect.left = x
-                self.side_image2.rect.y = self.text_area.h + 40
-                self.sprite.image.blit(self.side_image2.image, self.side_image2.rect)
-
-            else:
-                self.side_image.image = images
-                self.side_image.rect = self.side_image.image.get_rect()
-                self.side_image.rect.center = (
-                    self.sprite.rect.w * 2 / 3 + (self.sprite.rect.w / 3) / 2,
-                    self.images_area.h / 2 + self.btn_rect.h / 2,
-                )
-            if self.side_image.rect.y < 5:
-                self.side_image.rect.y = 6
-            for i in self.text_content.words:
-                self.sprite.image.blit(i.image, i.rect)
-            self.sprite.image.blit(self.action_btn.image, self.action_btn.rect)
-            self.sprite.image.blit(self.side_image.image, self.side_image.rect)
-            self.sprite.rect.center = (px, py)
-            self.btn_rect.center = (
-                self.sprite.rect.x + self.sprite.rect.width / 2,
-                self.sprite.rect.y + self.text_area.h + x * 2 + self.action_btn.rect.h / 2,
-            )
-
-        if layout_type == 1:
-            self.img_bg = load(misc_path + "cuadropop-up.png").convert_alpha()
-            self.sprite.image = load(misc_path + "cuadropop-up.png").convert_alpha()
-            self.sprite.rect = self.sprite.image.get_rect()
-            x = 15
-            y = 15
-            o = 0
-            spacing = 30
-            tabulacion = 30
-            self.sprite.rect.w += extra_width
-            for i in texto1:
-                if o == 0:
-                    self.text_content = Text(
-                        x,
-                        y,
+            if o > 0:
+                self.arreglo_botones.append(
+                    TextButton(
+                        o - 1,
+                        self.parent,
                         i,
-                        parent.config.get_font_size(),
-                        "active_text",
-                        (self.sprite.rect.width) - x,
+                        1,
+                        self.sprite.rect.w - x * 2 - tabulacion,
                     )
-                if o > 0:
-                    self.arreglo_botones.append(
-                        TextButton(
-                            o - 1,
-                            self.parent,
-                            i,
-                            1,
-                            self.sprite.rect.w - x * 2 - tabulacion,
-                        )
-                    )
-                o += 1
-            self.text_content.rect = Rect(
-                x, y, self.sprite.rect.w - 80, self.text_content.total_height
-            )
-            y += self.text_content.total_height + spacing
-            for i in self.arreglo_botones:
-                i.rect.x = x + tabulacion / 2
-                i.rect.y = y
-                y += i.rect.h + spacing / 2
-            self.img_bg = Background(self.sprite.rect.w, y).return_imagen()
-            self.sprite.image = Background(self.sprite.rect.w, y).return_imagen()
+                )
+            o += 1
+        self.text_content.rect = Rect(
+            x, y, self.sprite.rect.w - 80, self.text_content.total_height
+        )
+        y += self.text_content.total_height + spacing
+        for i in self.arreglo_botones:
+            i.rect.x = x + tabulacion / 2
+            i.rect.y = y
+            y += i.rect.h + spacing / 2
+        self.img_bg = Background(self.sprite.rect.w, y).return_imagen()
+        self.sprite.image = Background(self.sprite.rect.w, y).return_imagen()
 
-            for i in self.text_content.words:
-                self.sprite.image.blit(i.image, i.rect)
-                self.img_bg.blit(i.image, i.rect)
-            self.sprite.rect.center = (px, py)
+        for i in self.text_content.words:
+            self.sprite.image.blit(i.image, i.rect)
+            self.img_bg.blit(i.image, i.rect)
+        self.sprite.rect.center = (px, py)
 
-            for i in self.arreglo_botones:
-                self.sprite.image.blit(i.image, i.rect)
-                self.img_bg.blit(i.image, i.rect)
-                i.rect.x = self.sprite.rect.x + i.rect.x
-                i.rect.y = self.sprite.rect.y + i.rect.y
+        for i in self.arreglo_botones:
+            self.sprite.image.blit(i.image, i.rect)
+            self.img_bg.blit(i.image, i.rect)
+            i.rect.x = self.sprite.rect.x + i.rect.x
+            i.rect.y = self.sprite.rect.y + i.rect.y
 
-        if layout_type == 2:
-
-            self.sprite.image = load(misc_path + "cuadropop-up.png").convert_alpha()
-            self.sprite.rect = self.sprite.image.get_rect()
-            self.sprite.rect.w += extra_width
-            self.text_content = InlineText(
-                15,
-                15,
-                texto1,
-                parent.config.get_font_size(),
-                3,
-                self.sprite.rect.w - 15,
-                images,
-            )
-            self.sprite.image = Background(
-                self.sprite.rect.w, self.text_content.final_width + 30
-            ).return_imagen()
-            self.sprite.rect.h = self.text_content.final_width + 30
-            self.extra_width = self.text_content.final_width + 60
-            for i in self.text_content.words:
-                self.sprite.image.blit(i.image, i.rect)
-            self.sprite.rect.center = (px, py)
+    def _init_layout_2(self, texto1, images, extra_width, px, py):
+        """Set up an inline-image popup (text with embedded sprite replacements)."""
+        self.sprite.rect.w += extra_width
+        self.text_content = InlineText(
+            15,
+            15,
+            texto1,
+            self.parent.config.get_font_size(),
+            3,
+            self.sprite.rect.w - 15,
+            images,
+        )
+        self.sprite.image = Background(
+            self.sprite.rect.w, self.text_content.final_width + 30
+        ).return_imagen()
+        self.sprite.rect.h = self.text_content.final_width + 30
+        self.extra_width = self.text_content.final_width + 60
+        for i in self.text_content.words:
+            self.sprite.image.blit(i.image, i.rect)
+        self.sprite.rect.center = (px, py)
 
     def popup_estatus(self):
         """
@@ -222,10 +228,7 @@ class PopUp(Sprite):
         @return: True if the popup is active, False otherwise.
         @rtype: bool
         """
-        if self.activo:
-            return True
-        else:
-            return False
+        return self.activo
 
     def redraw_button(self):
         """Redraw the button area over the cached background (discontinued)."""
@@ -239,12 +242,12 @@ class PopUp(Sprite):
 
     def add_to_group(self):
         """Add the popup sprite to its group and mark it as active."""
-        self.activo = 1
+        self.activo = True
         self.group.add(self.sprite)
 
     def remove_from_group(self):
         """Remove the popup sprite from its group and mark it as inactive."""
-        self.activo = 0
+        self.activo = False
         self.group.remove(self.sprite)
 
     def get_click_result(self):

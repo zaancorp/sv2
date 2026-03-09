@@ -82,6 +82,19 @@ class Screen(object):
             self.text_box_group,
         ]
 
+    def _load_asset(self, registry, asset_id, factory):
+        """
+        Look up *asset_id* in *registry*, call *factory(spec)*, and bind the result.
+
+        The attribute name is derived from *asset_id* with ``-`` replaced by ``_``.
+
+        @param registry: Asset registry dict (from assets_data).
+        @param asset_id: Key to look up in the registry.
+        @type asset_id: str
+        @param factory: Callable that receives the registry value and returns the asset object.
+        """
+        setattr(self, asset_id.replace("-", "_"), factory(registry[asset_id]))
+
     def load_animations(self, animation_ids):
         """
         Instantiate Animation objects for each ID and bind them as instance attributes.
@@ -90,29 +103,11 @@ class Screen(object):
         @type animation_ids: list
         """
         for id in animation_ids:
-            x, y = _animations.get(id).get("coordinates")
-            columns = _animations.get(id).get("columns")
-            rows = _animations.get(id).get("rows")
-            colorkey = _animations.get(id).get("colorkey")
-            loop = _animations.get(id).get("loop")
-            frames = _animations.get(id).get("frames")
-            filename = _animations.get(id).get("filename")
-            attribute_name = id.replace("-", "_")
-            setattr(
-                self,
-                attribute_name,
-                Animation(
-                    id,
-                    self.animations_path + filename,
-                    columns,
-                    rows,
-                    x,
-                    y,
-                    colorkey,
-                    loop,
-                    frames,
-                ),
-            )
+            self._load_asset(_animations, id, lambda spec, _id=id: Animation(
+                _id, self.animations_path + spec["filename"],
+                spec["columns"], spec["rows"], *spec["coordinates"],
+                spec["colorkey"], spec["loop"], spec["frames"],
+            ))
 
     def load_background(self, screen_id):
         """
@@ -134,30 +129,11 @@ class Screen(object):
         """
         font_size = self.parent.config.get_font_size()
         for id in button_ids:
-            x, y = _buttons.get(id).get("coordinates")
-            tooltip = _buttons.get(id).get("tooltip")
-            colorkey = _buttons.get(id).get("colorkey")
-            loop = _buttons.get(id).get("loop")
-            frames = _buttons.get(id).get("frames")
-            frame_speed = _buttons.get(id).get("frame_speed")
-            filename = _buttons.get(id).get("filename")
-            attribute_name = id.replace("-", "_")
-            setattr(
-                self,
-                attribute_name,
-                Button(
-                    x,
-                    y,
-                    id,
-                    tooltip,
-                    font_size,
-                    self.buttons_path + filename,
-                    frames,
-                    colorkey,
-                    loop,
-                    frame_speed,
-                ),
-            )
+            self._load_asset(_buttons, id, lambda spec, _id=id: Button(
+                *spec["coordinates"], _id, spec["tooltip"], font_size,
+                self.buttons_path + spec["filename"],
+                spec["frames"], spec["colorkey"], spec["loop"], spec["frame_speed"],
+            ))
 
     def load_banners(self, banner_ids):
         """
@@ -167,10 +143,9 @@ class Screen(object):
         @type banner_ids: list
         """
         for id in banner_ids:
-            x, y = _banners.get(id).get("coordinates")
-            filename = _banners.get(id).get("filename")
-            attribute_name = id.replace("-", "_")
-            setattr(self, attribute_name, Image(x, y, self.banners_path + filename))
+            self._load_asset(_banners, id, lambda spec: Image(
+                *spec["coordinates"], self.banners_path + spec["filename"],
+            ))
 
     def load_images(self, image_ids):
         """
@@ -180,12 +155,8 @@ class Screen(object):
         @type image_ids: list
         """
         for id in image_ids:
-            filename = _images.get(id)
-            attribute_name = id.replace("-", "_")
-            setattr(
-                self,
-                attribute_name,
-                pygame.image.load(self.popups_path + filename).convert_alpha(),
+            self._load_asset(_images, id, lambda filename:
+                pygame.image.load(self.popups_path + filename).convert_alpha()
             )
 
     def screen_text(self, key):
@@ -263,10 +234,10 @@ class Screen(object):
                 (a, b) = pygame.mouse.get_pos()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_F5:
-                        if self.parent.magnifier_active == False:
+                        if not self.parent.magnifier_active:
                             self.parent.magnifier_active = True
                             self.magnifier_group.add(self.magnifier)
-                        elif self.parent.magnifier_active == True:
+                        else:
                             self.parent.magnifier_active = False
                             self.magnifier_group.empty()
                     if event.key == pygame.K_PLUS:
@@ -341,8 +312,7 @@ class Screen(object):
         @param lista: All word sprites displayed on the current screen.
         @type lista: list
         """
-        self.word_list = []
-        [self.word_list.append(i) for i in lista if i.interpretable]
+        self.word_list = [i for i in lista if i.interpretable]
 
     def collect_buttons(self, lista):
         """
@@ -351,8 +321,7 @@ class Screen(object):
         @param lista: Button sprites present on the current screen.
         @type lista: list
         """
-        self.button_list = []
-        [self.button_list.append(j) for j in lista if j.id]
+        self.button_list = [j for j in lista if j.id]
 
     def collect_masks(self, grupomask):
         """
@@ -361,8 +330,7 @@ class Screen(object):
         @param grupomask: Map sprites present on the current screen.
         @type grupomask: list
         """
-        self.mask_list = []
-        [self.mask_list.append(mask) for mask in grupomask]
+        self.mask_list = list(grupomask)
 
     def setup_animation(self, animation_obj, text_obj, text_key):
         """

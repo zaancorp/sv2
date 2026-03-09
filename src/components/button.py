@@ -6,6 +6,7 @@ from pygame.image import load
 from pygame.mouse import get_pos
 from pygame.sprite import Group, OrderedUpdates, Sprite
 
+from .animations import _RenderFramed
 from .texto import Text
 from .object import GameObject
 from .spritesheet import SpriteSheet
@@ -77,7 +78,7 @@ class Button(GameObject):
         self.tooltip_group = Group()
 
         ss = SpriteSheet(filename)
-        self.current_image = Surface((0, 0))
+        self.image = Surface((0, 0))
         (_, _, width, height) = ss.sheet.get_rect()
         self.rect = Rect(x, y, int(width / frames), height)
         rt = Rect(0, 0, int(width / frames), height)
@@ -87,7 +88,7 @@ class Button(GameObject):
         self.frame_speed = frame_speed
         self.frame_delta = frame_speed
         if self.frame_speed == 1:
-            self.current_image = self.images[0]
+            self.image = self.images[0]
 
     def update(self, group):
         """
@@ -129,7 +130,7 @@ class Button(GameObject):
                 self.stop = True
 
         if not self.stop:
-            self.current_image = self.images[self.current_frame]
+            self.image = self.images[self.current_frame]
             self.frame_delta -= 1
             if self.frame_delta == 0:
                 self.current_frame += 1
@@ -170,7 +171,7 @@ class Button(GameObject):
             self.tooltip_group.empty()
             self.stop_animation()
             self.current_frame = 0
-            self.current_image = self.images[0]
+            self.image = self.images[0]
             self.stop = True
             return False
 
@@ -204,7 +205,7 @@ class TextButton(GameObject):
         tipografia = match_font("FreeSans", False, False)
         font = Font(tipografia, parent.config.get_font_size())
         self.identificador = identificador
-        misc_path = "../imagenes/png/varios/"
+        misc_path = "./imagenes/png/varios/"
 
         if background == 0:
             texto1 = font.render(text, 1, TEXT_COLOR)
@@ -243,19 +244,5 @@ class TextButton(GameObject):
             self.image = self.img_bg
 
 
-class RenderButton(OrderedUpdates):
+class RenderButton(_RenderFramed, OrderedUpdates):
     """Ordered sprite group that advances each Button member's frame on every draw call."""
-
-    def draw(self, surface):
-        """
-        Draw all member buttons and advance their frames.
-
-        @param surface: Surface to draw onto.
-        @type surface: pygame.Surface
-        """
-
-        sprites = self.sprites()
-        surface_blit = surface.blit
-        for spr in sprites:
-            self.spritedict[spr] = surface_blit(spr.current_image, spr.rect)
-            spr.next()

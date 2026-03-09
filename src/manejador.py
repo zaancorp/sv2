@@ -185,10 +185,10 @@ class Manager(metaclass=Singleton):
         @param codigo: Vocabulary key identifying the concept to look up.
         @type codigo: str
         """
+        from paginas import pantalla10
         self.config.set_preference("definicion", codigo)
-        self.states[-1].at_glossary_cover = False
         self.states[-1].clear_groups()
-        self.states[-1].go_to_glossary()
+        self.pushState(pantalla10.Screen(self))
 
     def load_text_content(self):
         """Load all user-facing text from the active language's JSON file and populate the glossary on the Word class."""

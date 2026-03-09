@@ -11,7 +11,6 @@ from components.pixelperfect import *
 from components.objmask import object_mask
 
 from paginas import pantalla8
-from paginas import pantalla10
 
 banners = [
     "banner-inf",
@@ -278,5 +277,4 @@ class Screen(screen.Screen):
             self.draw_focus_rect()
         self.draw_debug_rectangles()
 
-    def go_to_glossary(self):
-        self.parent.pushState(pantalla10.Screen(self.parent))
+

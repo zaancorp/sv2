@@ -19,6 +19,31 @@ class Magnifier(pygame.sprite.Sprite):
         self.sup_final = pygame.Surface
         self.rect = pygame.Rect((0, 232), (self.w, self.h))
 
+    def _sample_surface(self, surface, x, y):
+        """
+        Clamp the cursor to the screen boundary and blit the sampled region into ``self.ampliador``.
+
+        The source region is centred on (x, y) with dimensions ``(w/zoom, h/zoom)``.
+        Clamping prevents sampling outside the screen edges.
+
+        @param surface: Full display surface to sample from.
+        @type surface: pygame.Surface
+        @param x: Raw cursor X position in pixels.
+        @type x: int
+        @param y: Raw cursor Y position in pixels.
+        @type y: int
+        """
+        half_w = self.w / (2 * self.zoom)
+        half_h = self.h / (2 * self.zoom)
+        x = min(max(x, half_w), self.cxp - half_w)
+        y = min(max(y, half_h), self.cyp - half_h)
+        self.ampliador = pygame.Surface((self.w / self.zoom, self.h / self.zoom))
+        self.ampliador.blit(
+            surface,
+            (0, 0),
+            (x - half_w, y - half_h, self.w / self.zoom, self.h / self.zoom),
+        )
+
     def magnificar(self, surface):
         """
         Capture and scale the screen region around the cursor into the magnifier surface.
@@ -34,78 +59,17 @@ class Magnifier(pygame.sprite.Sprite):
             self.escala = 1
             self.zoom = 1
 
+        self._sample_surface(surface, x, y)
+
         if self.escala == 1:
-            self.ampliador = pygame.Surface((self.w / self.zoom, self.h / self.zoom))
-            if x >= self.cxp - self.w / (2 * self.zoom):
-                x = self.cxp - self.w / (2 * self.zoom)
-            if y >= self.cyp - self.h / (2 * self.zoom):
-                y = self.cyp - self.h / (2 * self.zoom)
-            if x <= self.w / (2 * self.zoom):
-                x = self.w / (2 * self.zoom)
-            if y <= self.h / (2 * self.zoom):
-                y = self.h / (2 * self.zoom)
-            self.ampliador.blit(
-                surface,
-                (0, 0),
-                (
-                    (x - (self.w / (2 * self.zoom))),
-                    (y - (self.h / (2 * self.zoom))),
-                    self.w,
-                    self.h,
-                ),
-            )
             self.sup_final = self.ampliador
-
         elif self.escala == 2:
-            self.ampliador = pygame.Surface((self.w / self.zoom, self.h / self.zoom))
-            if x >= self.cxp - self.w / (2 * self.zoom):
-                x = self.cxp - self.w / (2 * self.zoom)
-            if y >= self.cyp - self.h / (2 * self.zoom):
-                y = self.cyp - self.h / (2 * self.zoom)
-            if x <= self.w / (2 * self.zoom):
-                x = self.w / (2 * self.zoom)
-            if y <= self.h / (2 * self.zoom):
-                y = self.h / (2 * self.zoom)
-            self.ampliador.blit(
-                surface,
-                (0, 0),
-                (
-                    (x - (self.w / (2 * self.zoom))),
-                    (y - (self.h / (2 * self.zoom))),
-                    self.w / self.zoom,
-                    self.h / self.zoom,
-                ),
-            )
             sup_escalax2 = pygame.transform.scale2x(self.ampliador)
-            self.sup_final = pygame.transform.smoothscale(
-                sup_escalax2, (self.w, self.h)
-            )
-
+            self.sup_final = pygame.transform.smoothscale(sup_escalax2, (self.w, self.h))
         elif self.escala == 3:
-            self.ampliador = pygame.Surface((self.w / self.zoom, self.h / self.zoom))
-            if x >= self.cxp - self.w / (2 * self.zoom):
-                x = self.cxp - self.w / (2 * self.zoom)
-            if y >= self.cyp - self.h / (2 * self.zoom):
-                y = self.cyp - self.h / (2 * self.zoom)
-            if x <= self.w / (2 * self.zoom):
-                x = self.w / (2 * self.zoom)
-            if y <= self.h / (2 * self.zoom):
-                y = self.h / (2 * self.zoom)
-            self.ampliador.blit(
-                surface,
-                (0, 0),
-                (
-                    (x - (self.w / (2 * self.zoom))),
-                    (y - (self.h / (2 * self.zoom))),
-                    self.w / self.zoom,
-                    self.h / self.zoom,
-                ),
-            )
             sup_escalax2 = pygame.transform.scale2x(self.ampliador)
             sup_escalax4 = pygame.transform.scale2x(sup_escalax2)
-            self.sup_final = pygame.transform.smoothscale(
-                sup_escalax4, (self.w, self.h)
-            )
+            self.sup_final = pygame.transform.smoothscale(sup_escalax4, (self.w, self.h))
         self.image = self.sup_final
 
     def zoom_in(self):

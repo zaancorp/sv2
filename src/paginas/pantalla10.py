@@ -6,6 +6,7 @@ import pygame
 from components import screen
 from components.texto import Text
 from components.image import Image
+from components.words import Word as _Word, font_manager as _font_manager
 
 
 banners = [
@@ -39,43 +40,65 @@ class Screen(screen.Screen):
         self.load_buttons(buttons)
 
         _def = self.parent.config.get_preference("definicion", "")
-        inicial = _def[0].upper() if _def else ""
+        inicial = self._find_initial(_def)
         self.abc.indexar(inicial)
         self.word_group.add(
             self.abc.words,
-            self.indices(inicial, self.parent.config.get_preference("definicion", "")),
-            self.mostrar_concepto(self.parent.config.get_preference("definicion", "")),
+            self.indices(inicial, _def),
+            self.mostrar_concepto(_def),
         )
         self.caja_concepto.resize(height=self.concepto.total_height)
         self.banner_group.add(self.banner_glo, self.caja_concepto, self.banner_inf)
         self.button_group.add(self.back, self.home)
 
     def load_texts(self):
-        """Build the alphabet index, concept display, and all glossary entry text objects."""
-        self.abc = Text(
-            290,
-            140,
-            "A  B  C  D  E  F  G  H  I  J  K  L  M  N  Ñ  O  P  Q  R  S  T  U  V  W  X  Y  Z ",
-            18,
-            "indice",
-            1010,
-        )
+        """Build the alphabet index, concept display, and glossary entry sprites from active language data."""
+        # Alphabet row: only the letters that have entries in the active language.
+        abc_text = "  ".join(_Word.INDICES) + " "
+        self.abc = Text(290, 140, abc_text, 18, "indice", 1010)
+
+        # Placeholder for the definition text shown on the right.
         self.concepto = Text(
             600, 200, "", self.parent.config.get_font_size(), "concepto", 1000
         )
-        self.a_absorber = Text(330, 200, "Absorber ", 22, "definicion", 900)
-        self.c_celula = Text(330, 200, "Célula ", 22, "definicion", 900)
-        self.c_componentes = Text(330, 250, "Componentes ", 22, "definicion", 900)
-        self.f_fotosintesis = Text(330, 200, "Fotosíntesis ", 22, "definicion", 900)
-        self.g_germinacion = Text(330, 200, "Germinación ", 22, "definicion", 900)
-        self.g_germinar = Text(330, 250, "Germinar ", 22, "definicion", 900)
-        self.m_minerales = Text(330, 200, "Mineral ", 22, "definicion", 900)
-        self.n_nutrientes = Text(330, 200, "Nutriente ", 22, "definicion", 900)
-        self.o_organo = Text(330, 200, "Órgano ", 22, "definicion", 900)
-        self.a_asexual = Text(330, 200, "Reproducción asexual ", 22, "definicion", 900)
-        self.s_sexual = Text(330, 250, "Reproducción sexual ", 22, "definicion", 900)
-        self.t_transformacion = Text(330, 200, "Transformación ", 22, "definicion", 900)
-        self.t_transporte = Text(330, 250, "Transportar ", 22, "definicion", 900)
+
+        # Group DEFINITIONS labels by their INDICES prefix.
+        # Sort by length descending so digraphs like "Cs" are tried before "C".
+        sorted_idx = sorted(_Word.INDICES, key=len, reverse=True)
+        groups = {idx: [] for idx in _Word.INDICES}
+        for label in sorted(_Word.DEFINITIONS):
+            label_upper = label.upper()
+            for idx in sorted_idx:
+                if label_upper.startswith(idx.upper()):
+                    groups[idx].append(label)
+                    break
+
+        # Create one Word sprite per entry. Using the full label as the Word text
+        # means clean_text matches the DEFINITIONS key even for multi-word phrases
+        # ("Reproducción asexual"), giving the correct .code and .definition flag.
+        BASE_Y, Y_STEP = 200, 50
+        self._entry_words: dict[str, list[_Word]] = {}
+        for idx in _Word.INDICES:
+            sprites = []
+            for pos, label in enumerate(groups[idx]):
+                w = _Word(label, 22, "definicion", _font_manager)
+                w.rect.topleft = (330, BASE_Y + pos * Y_STEP)
+                sprites.append(w)
+            self._entry_words[idx] = sprites
+
+    def _find_initial(self, code):
+        """Return the INDICES letter whose entry bucket contains the given concept code.
+
+        @param code: Concept code to look up (e.g. ``"absorber"``).
+        @type code: str
+        @return: The matching INDICES letter, or an empty string if not found.
+        @rtype: str
+        """
+        for idx, words in self._entry_words.items():
+            for word in words:
+                if word.code == code:
+                    return idx
+        return ""
 
     def handleEvents(self, events):
         """
@@ -143,34 +166,18 @@ class Screen(screen.Screen):
 
     def indices(self, valor, palabra_negrita=""):
         """
-        Return the list of glossary entry word-sprite groups for the given letter, marking one entry as selected.
+        Return entry Word sprites for the given index letter, marking the selected concept.
 
-        @param valor: Uppercase letter used to select the index bucket.
+        @param valor: INDICES letter identifying the bucket (e.g. ``"A"``, ``"Cs"``).
         @type valor: str
-        @param palabra_negrita: Term code that should be rendered as selected (bold); empty string for none.
+        @param palabra_negrita: Concept code of the entry to mark as selected; empty for none.
         @type palabra_negrita: str
-        @return: Word sprite lists for each matching glossary entry.
+        @return: Word sprites for the matching entries.
         @rtype: list
         """
-        indices = {
-            "A": (self.a_absorber,),
-            "C": (self.c_celula, self.c_componentes),
-            "F": (self.f_fotosintesis,),
-            "G": (self.g_germinacion, self.g_germinar),
-            "M": (self.m_minerales,),
-            "N": (self.n_nutrientes,),
-            "O": (self.o_organo,),
-            "R": (self.a_asexual, self.s_sexual),
-            "T": (self.t_transformacion, self.t_transporte),
-        }
         palabras = []
-        if valor in indices:
-            tupla = indices[valor]
-            for i in tupla:
-                if i.words[0].code == palabra_negrita:
-                    i.words[0].selected = True
-                else:
-                    i.words[0].selected = False
-                    i.words[0].update(2)
-                palabras.append(i.words)
-            return palabras
+        for word in self._entry_words.get(valor, []):
+            word.selected = word.code == palabra_negrita
+            word.render()
+            palabras.append(word)
+        return palabras

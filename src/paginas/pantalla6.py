@@ -7,7 +7,6 @@ from components import screen
 from components.image import Image
 
 from paginas import pantalla5
-from paginas import pantalla10
 
 animations = [
     "animation-6",
@@ -146,7 +145,7 @@ class Screen(screen.Screen):
                         self.button_actions.get(self.x.id, lambda: None)()
                     elif self.x.obj_type == "word":
                         self.speech_server.processtext(
-                            self.parent.text_loader.concept(self.x.codigo),
+                            self.parent.text_loader.concept(self.x.code),
                             self.parent.config.is_screen_reader_enabled(),
                         )
 
@@ -154,7 +153,7 @@ class Screen(screen.Screen):
                 if pygame.sprite.spritecollideany(self.mouse, self.word_group):
                     sprite = pygame.sprite.spritecollide(self.mouse, self.word_group, False)
                     if sprite[0].interpretable:
-                        self.parent.show_concept(sprite[0].codigo)
+                        self.parent.show_concept(sprite[0].code)
                 elif pygame.sprite.spritecollideany(self.mouse, self.button_group):
                     sprite = pygame.sprite.spritecollide(self.mouse, self.button_group, False)
                     self.speech_server.stopserver()
@@ -229,5 +228,4 @@ class Screen(screen.Screen):
                 self.animation_6.continuar()
         self.elapsed_ms += self.frame_clock.get_time()
 
-    def go_to_glossary(self):
-        self.parent.pushState(pantalla10.Screen(self.parent))
+

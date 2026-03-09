@@ -8,19 +8,7 @@ from .events import EventHandler
 class Character(pygame.sprite.Sprite):
     """Keyboard-controlled character sprite with collision detection and frame animation."""
 
-    # pygame.mixer.init()
-    facing_left = False
-    busy = False
-    colliding = False
-    frames_right = {}
-    frames_left = {}
-    anim_time = 0
-    marker_code = 0
-    move_speed = 4
-    frame_index = 0
     misc_path = "../imagenes/png/varios/"
-    # sonido_choque = pygame.mixer.Sound("../audio/choque.ogg")
-    # sonido_caminar = pygame.mixer.Sound("../audio/pasos.ogg")
 
     def __init__(self, x, y, image, frames):
         """
@@ -36,41 +24,21 @@ class Character(pygame.sprite.Sprite):
         @type frames: int
         """
         pygame.sprite.Sprite.__init__(self)
-        self.image_paths = {
-            -1: self.misc_path + "0.png",
-            0: self.misc_path + "0.png",
-            1: self.misc_path + "1.png",
-            2: self.misc_path + "2.png",
-            3: self.misc_path + "3.png",
-            4: self.misc_path + "4.png",
-            5: self.misc_path + "5.png",
-            6: self.misc_path + "6.png",
-            7: self.misc_path + "7.png",
-            8: self.misc_path + "8.png",
-            9: self.misc_path + "9.png",
-            10: self.misc_path + "10.png",
-            11: self.misc_path + "11.png",
-            12: self.misc_path + "12.png",
-            13: self.misc_path + "13.png",
-            14: self.misc_path + "14.png",
-            15: self.misc_path + "15.png",
-            16: self.misc_path + "16.png",
-            17: self.misc_path + "17.png",
-            18: self.misc_path + "18.png",
-            19: self.misc_path + "19.png",
-            20: self.misc_path + "20.png",
-            21: self.misc_path + "21.png",
-            22: self.misc_path + "22.png",
-            23: self.misc_path + "23.png",
-            24: self.misc_path + "24.png",
-            25: self.misc_path + "25.png",
-            26: self.misc_path + "26.png",
-            27: self.misc_path + "27.png",
-            28: self.misc_path + "28.png",
-            29: self.misc_path + "29.png",
-            30: self.misc_path + "30.png",
-            31: self.misc_path + "31.png",
-        }
+
+        # Instance-level mutable state (previously class-level, causing shared-state bugs).
+        self.facing_left = False
+        self.busy = False
+        self.colliding = False
+        self.frames_right = {}
+        self.frames_left = {}
+        self.anim_time = 0
+        self.marker_code = 0
+        self.move_speed = 4
+        self.frame_index = 0
+
+        # Build the image-path lookup from a comprehension instead of a 34-line manual dict.
+        self.image_paths = {i: self.misc_path + f"{max(i, 0)}.png" for i in range(-1, 32)}
+
         self.pos_x = x
         self.pos_y = y
         self.anim_speed = 200
@@ -170,13 +138,12 @@ class Character(pygame.sprite.Sprite):
         """
         if not self.busy:
             if direction == "right":
-                if self.facing_left == True:
+                if self.facing_left:
                     self.pos_x = self.pos_x + (self.width / 4)
                 self.facing_left = False
                 self.image = self.img_right
-
-            if direction == "left":
-                if self.facing_left == False:
+            elif direction == "left":
+                if not self.facing_left:
                     self.pos_x = self.pos_x - (self.width / 4)
                 self.facing_left = True
                 self.image = self.img_left
@@ -191,25 +158,18 @@ class Character(pygame.sprite.Sprite):
         if not self.busy:
             if direction == "up":
                 self.pos_y -= self.get_animation_speed()
-                # self.sonido_caminar.play()
                 self.update_rects()
                 self.advance_frame()
-
-            if direction == "down":
+            elif direction == "down":
                 self.pos_y += self.get_animation_speed()
-                # self.sonido_caminar.play()
                 self.update_rects()
                 self.advance_frame()
-
-            if direction == "left":
+            elif direction == "left":
                 self.pos_x -= self.get_animation_speed()
-                # self.sonido_caminar.play()
                 self.update_rects()
                 self.advance_frame()
-
-            if direction == "right":
+            elif direction == "right":
                 self.pos_x += self.get_animation_speed()
-                # self.sonido_caminar.play()
                 self.update_rects()
                 self.advance_frame()
 
@@ -221,22 +181,10 @@ class Character(pygame.sprite.Sprite):
         @type direction: str
         """
         if pygame.sprite.spritecollideany(self, self.boundaries):
-            # self.sonido_caminar.set_volume(0)
-            # self.sonido_choque.play()
             self.colliding = True
-            if direction == "up":
-                reverse_dir = "down"
-            elif direction == "down":
-                reverse_dir = "up"
-            elif direction == "left":
-                reverse_dir = "right"
-            elif direction == "right":
-                reverse_dir = "left"
-            else:
-                reverse_dir = "none"
-            self.move(reverse_dir)
+            reverse = {"up": "down", "down": "up", "left": "right", "right": "left"}
+            self.move(reverse.get(direction, "none"))
         else:
-            # self.sonido_caminar.set_volume(100)
             self.colliding = False
 
     def update(self):
@@ -284,7 +232,6 @@ class Character(pygame.sprite.Sprite):
             if self.facing_left:
                 self.sub_rect = self.frames_left[self.frame_index]
             else:
-                self.rect.left + (self.width / 4)
                 self.sub_rect = self.frames_right[self.frame_index]
 
 

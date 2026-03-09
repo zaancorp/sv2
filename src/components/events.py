@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
-import sys
 import pygame
 
 
 class EventHandler:
-    """Event handler that collects pressed and held key states each frame."""
+    """Event handler that collects pressed and held key states each frame.
+
+    Used by Character to poll arrow-key held state within its own update().
+    QUIT and ESC are intentionally not handled here — those events are consumed
+    by the main game loop (inicio.py / Manejador.handleEvents) before
+    Character.update() is ever called, so handling them here would be dead code
+    and calling sys.exit() from a library component bypasses pygame's orderly
+    shutdown.
+    """
 
     def __init__(self):
         """Initialise the event handler with empty key and modifier state lists."""
@@ -17,11 +24,7 @@ class EventHandler:
         """Poll the pygame event queue and update the key and modifier states."""
         self.event = pygame.event.get()
         for event in self.event:
-            if event.type == pygame.QUIT:
-                sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    sys.exit()
                 if event.key not in self.keys:
                     self.keys.append(event.key)
             if event.type == pygame.KEYUP:
@@ -43,10 +46,7 @@ class EventHandler:
         @return: True if the key was pressed, False otherwise.
         @rtype: bool
         """
-        if key in self.keys:
-            return True
-        else:
-            return False
+        return key in self.keys
 
     def held(self, key):
         """
@@ -57,11 +57,7 @@ class EventHandler:
         @return: True if the key is held, False otherwise.
         @rtype: bool
         """
-
-        if self.keyspressed[key]:
-            return True
-        else:
-            return False
+        return bool(self.keyspressed[key])
 
     def modded(self, key):
         """
@@ -72,7 +68,4 @@ class EventHandler:
         @return: True if the modifier is active, False otherwise.
         @rtype: bool
         """
-        if self.mods & key:
-            return True
-        else:
-            return False
+        return bool(self.mods & key)

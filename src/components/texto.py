@@ -92,7 +92,6 @@ class Text(TextLayout):
         if self.text_type == "indice":
             for word in self.words:
                 if letter == word.text.strip():
-                    word.selected = True
                     word.highlight()
                 else:
                     word.restore()

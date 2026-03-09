@@ -4,6 +4,165 @@ Improvements applied so far, in reverse chronological order.
 
 ---
 
+### ✅ SV2-028 — `Speechserver` implemented using system TTS engine *(2026-03)*
+
+**Files changed:** `components/speechserver.py`
+
+All five methods were `pass` stubs. Replaced with a working implementation that dispatches to the best available system TTS command — no new Python dependencies required:
+
+- macOS: `say` (built-in, always available)
+- Linux: `espeak-ng` preferred, falls back to `espeak`; detected via `shutil.which`
+- Any other platform / no engine found: all calls remain silent no-ops, so the app keeps running
+
+Each utterance is launched via `subprocess.Popen` (non-blocking) so speech never stalls the game loop. `_stop_proc()` terminates the current process before starting a new one when `processtext(..., continuar=True)` is called. `processtext2` only speaks when the engine is idle. `repetir()` re-speaks `_last_text`. `quitserver()` terminates any running process.
+
+`update_server` now accepts an optional `rate_key` (`"baja"` / `"media"` / `"rapida"`) mapped to words-per-minute values (`80` / `150` / `220`) passed to `say -r` or `espeak -s`. The default is `"media"`. The previous zero-argument call signature still works (no-op if `rate_key` is `None`), preserving backward compatibility with existing callers.
+
+---
+
+### ✅ SV2-058 — `Magnifier.magnificar()`: triplicated clamping+blit block extracted into `_sample_surface` *(2026-03)*
+
+**Files changed:** `components/magnifier.py`
+
+The 10-line clamping-and-blit block (Surface allocation, 4 clamp guards, `ampliador.blit(...)`) was copy-pasted verbatim across all three `if self.escala == N:` branches. The only difference per branch was the scale transform applied afterward. Extracted `_sample_surface(self, surface, x, y)` which: clamps `x` and `y` to `[half_w, cxp - half_w]` and `[half_h, cyp - half_h]` using `min(max(...))`, allocates `self.ampliador`, and blits the sample region. `magnificar()` now calls `_sample_surface` once then chooses only the scale step: `escala == 1` → `sup_final = ampliador`; `escala == 2` → `scale2x` + `smoothscale`; `escala == 3` → `scale2x` × 2 + `smoothscale`. Method reduced from ~85 lines to ~18.
+
+Note: the `escala == 1` branch originally blitted with `self.w`/`self.h` instead of `self.w/zoom`/`self.h/zoom`. When `escala == 1` the clamped zoom is always 1, so the values are equal — the unified form uses `w/zoom` throughout without behavior change.
+
+---
+
+### ✅ SV2-057 — `PopUp.__init__`: three layout branches extracted into `_init_layout_N` methods *(2026-03)*
+
+**Files changed:** `components/popups.py`
+
+`PopUp.__init__` was ~170 lines because three independent `if layout_type == N:` blocks shared almost no code. Changes:
+
+- Extracted `_init_layout_0`, `_init_layout_1`, `_init_layout_2` private methods; `__init__` dispatches with `if/elif/elif` (was three independent `if` checks).
+- The common background PNG (`cuadropop-up.png`) was loaded twice in layouts 0 and 1, and once in layout 2 — all loading the same file. Moved the single load to `__init__`; the methods receive `self.sprite.image` and `self.sprite.rect` already populated.
+- `self.text_content = Surface` (line 61 in the old code) assigned the `pygame.Surface` *class* as a sentinel — `None` is the correct unset sentinel.
+- `self.activo` changed from `int` (0/1) to `bool` (`False`/`True`); `add_to_group`/`remove_from_group` updated accordingly; `popup_estatus()` simplified to `return self.activo`.
+- `type(images) != Surface` → `not isinstance(images, Surface)` in layout 0.
+- Duplicate `self.parent = parent` assignment removed from inside the layout 0 block.
+
+---
+
+### ✅ SV2-056 — `RenderAnim` / `RenderButton`: duplicate `draw()` loops unified via `_RenderFramed` mixin *(2026-03)*
+
+**Files changed:** `components/animations.py`, `components/button.py`
+
+`RenderAnim.draw()` and `RenderButton.draw()` were near-identical except that `RenderButton` blitted `spr.current_image` while `RenderAnim` blitted `spr.image`. Root cause: `Button` stored its active frame in `current_image` instead of the standard sprite attribute `image`.
+
+- Renamed `Button.current_image` → `Button.image` throughout `button.py` (all internal assignments and the `RenderButton.draw()` blit).
+- Extracted a `_RenderFramed` mixin in `animations.py` that provides the shared `draw()` loop: blit `spr.image` at `spr.rect`, then call `spr.next()`.
+- `RenderAnim` now inherits `(_RenderFramed, pygame.sprite.Group)`.
+- `RenderButton` now inherits `(_RenderFramed, OrderedUpdates)` — preserves draw-order semantics and inherits `draw()` from the mixin, eliminating its own body.
+
+`RenderChar` (in `character.py`) blits a sub-rect at `(pos_x, pos_y)` — a legitimately different blit signature — and is unchanged.
+
+---
+
+### ✅ SV2-055 — `screen.py`: four `load_*` methods unified via `_load_asset` helper *(2026-03)*
+
+**Files changed:** `components/screen.py`
+
+`load_animations`, `load_buttons`, `load_banners`, and `load_images` all followed the same pattern: look up a spec by asset ID, unpack fields, call a constructor, then `setattr(self, id.replace("-","_"), result)`. The `setattr` + name-mangling lines were repeated in every method.
+
+Added `_load_asset(self, registry, asset_id, factory)` which performs the registry lookup, derives the attribute name, calls `factory(spec)`, and binds the result. Each `load_*` method is now a loop over `_load_asset` calls with a one-expression lambda factory. The `load_background` method (single item, stores as `self.background`) is unchanged.
+
+---
+
+### ✅ SV2-065 — `words.py` domain logic removed from `_tokenize`; `button.py` `TextButton` path fixed *(2026-03)*
+
+**Files changed:** `components/words.py`, `components/button.py`
+
+`_tokenize` contained a hard-coded skip for the Spanish token `"reproducción"` in all non-`active_text` rendering modes. This is application-domain logic embedded in a generic tokenizer utility, making it untestable in isolation and coupling it to the current Spanish vocabulary. The skip clause (`if token.lower() == "reproducción" and text_type != "active_text": continue`) has been removed; the docstring updated to drop the mention. Whether a word is clickable is already governed by `Word.ENTRIES` — if the token is not in the glossary it is simply rendered as plain text.
+
+`TextButton.__init__` hardcoded `misc_path = "../imagenes/png/varios/"` — a path that is only valid if Python's working directory is `src/components/`, which is never the case when the app is launched via `poetry run python src/inicio.py`. Changed to `"./imagenes/png/varios/"` to match every other asset path in the codebase.
+
+---
+
+### ✅ SV2-063 — `textbox.py`: unused `eventlist`, `self.x` dual-use, size branches, digit map all fixed *(2026-03)*
+
+**Files changed:** `components/textbox.py`
+
+- Removed `self.eventlist` — a 38-entry list built in `__init__` and never read.
+- Renamed `self.x` (blink-timer accumulator) to `self._blink_elapsed` to eliminate the collision with the positional `set_x()` method, which would have silently corrupted the cursor-blink timer if ever called. Both `set_x()` and `set_y()` were confirmed unused and removed entirely.
+- Collapsed three identical `if size == "high" / "medium" / "low"` branches (each loading the same PNG) into one unconditional load.
+- Fixed the asset path from `"../imagenes/png/varios/"` to `"./imagenes/png/varios/"` to match every other asset path in the codebase (relative to `src/`, not `src/components/`).
+- Replaced the 10-branch manual digit map (`elif key_input == 48: self.chars.append("0")` …) with `elif isinstance(key_input, int) and 48 <= key_input <= 57: self.chars.append(chr(key_input))`.
+- `render()`: replaced a character-by-character `for` loop building `chars_str` with `"".join(self.chars)`.
+
+---
+
+### ✅ SV2-061 — `character.py`: class-level mutable state; bare `if` chains; `image_paths` dict; dead expression *(2026-03)*
+
+**Files changed:** `components/character.py`
+
+- Moved all class-level mutable attributes (`facing_left`, `busy`, `colliding`, `frames_right`, `frames_left`, `anim_time`, `marker_code`, `move_speed`, `frame_index`) to `__init__` as instance attributes. Previously every `Character` instance shared the same dict objects, so creating a second character would overwrite the first's computed frame rects.
+- `image_paths`: replaced a 34-line manually spelled-out dict with `{i: self.misc_path + f"{max(i, 0)}.png" for i in range(-1, 32)}`.
+- `set_direction()` and `move()`: changed independent `if` / `if` / `if` / `if` chains to `if` / `elif` / `elif` / `elif` — only one direction can be active at a time.
+- `check_collisions()`: replaced 4-branch `if/elif` reverse-direction lookup with a `reverse` dict and `reverse.get(direction, "none")`.
+- `advance_frame()`: removed dead expression `self.rect.left + (self.width / 4)` — computed and discarded.
+
+---
+
+### ✅ SV2-060 — `PropObject` fixed to call `super().__init__()`; `GameObject._original` added *(2026-03)*
+
+**Files changed:** `components/object.py`
+
+`PropObject.__init__` duplicated the entire `GameObject.__init__` body (loading the image, building the rect) instead of calling `super().__init__()`. Replaced with `super().__init__(x, y, imagen, name)` followed by only the `PropObject`-specific `self.aumento` assignment. Also added `self.name = name` and `self._original = self.image.copy()` to `GameObject.__init__`, which fixes the latent `AttributeError` that `GameObject.resize()` would raise — it reads `self._original` but the attribute was never set in `GameObject`, only in `Image`.
+
+---
+
+### ✅ SV2-059 — `Marker` and `Boundary` merged into `CollidableZone` *(2026-03)*
+
+**Files changed:** `components/collidable_zone.py` *(new)*, `components/marker.py`, `components/boundary.py`
+
+`marker.py` and `boundary.py` were byte-for-byte identical except for their class name and docstring. A single `CollidableZone` class now lives in `components/collidable_zone.py`. Both `marker.py` and `boundary.py` are reduced to one-liner backwards-compatible re-exports (`from .collidable_zone import CollidableZone as Marker/Boundary`) so `actividad1.py` continues to work without changes.
+
+---
+
+### ✅ SV2-064 — `events.py` `sys.exit()` removed; verbose bool returns simplified *(2026-03)*
+
+**Files changed:** `components/events.py`, `components/textbox.py`, `components/popups.py`
+
+`EventHandler.update()` called `sys.exit()` on both `pygame.QUIT` and `K_ESCAPE`. This is incorrect for a library component: it bypasses pygame's shutdown sequence and is also dead code, because the main loop drains the event queue before `Character.update()` (which calls `EventHandler.update()`) ever runs. Both `sys.exit()` calls and the now-unused `import sys` removed. The `pressed()`, `held()`, and `modded()` methods all returned `True if condition else False`; simplified to `return key in self.keys`, `return bool(...)`. The same verbose pattern in `textbox.check_answer()`, `has_min_length()`, `is_empty()`, and `popups.popup_estatus()` simplified in the same pass.
+
+---
+
+### ✅ SV2-062 — `counter.py` debug `print()` removed; class-level mutable state moved to instance *(2026-03)*
+
+**Files changed:** `components/counter.py`
+
+`tick()` contained `print(self.elapsed)` — a debug statement that would spam stdout if `Counter` were ever used. Removed. `started`, `done`, and `elapsed` were class-level attributes; mutating them through an instance shadow-creates instance attributes only after first write, so two un-started `Counter` objects would share the same initial boolean state. All three moved to `__init__` as instance attributes.
+
+---
+
+### ✅ SV2-055 (partial) — `screen.py` `collect_*` comprehension abuse and `handle_magnifier` bool tests fixed *(2026-03)*
+
+**Files changed:** `components/screen.py`
+
+`collect_words`, `collect_buttons`, and `collect_masks` used list comprehensions purely for `append` side-effects — allocating and discarding a list on every call. Replaced with direct list comprehensions / `list()`. `handle_magnifier` compared `magnifier_active == False` / `== True`; replaced with `not` / bare truthiness. The remaining SV2-055 item (unifying the five `load_*` methods) stays open.
+
+---
+
+### ✅ SV2-067 — Dead `go_to_glossary()` methods and dead `"repe"` button checks removed *(2026-03)*
+
+**Files changed:** `paginas/pantalla3.py`, `paginas/pantalla4.py`, `paginas/pantalla5.py`, `paginas/pantalla6.py`, `paginas/pantalla8.py`, `paginas/pantalla9.py`
+
+`go_to_glossary()` was defined in all six content screens but never called by any event handler, keyboard handler, or button. The accompanying `from paginas import pantalla10` import was therefore also dead. All six method definitions and their imports removed.
+
+In three screens (`pantalla3`, `pantalla4`, `pantalla8`) the mouse-click handler for the button group had a dead `if sprite[0].id == "repe":` branch — `"repe"` appears in neither the screen's `buttons` list nor in `assets_data.py`, so the branch was permanently unreachable. Each `if/else` collapsed to its `else` body: `self.button_actions.get(sprite[0].id, lambda: None)()`.
+
+---
+
+### ✅ SV2-066 — `Word.codigo` → `Word.code` rename not applied to content screens *(2026-03)*
+
+**Files changed:** `paginas/pantalla3.py`, `paginas/pantalla4.py`, `paginas/pantalla5.py`, `paginas/pantalla6.py`, `paginas/pantalla8.py`
+
+The `Word` attribute was renamed from `codigo` to `code` as part of the SV2-016 API modernisation. `pantalla10` (the glossary screen) was updated at the time, but five content screens that also access `Word.codigo` — both in the keyboard-navigation RETURN branch (`self.x.codigo`) and in the mouse-click branch (`sprite[0].codigo`) — were missed. The crash manifested as `AttributeError: 'Word' object has no attribute 'codigo'` as soon as any clickable glossary word was activated in those screens. All nine occurrences replaced with `.code`.
+
+---
+
 ### ✅ SV2-054 — Restore intro popups behind a user-configurable toggle *(2026-03)*
 
 **Files changed:** `components/configuration.py`, `components/assets_data.py`, `paginas/text/content-es.json`, `paginas/text/content-hu.json`, `paginas/menugeneral.py`, `paginas/menucfg.py`, `paginas/pantalla2.py`
